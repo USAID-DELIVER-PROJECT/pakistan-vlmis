@@ -1,0 +1,346 @@
+<?php
+$sel_prov = $this->province;
+$sel_dist = $this->district;
+$sel_tehsil = $this->tehsil;
+$wh_type = $this->wh_type;
+?>
+
+<div class="page-content-wrapper">
+    <div class="page-content">
+        <h3 class="page-title"><?php echo $this->translate($this->main_heading) ?></h3>
+        <div class="innerLR">
+            <table width="99%">
+                <tr>
+                    <td colspan="2">
+                        <?php echo $this->render('inventory-management/reports-header.phtml') ?>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <?php
+        echo App_Controller_Functions::getPageNarrative(Zend_Registry::get('resource'));
+        ?>
+        <div class="row pull-right">
+            <div class="col-md-12">
+                <ul class="nav navbar-nav report-tab ">
+                    <li>
+                        <span>Legends:</span>
+                    </li>
+                    <li> 0-15 days
+                        <div style='display:inline-block;width:10px; height:11px; background-color:#44B6AE; margin-left:5px;'></div>
+                    </li>
+                    <li> 15-30 days
+                        <div style='display:inline-block;width:10px; height:11px; background-color:#578EBE; margin-left:5px;'></div>
+                    </li>
+                    <li> more than 30 days
+                        <div style='display:inline-block;width:10px; height:11px; background-color:#E35B5A; margin-left:5px;'></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="portlet box green" style="border-top:1px solid #77e588;">
+            <div class="portlet-body">
+                <?php if ($this->data && count($this->data) > 0) : ?>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3>Federal Stores</h3>
+                            <?php
+                            if ($this->data && count($this->data) > 0) :
+                                $counter = 0;
+                                foreach ($this->data as $row):
+                                    $start = $row['transactionDate'];
+                                    $end = date('Y-m-d');
+                                    $diff = (strtotime($end) - strtotime($start)) / 24 / 3600;
+                                    $diff_total = round($diff);
+                                    if ($diff_total < 15) {
+                                        $status = 'dashboard-stat green-haze';
+                                    } else if ($diff_total > 15 && $diff_total < 30) {
+                                        $status = 'dashboard-stat blue-madison';
+                                    } else if ($diff_total > 30) {
+                                        $status = 'dashboard-stat red-intense';
+                                    }
+
+                                    $date = date_create($row['transactionDate']);
+                                    if ($counter % 6 == 0) {
+                                        ?>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <?php
+                                    }
+                                    ?>
+                                    <div class="col-lg-2 col-md-2">
+                                        <div class="<?php echo $status; ?>">
+                                            <div class="visual">
+                                                <i class=""></i>
+                                            </div>
+                                            <div class="details">
+                                                <div class="number" style="color:#fff; font-size:11px; padding-left: 1px;" >
+                                                    <?php echo $row['warehouse_name']; ?>
+                                                </div>
+                                                <div class="desc" style="font-size:10px; padding-left: 20px;">
+
+                                                    <?php
+                                                    if ($row['transaction_type_id'] == 1) {
+                                                        ?>
+
+                                                        (<a style="color:#fff; font-size:11px; padding-left: 1px;" onclick="window.open('<?php echo $this->baseUrl(); ?>/stock/print-receive-shipment?id=<?php echo $row['pk_id']; ?>&warehouse_id=<?php echo $row['wh_id']; ?>', '_blank', 'scrollbars=1,width=860,height=595');" href="javascript:void(0);">                                                      
+                                                            <?php
+                                                            echo "Last Receive:" . date_format($date, 'jS F Y');
+                                                            ?>
+                                                        </a> )
+                                                        <?php
+                                                    } else if ($row['transaction_type_id'] == 2) {
+                                                        ?>
+                                                        (
+                                                        <a style="color:#fff; font-size:11px; padding-left: 1px;" onclick="window.open('<?php echo $this->baseUrl(); ?>/stock/print-issue-shipment?id=<?php echo $row['pk_id']; ?>&warehouse_id=<?php echo $row['wh_from_id']; ?>', '_blank', 'scrollbars=1,width=860,height=595');" href="javascript:void(0);">
+                                                            <?php
+                                                            echo "Last Issue:" . date_format($date, 'jS F Y');
+                                                            ?>
+                                                        </a> )
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                    <?php
+                                    $counter++;
+                                endforeach;
+                            endif;
+                            ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+                <?php if ($this->data1 && count($this->data1) > 0) : ?>
+                    <div class="row">
+                        <div class="col-md-12">  
+                            <br>
+                            <h3>Provincial Stores</h3>
+                            <?php
+                            if ($this->data1 && count($this->data1) > 0) :
+                                $counter = 0;
+                                foreach ($this->data1 as $row):
+                                    $start = $row['transactionDate'];
+                                    $end = date('Y-m-d');
+                                    $diff = (strtotime($end) - strtotime($start)) / 24 / 3600;
+                                    $diff_total = round($diff);
+                                    if ($diff_total < 15) {
+                                        $status = 'dashboard-stat green-haze';
+                                    } else if ($diff_total > 15 && $diff_total < 30) {
+                                        $status = 'dashboard-stat blue-madison';
+                                    } else if ($diff_total > 30) {
+                                        $status = 'dashboard-stat red-intense';
+                                    }
+                                    $date1 = date_create($row['transactionDate']);
+                                    if ($counter % 6 == 0) {
+                                        ?>
+                                    </div></div><br/><div class="row"><div class="col-md-12">
+                                        <?php
+                                    }
+                                    ?>
+                                    <div class="col-lg-2 col-md-2">
+                                        <div class="<?php echo $status; ?>">
+                                            <div class="visual">
+                                                <i class=""></i>
+                                            </div>
+                                            <div class="details">
+                                                <div class="number" style="color:#fff; font-size:11px; padding-left: 1px;">
+                                                    <?php echo $row['warehouse_name']; ?>
+
+                                                </div>
+                                                <div class="desc" style="font-size:10px; padding-left: 20px;">
+
+                                                    <?php
+                                                    if ($row['transaction_type_id'] == 1) {
+                                                        ?>
+                                                        (    
+                                                        <a style="color:#fff; font-size:11px; padding-left: 1px;" onclick="window.open('<?php echo $this->baseUrl(); ?>/stock/print-receive-shipment?id=<?php echo $row['pk_id']; ?>&warehouse_id=<?php echo $row['wh_id']; ?>', '_blank', 'scrollbars=1,width=860,height=595');" href="javascript:void(0);">                                                      
+                                                            <?php
+                                                            echo "Last Receive:" . date_format($date1, 'jS F Y');
+                                                            ?>
+                                                        </a> )
+                                                        <?php
+                                                    } else if ($row['transaction_type_id'] == 2) {
+                                                        ?>
+                                                        (
+                                                        <a style="color:#fff; font-size:11px; padding-left: 1px;" onclick="window.open('<?php echo $this->baseUrl(); ?>/stock/print-issue-shipment?id=<?php echo $row['pk_id']; ?>&warehouse_id=<?php echo $row['wh_from_id']; ?>', '_blank', 'scrollbars=1,width=860,height=595');" href="javascript:void(0);">
+                                                            <?php
+                                                            echo "Last Issue:" . date_format($date1, 'jS F Y');
+                                                            ?>
+                                                        </a> )
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                    <?php
+                                    $counter++;
+                                endforeach;
+                            endif;
+                            ?>    
+                        </div>
+                    </div>   
+                <?php endif; ?>
+                <?php if ($this->data2 && count($this->data2) > 0) : ?>
+                    <div class="row">
+                        <div class="col-md-12">  
+                            <br>
+                            <h3>District Stores</h3>
+                            <?php
+                            if ($this->data2 && count($this->data2) > 0) :
+                                $counter = 0;
+                                foreach ($this->data2 as $row):
+                                    $start = $row['transactionDate'];
+                                    $end = date('Y-m-d');
+                                    $diff = (strtotime($end) - strtotime($start)) / 24 / 3600;
+                                    $diff_total = round($diff);
+                                    if ($diff_total < 15) {
+                                        $status = 'dashboard-stat green-haze';
+                                    } else if ($diff_total > 15 && $diff_total < 30) {
+                                        $status = 'dashboard-stat blue-madison';
+                                    } else if ($diff_total > 30) {
+                                        $status = 'dashboard-stat red-intense';
+                                    }
+                                    $date2 = date_create($row['transactionDate']);
+                                    if ($counter % 6 == 0) {
+                                        ?>
+                                    </div></div><br/><div class="row"><div class="col-md-12">
+                                        <?php
+                                    }
+                                    ?>
+                                    <div class="col-lg-2 col-md-2">
+                                        <div class="<?php echo $status; ?>">
+                                            <div class="visual">
+                                                <i class=""></i>
+                                            </div>
+                                            <div class="details">
+                                                <div class="number" style="color:#fff; font-size:11px; padding-left: 1px;">
+                                                    <?php echo $row['warehouse_name']; ?>
+
+                                                </div>
+                                                <div class="desc" style="font-size:10px; padding-left: 20px;">
+
+                                                    <?php
+                                                    if ($row['transaction_type_id'] == 1) {
+                                                        ?>
+
+                                                        (<a style="color:#fff; font-size:11px; padding-left: 1px;" onclick="window.open('<?php echo $this->baseUrl(); ?>/stock/print-receive-shipment?id=<?php echo $row['pk_id']; ?>&warehouse_id=<?php echo $row['wh_id']; ?>', '_blank', 'scrollbars=1,width=860,height=595');" href="javascript:void(0);">                                                      
+                                                            <?php
+                                                            echo "Last Receive:" . date_format($date2, 'jS F Y');
+                                                            ?>
+                                                        </a> )
+                                                        <?php
+                                                    } else if ($row['transaction_type_id'] == 2) {
+                                                        ?>
+                                                        (
+                                                        <a style="color:#fff; font-size:11px; padding-left: 1px;" onclick="window.open('<?php echo $this->baseUrl(); ?>/stock/print-issue-shipment?id=<?php echo $row['pk_id']; ?>&warehouse_id=<?php echo $row['wh_from_id']; ?>', '_blank', 'scrollbars=1,width=860,height=595');" href="javascript:void(0);">
+                                                            <?php
+                                                            echo "Last Issue:" . date_format($date2, 'jS F Y');
+                                                            ?>
+                                                        </a> )
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                    <?php
+                                    $counter++;
+                                endforeach;
+                            endif;
+                            ?>                 
+                        </div>
+                    </div>
+                <?php endif; ?>
+                <?php if ($this->data3 && count($this->data3) > 0) : ?>
+                    <div class="row">
+                        <div class="col-md-12">  
+                            <br>
+                            <h3>Tehsil Stores</h3>
+                            <?php
+                            if ($this->data3 && count($this->data3) > 0) :
+                                $counter = 0;
+                                foreach ($this->data3 as $row):
+                                    $start = $row['transactionDate'];
+                                    $end = date('Y-m-d');
+                                    $diff = (strtotime($end) - strtotime($start)) / 24 / 3600;
+                                    $diff_total = round($diff);
+                                    if ($diff_total < 15) {
+                                        $status = 'dashboard-stat green-haze';
+                                    } else if ($diff_total > 15 && $diff_total < 30) {
+                                        $status = 'dashboard-stat blue-madison';
+                                    } else if ($diff_total > 30) {
+                                        $status = 'dashboard-stat red-intense';
+                                    }
+                                    $date3 = date_create($row['transactionDate']);
+                                    if ($counter % 6 == 0) {
+                                        ?>
+                                    </div></div><br/><div class="row"><div class="col-md-12">
+                                        <?php
+                                    }
+                                    ?>
+                                    <div class="col-lg-2 col-md-2">
+                                        <div class="<?php echo $status; ?>">
+                                            <div class="visual">
+                                                <i class=""></i>
+                                            </div>
+                                            <div class="details">
+                                                <div class="number" style="color:#fff; font-size:11px; padding-left: 1px;">
+
+                                                    <?php echo $row['warehouse_name']; ?>
+
+                                                </div>
+                                                <div class="desc" style="font-size:10px; padding-left: 20px;">
+
+                                                    <?php
+                                                    if ($row['transaction_type_id'] == 1) {
+                                                        ?>
+                                                        (<a style="color:#fff; font-size:11px; padding-left: 1px;" onclick="window.open('<?php echo $this->baseUrl(); ?>/stock/print-receive-shipment?id=<?php echo $row['pk_id']; ?>&warehouse_id=<?php echo $row['wh_id']; ?>', '_blank', 'scrollbars=1,width=860,height=595');" href="javascript:void(0);">                                                      
+                                                            <?php
+                                                            echo "Last Receive:" . date_format($date3, 'jS F Y');
+                                                            ?>
+                                                        </a> )
+                                                        <?php
+                                                    } else if ($row['transaction_type_id'] == 2) {
+                                                        ?>
+                                                        (
+                                                        <a style="color:#fff; font-size:11px; padding-left: 1px;" onclick="window.open('<?php echo $this->baseUrl(); ?>/stock/print-issue-shipment?id=<?php echo $row['pk_id']; ?>&warehouse_id=<?php echo $row['wh_from_id']; ?>', '_blank', 'scrollbars=1,width=860,height=595');" href="javascript:void(0);">
+                                                            <?php
+                                                            echo "Last Issue:" . date_format($date3, 'jS F Y');
+                                                            ?>
+                                                        </a> )
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                    <?php
+                                    $counter++;
+                                endforeach;
+                            endif;
+                            ?>                 
+                        </div>
+                    </div>   
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<script>
+    var whType = <?php echo $wh_type; ?>;
+    var province = <?php echo $sel_prov; ?>;
+    var district = <?php echo $sel_dist; ?>;
+    var tehsil = <?php echo $sel_tehsil; ?>;
+</script>

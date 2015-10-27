@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows>
+	<row>
+		<cell>Federal</cell>
+		<cell>Provincial vaccine store</cell>
+		<cell>1</cell>
+		<cell>93496970</cell>
+		<cell>93496970</cell>
+		<cell>93496970</cell>
+	</row>
+	<row>
+		<cell>Federal</cell>
+		<cell>District/Agency vaccine store</cell>
+		<cell>8</cell>
+		<cell>1549719</cell>
+		<cell>9000000</cell>
+		<cell>4168523</cell>
+	</row>
+	<row>
+		<cell>Federal</cell>
+		<cell>DHQ hospital</cell>
+		<cell>8</cell>
+		<cell>19000</cell>
+		<cell>420000</cell>
+		<cell>108003</cell>
+	</row>
+	<row>
+		<cell>Federal</cell>
+		<cell>Teaching hospital</cell>
+		<cell>12</cell>
+		<cell>1100</cell>
+		<cell>140050</cell>
+		<cell>33596</cell>
+	</row>
+	<row>
+		<cell>Federal</cell>
+		<cell>Hospital - Private</cell>
+		<cell>15</cell>
+		<cell>123</cell>
+		<cell>109804</cell>
+		<cell>42658</cell>
+	</row>
+	<row>
+		<cell>Federal</cell>
+		<cell>Rural health centre</cell>
+		<cell>67</cell>
+		<cell>4500</cell>
+		<cell>87364</cell>
+		<cell>38497</cell>
+	</row>
+	<row>
+		<cell>Federal</cell>
+		<cell>Basic Health Unit</cell>
+		<cell>399</cell>
+		<cell>1116</cell>
+		<cell>1067632</cell>
+		<cell>31664</cell>
+	</row>
+	<row>
+		<cell>Federal</cell>
+		<cell>Dispensary</cell>
+		<cell>62</cell>
+		<cell>6136</cell>
+		<cell>810824</cell>
+		<cell>50379</cell>
+	</row>
+	<row>
+		<cell>Federal</cell>
+		<cell>Tehsil/Town vaccine store</cell>
+		<cell>7</cell>
+		<cell>72000</cell>
+		<cell>829295</cell>
+		<cell>297003</cell>
+	</row>
+	<row>
+		<cell>Federal</cell>
+		<cell>Others</cell>
+		<cell>91</cell>
+		<cell>2006</cell>
+		<cell>86720</cell>
+		<cell>37246</cell>
+	</row>
+	<row>
+		<cell>Federal</cell>
+		<cell>Civil Hospital CH</cell>
+		<cell>1</cell>
+		<cell>103534</cell>
+		<cell>103534</cell>
+		<cell>103534</cell>
+	</row>
+	<row>
+		<cell>Federal</cell>
+		<cell>MCH Center</cell>
+		<cell>4</cell>
+		<cell>8717</cell>
+		<cell>85000</cell>
+		<cell>37500</cell>
+	</row>
+	<row>
+		<cell>Federal</cell>
+		<cell>Tehsil/Taluka HQ Hospital</cell>
+		<cell>4</cell>
+		<cell>1476</cell>
+		<cell>204288</cell>
+		<cell>100664</cell>
+	</row>
+</rows>

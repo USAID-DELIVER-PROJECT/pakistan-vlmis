@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows>
+	<row id="1">
+		<cell>IPV</cell>
+		<cell>0</cell>
+		<cell>UNK</cell>
+		<cell>400,000</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#000000;"></div>]]></cell>
+		<cell>UNK</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="2">
+		<cell>bOPV</cell>
+		<cell>328,975</cell>
+		<cell>168,229.0</cell>
+		<cell>46,656,450</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>277.3</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="3">
+		<cell>bOPV (IHR)</cell>
+		<cell>32,085</cell>
+		<cell>15,216.7</cell>
+		<cell>3,887,180</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>255.5</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="4">
+		<cell>mOPV1</cell>
+		<cell>34,752</cell>
+		<cell>216,661.0</cell>
+		<cell>13,579,600</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>62.7</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="5">
+		<cell>tOPV</cell>
+		<cell>792,234</cell>
+		<cell>755,401.3</cell>
+		<cell>25,707,094</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>34.0</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="6">
+		<cell>tOPV (Campaign)</cell>
+		<cell>664,625</cell>
+		<cell>225,331.3</cell>
+		<cell>20,743,610</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>92.1</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="7">
+		<cell>tOPV (IHR)</cell>
+		<cell>36</cell>
+		<cell>952.7</cell>
+		<cell>280</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#000000;"></div>]]></cell>
+		<cell>0.3</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="8">
+		<cell>BCG-20</cell>
+		<cell>240,113</cell>
+		<cell>246,047.0</cell>
+		<cell>5,754,979</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>23.4</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="9">
+		<cell>Pentavalent-1</cell>
+		<cell>516,086</cell>
+		<cell>522,744.3</cell>
+		<cell>11,038,060</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>21.1</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="10">
+		<cell>Pneumococcal-2 (PCV10)</cell>
+		<cell>508,759</cell>
+		<cell>500,561.0</cell>
+		<cell>8,899,961</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>17.8</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="11">
+		<cell>Measles-10</cell>
+		<cell>349,192</cell>
+		<cell>342,304.7</cell>
+		<cell>11,063,655</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>32.3</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="12">
+		<cell>Measles-10 (Campaign)</cell>
+		<cell>2,673</cell>
+		<cell>3,694.3</cell>
+		<cell>28,517,935</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>7,719.4</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="13">
+		<cell>TT-10</cell>
+		<cell>69,169</cell>
+		<cell>95,210.0</cell>
+		<cell>744,982</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>7.8</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="14">
+		<cell>TT-20</cell>
+		<cell>206,112</cell>
+		<cell>207,034.3</cell>
+		<cell>1,014,744</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#008000;"></div>]]></cell>
+		<cell>4.9</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="15">
+		<cell>TT-20 (Campaign)</cell>
+		<cell>4,120</cell>
+		<cell>1,886.3</cell>
+		<cell>687,657</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>364.5</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="16">
+		<cell>AD Syringe 0.05ml </cell>
+		<cell>282,556</cell>
+		<cell>286,276.7</cell>
+		<cell>2,098,965</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>7.3</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="17">
+		<cell>AD Syringe 0.5ml </cell>
+		<cell>1,401,862</cell>
+		<cell>1,439,424.7</cell>
+		<cell>9,156,847</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>6.4</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="18">
+		<cell>Recon. Syr 2ml</cell>
+		<cell>18,882</cell>
+		<cell>20,203.3</cell>
+		<cell>187,854</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>9.3</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="19">
+		<cell>Recon. Syr 5ml</cell>
+		<cell>37,046</cell>
+		<cell>39,128.0</cell>
+		<cell>1,116,113</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>28.5</cell>
+		<cell>0.0</cell>
+	</row>
+	<row id="20">
+		<cell>Safety Box</cell>
+		<cell>15,409</cell>
+		<cell>15,807.7</cell>
+		<cell>192,643</cell>
+		<cell><![CDATA[<div style="width:10px; height:12px; background-color:#6BCEFF;"></div>]]></cell>
+		<cell>12.2</cell>
+		<cell>0.0</cell>
+	</row>
+</rows>

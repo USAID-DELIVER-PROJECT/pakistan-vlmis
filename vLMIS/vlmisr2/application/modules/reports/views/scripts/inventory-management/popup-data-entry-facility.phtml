@@ -1,0 +1,206 @@
+<?php
+$do = $this->param;
+
+$temp = $do;
+$previous_selected = $temp;
+
+$temp = base64_decode(substr($temp, 1, strlen($temp) - 1));
+$temp = explode("|", $temp);
+
+
+//****************************************************************************
+$wh_id = $temp[0]; // Warehouse ID
+$loc_id = $temp[1]; // Warehouse ID
+$RptDate = $temp[2]; //Report Date
+$isNewRpt = $temp[3]; //if value = 1 then new report
+$tt = explode("-", $RptDate);
+$yy = $tt[0]; //Reprot year
+$mm = $tt[1];        //report Month
+
+
+if ($mm == '1')
+    $month = "Jan";
+if ($mm == '2')
+    $month = "Feb";
+if ($mm == '3')
+    $month = "Mar";
+if ($mm == '4')
+    $month = "Apr";
+if ($mm == '5')
+    $month = "May";
+if ($mm == '6')
+    $month = "Jun";
+if ($mm == '7')
+    $month = "Jul";
+if ($mm == '8')
+    $month = "Aug";
+if ($mm == '9')
+    $month = "Sep";
+if ($mm == '10')
+    $month = "Oct";
+if ($mm == '11')
+    $month = "Nov";
+if ($mm == '12')
+    $month = "Dec";
+
+//****************************************************************************
+$query_stakeholder = $this->reports()->getStakeholderByWarehouseId($wh_id);
+
+$stkid = $query_stakeholder['0']['stakeholder_id'];
+
+if ($isNewRpt == 1) {
+
+    $PrevMonthDate = $this->reports()->getPreviousMonthReportDate($RptDate);
+} else {
+    $PrevMonthDate = $RptDate;
+}
+
+$reports = $this->reports()->getMonthYearByWHID($wh_id);
+$wh_lvl_query = $this->reports()->GetWarehouseLevelById($wh_id);
+$wh_lvl = $wh_lvl_query['0']['geo_level_id'];
+?>
+
+<div class="widget">
+    <!-- Widget heading -->
+    <div class="widget-head">
+        <h4 class="heading">
+            Monthly Consumption Report (<?php echo $month . "-" . $yy; ?>)
+        </h4>
+    </div>
+    <!-- // Widget heading END -->
+
+    <div class="widget-body">
+        <div class="span12">
+            <!-- Table -->
+            <table class="table table-striped table-bordered table-condensed">
+                <!-- Table heading -->
+                <thead>
+                    <tr>
+                        <th class="span1">
+                            Product
+                        </th>
+                        <th class="span2">
+                            Opening Balance
+                        </th>
+                        <th class="span1">
+                            Received
+                        </th>
+                        <th class="span1">
+                            <?php echo ( $wh_lvl == 6 ) ? "Dispensed" : "Issued"; ?>	
+                        </th>
+                        <th class="span1">
+                            <?php echo ( $wh_lvl == 6 ) ? "Vials Used" : "Adjustment +"; ?>	
+                        </th>
+                        <th class="span1">
+                            <?php echo ( $wh_lvl == 6 ) ? "Unusable Vials" : "Adjustment -"; ?>
+                        </th>
+                        <th class="span2">
+                            Closing Balance
+                        </th>
+                        <?php if ($wh_lvl == 6) { ?>
+                            <th class="span1">
+                                Nearest Expiry
+                            </th>
+                        <?php } ?>
+                    </tr>
+                    <tr>
+                        <td class="span1">&nbsp;</td>
+                        <td class="span1">
+                            Doses
+                        </td>
+                        <td class="span1">
+                            Doses
+                        </td>
+                        <td class="span1">
+                            Doses
+                        </td>
+                        <td class="span1">
+                            Vials
+                        </td>
+                        <td class="span1">
+                            Vials
+                        </td>
+                        <td class="span1">
+                            Doses
+                        </td>
+                        <?php if ($wh_lvl == 6) { ?>
+                            <td class="span1">&nbsp;</td>
+                        <?php } ?>
+                    </tr>
+                </thead>
+                <!-- // Table heading END -->
+                <!-- Table body -->
+                <tbody>
+                    <!-- Table row -->
+                    <?php
+                    $strSql_iteminfotab = $this->reports()->getMonthlyReceiveQuantity($mm, $yy, $wh_id, $stkid);
+
+                    $SlNo = 1;
+                    $fldIndex = 0;
+                    //  $ItemTableName = $TableName;
+                    foreach ($strSql_iteminfotab as $rsRow1) {
+                        $SlNo = ((strlen($SlNo) < 2) ? "0" . $SlNo : $SlNo);
+                        $itemid = $rsRow1['itm_id'];
+
+                        $qry = $this->reports()->getPopUpData($wh_id, $PrevMonthDate, $itemid);
+                        // $qry = "SELECT * FROM tbl_wh_data WHERE `wh_id`='" . $wh_id . "' AND RptDate='" . $PrevMonthDate . "' AND `item_id`='$rsRow1[itm_id]'";
+
+                        $rsRow2 = $qry;
+
+                        $itemid = $rsRow1['itm_id'];
+                        if (!empty($rsRow2[0]['nearest_expiry'])) {
+                            $n_expiry = $rsRow2['0']['nearest_expiry'];
+                        } else {
+                            $n_expiry = '';
+                        }
+                        ?>
+
+                        <?php
+                        if ($isNewRpt == 2) {
+                            ?>
+                            <tr class="gradeX">
+                                <td class="span1">
+                                    <?php echo $rsRow1['itm_name']; ?>
+                                </td>
+                                <td style="text-align:right;">
+                                    <?php echo (!empty($rsRow2[0]['opening_balance'])) ? number_format($rsRow2[0]['opening_balance']) : '0'; ?>
+                                </td>
+                                <td class="span1" style="text-align:right;">
+                                    <?php echo (!empty($rsRow2[0]['received_balance'])) ? number_format($rsRow2[0]['received_balance']) : '0'; ?>
+                                </td>
+                                <td class="span1" style="text-align:right;">
+                                    <?php echo (!empty($rsRow2[0]['issue_balance'])) ? number_format($rsRow2[0]['issue_balance']) : '0'; ?>
+                                </td>
+                                <td class="span1" style="text-align:right;">
+                                    <?php echo (!empty($rsRow2[0]['vials_used'])) ? number_format($rsRow2[0]['vials_used']) : '0'; ?>
+                                </td>
+                                <td class="span1" style="text-align:right;">
+                                    <?php echo (!empty($rsRow2[0]['adjustments'])) ? number_format(abs($rsRow2[0]['adjustments']) / $rsRow1['number_of_doses']) : '0'; ?>
+                                </td>
+                                <td class="span1" style="text-align:right;">
+                                    <?php echo (!empty($rsRow2[0]['closing_balance'])) ? number_format($rsRow2[0]['closing_balance']) : '0'; ?>
+                                </td>
+                                <?php if ($wh_lvl == 6) { ?>
+                                    <td class="span1" style="text-align:center;">
+                                        <?php echo (!empty($n_expiry)) ? $n_expiry : '&nbsp;'; ?>
+                                    </td>
+                                <?php } ?>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+
+                    <?php }
+                    ?>
+                    <!-- // Table row END -->
+                </tbody>
+                <!-- // Table body END -->
+            </table>
+            <!-- // Table END -->
+
+        </div>
+        <div style="clear:both;"></div>
+    </div>
+</div> 
+
+

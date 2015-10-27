@@ -1,0 +1,62 @@
+StockDetail:
+  type: entity
+  table: stock_detail
+  fields:
+    pkId:
+      id: true
+      type: integer
+      unsigned: false
+      nullable: false
+      column: pk_id
+      generator:
+        strategy: IDENTITY
+    quantity:
+      type: bigint
+      nullable: true
+    temporary:
+      type: boolean
+      nullable: true
+    vvmStage:
+      type: string
+      length: 100
+      fixed: false
+      nullable: true
+      column: vvm_stage
+    isReceived:
+      type: integer
+      unsigned: false
+      nullable: true
+      column: is_received
+    adjustmentType:
+      type: boolean
+      nullable: true
+      column: adjustment_type
+  oneToOne:
+    itemUnit:
+      targetEntity: ItemUnits
+      cascade: {  }
+      mappedBy: null
+      inversedBy: null
+      joinColumns:
+        item_unit_id:
+          referencedColumnName: pk_id
+      orphanRemoval: false
+    stockBatch:
+      targetEntity: StockBatch
+      cascade: {  }
+      mappedBy: null
+      inversedBy: null
+      joinColumns:
+        stock_batch_id:
+          referencedColumnName: pk_id
+      orphanRemoval: false
+    stockMaster:
+      targetEntity: StockMaster
+      cascade: {  }
+      mappedBy: null
+      inversedBy: null
+      joinColumns:
+        stock_master_id:
+          referencedColumnName: pk_id
+      orphanRemoval: false
+  lifecycleCallbacks: {  }

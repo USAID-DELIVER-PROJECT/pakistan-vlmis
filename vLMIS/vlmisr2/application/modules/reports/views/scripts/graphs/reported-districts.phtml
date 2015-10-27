@@ -1,0 +1,53 @@
+<?php
+
+$varArr = $this->param;
+
+$distName = $varArr[0];
+$startDate = $varArr[1];
+$endDate = $varArr[2];
+$distId = $varArr[3];
+ $total = $varArr[4];
+$indId = $varArr[5];
+
+if ($indId == 1) {
+
+    $ind = "By UC";
+    $qry = $this->reports()->reportedDistrictsByUcGraphs($distId);
+} else if ($indId == 2) {
+    $ind = "By User";
+    $qry = $this->reports()->reportedDistrictsByUserGraphs($distId);
+} else if ($indId == 3) {
+    $ind = "By Facility";
+    $qry = $this->reports()->reportedDistrictsByFacilityGraphs($distId);
+}
+
+$begin = new DateTime($startDate);
+$end = new DateTime($endDate);
+$diff = $begin->diff($end);
+$totalMonths = (($diff->format('%y') * 12) + $diff->format('%m')) + 1; // +1 to include the current Month
+$interval = DateInterval::createFromDateString('1 month');
+$period = new DatePeriod($begin, $interval, $end);
+
+$fileSaveName = $distName . ' ' . $ind . ' ' . $begin->format('M Y') . " to " . $end->format('M Y');
+?>
+
+
+<?php
+
+$base_url = $this->baseUrl();
+# lineColor='8E9D51'
+$xmlstore = "<chart exportFileName='$fileSaveName' labelPadding='3' canvasPadding='30' exportEnabled='1' exportAction='Download' caption='$distName Yearly Consumption Data Reporting Status ($ind)' subCaption='' yAxisName='Percentage' xAxisName='" . $begin->format('M Y') . " to " . $end->format('M Y') . "' numberSuffix='%' showValues='1' formatNumberScale='0'>";
+foreach ($period as $date) {
+
+    $qryRes = $this->reports()->reportedDistrictsGraphs($qry, $date->format("m"), $date->format("Y"));
+
+// $qryRes = mysql_fetch_array(mysql_query($newQry));
+    $reported = round(($qryRes[0]['reported'] / $total) * 100);
+    $xmlstore .= "<set label='" . $date->format("M") . "' value='" . $reported . "' />";
+}
+$xmlstore .= "</chart>";
+
+
+// Call chart function to plot graph
+echo renderChart($this->baseUrl() . "/FusionCharts/Charts/Line.swf", "", $xmlstore, "abc", 900, 450, false, false);
+?>

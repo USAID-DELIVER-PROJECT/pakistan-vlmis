@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows>
+	<row>
+		<cell>IPV</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">IPV</cell>
+	</row>
+	<row>
+		<cell>bOPV</cell>
+		<cell style="text-align:right">24,093.7</cell>
+		<cell style="text-align:right">51,528.0</cell>
+		<cell style="text-align:right">103,421.0</cell>
+		<cell style="text-align:right">564.7</cell>
+		<cell style="text-align:right">562.7</cell>
+		<cell style="text-align:right">38,621.0</cell>
+		<cell style="text-align:right">bOPV</cell>
+	</row>
+	<row>
+		<cell>bOPV (IHR)</cell>
+		<cell style="text-align:right">12,183.7</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">1,489.0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">bOPV (IHR)</cell>
+	</row>
+	<row>
+		<cell>mOPV1</cell>
+		<cell style="text-align:right">16,568.7</cell>
+		<cell style="text-align:right">64,867.3</cell>
+		<cell style="text-align:right">97,617.3</cell>
+		<cell style="text-align:right">108,793.0</cell>
+		<cell style="text-align:right">2,659.0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">mOPV1</cell>
+	</row>
+	<row>
+		<cell>tOPV</cell>
+		<cell style="text-align:right">493,814.0</cell>
+		<cell style="text-align:right">110,038.7</cell>
+		<cell style="text-align:right">75,582.3</cell>
+		<cell style="text-align:right">10,632.0</cell>
+		<cell style="text-align:right">7,375.0</cell>
+		<cell style="text-align:right">10,831.7</cell>
+		<cell style="text-align:right">tOPV</cell>
+	</row>
+	<row>
+		<cell>tOPV (Campaign)</cell>
+		<cell style="text-align:right">76,525.0</cell>
+		<cell style="text-align:right">75,694.0</cell>
+		<cell style="text-align:right">38,818.0</cell>
+		<cell style="text-align:right">1,898.7</cell>
+		<cell style="text-align:right">106.0</cell>
+		<cell style="text-align:right">49,000.0</cell>
+		<cell style="text-align:right">tOPV (Campaign)</cell>
+	</row>
+	<row>
+		<cell>tOPV (IHR)</cell>
+		<cell style="text-align:right">113.7</cell>
+		<cell style="text-align:right">128.0</cell>
+		<cell style="text-align:right">962.0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">tOPV (IHR)</cell>
+	</row>
+	<row>
+		<cell>DIL-BCG-20</cell>
+		<cell style="text-align:right">831.7</cell>
+		<cell style="text-align:right">32.0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">69.0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">DIL-BCG-20</cell>
+	</row>
+	<row>
+		<cell>BCG-20</cell>
+		<cell style="text-align:right">161,227.0</cell>
+		<cell style="text-align:right">37,300.3</cell>
+		<cell style="text-align:right">20,533.3</cell>
+		<cell style="text-align:right">4,828.0</cell>
+		<cell style="text-align:right">2,708.7</cell>
+		<cell style="text-align:right">3,701.3</cell>
+		<cell style="text-align:right">BCG-20</cell>
+	</row>
+	<row>
+		<cell>Pentavalent-1</cell>
+		<cell style="text-align:right">348,105.7</cell>
+		<cell style="text-align:right">79,149.3</cell>
+		<cell style="text-align:right">40,467.3</cell>
+		<cell style="text-align:right">10,243.0</cell>
+		<cell style="text-align:right">5,969.3</cell>
+		<cell style="text-align:right">7,178.7</cell>
+		<cell style="text-align:right">Pentavalent-1</cell>
+	</row>
+	<row>
+		<cell>Pneumococcal-2 (PCV10)</cell>
+		<cell style="text-align:right">343,872.0</cell>
+		<cell style="text-align:right">78,738.7</cell>
+		<cell style="text-align:right">38,710.0</cell>
+		<cell style="text-align:right">2,130.7</cell>
+		<cell style="text-align:right">625.0</cell>
+		<cell style="text-align:right">6,993.3</cell>
+		<cell style="text-align:right">Pneumococcal-2 (PCV10)</cell>
+	</row>
+	<row>
+		<cell>Measles-10</cell>
+		<cell style="text-align:right">240,229.7</cell>
+		<cell style="text-align:right">45,985.0</cell>
+		<cell style="text-align:right">21,139.3</cell>
+		<cell style="text-align:right">4,673.7</cell>
+		<cell style="text-align:right">3,696.0</cell>
+		<cell style="text-align:right">4,321.7</cell>
+		<cell style="text-align:right">Measles-10</cell>
+	</row>
+	<row>
+		<cell>DIL-Measles-10</cell>
+		<cell style="text-align:right">200.5</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">217.5</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">DIL-Measles-10</cell>
+	</row>
+	<row>
+		<cell>Measles-10 (Campaign)</cell>
+		<cell style="text-align:right">758.7</cell>
+		<cell style="text-align:right">581.7</cell>
+		<cell style="text-align:right">1,166.3</cell>
+		<cell style="text-align:right">68.0</cell>
+		<cell style="text-align:right">1,168.0</cell>
+		<cell style="text-align:right">64.0</cell>
+		<cell style="text-align:right">Measles-10 (Campaign)</cell>
+	</row>
+	<row>
+		<cell>DIL-Measles-10 (Campaign)</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">DIL-Measles-10 (Campaign)</cell>
+	</row>
+	<row>
+		<cell>TT-10</cell>
+		<cell style="text-align:right">70,218.0</cell>
+		<cell style="text-align:right">16,164.3</cell>
+		<cell style="text-align:right">71.7</cell>
+		<cell style="text-align:right">3,084.0</cell>
+		<cell style="text-align:right">453.3</cell>
+		<cell style="text-align:right">360.0</cell>
+		<cell style="text-align:right">TT-10</cell>
+	</row>
+	<row>
+		<cell>TT-20</cell>
+		<cell style="text-align:right">116,539.0</cell>
+		<cell style="text-align:right">41,026.3</cell>
+		<cell style="text-align:right">26,487.3</cell>
+		<cell style="text-align:right">3,963.7</cell>
+		<cell style="text-align:right">4,650.7</cell>
+		<cell style="text-align:right">1,749.7</cell>
+		<cell style="text-align:right">TT-20</cell>
+	</row>
+	<row>
+		<cell>TT-20 (Campaign)</cell>
+		<cell style="text-align:right">756.0</cell>
+		<cell style="text-align:right">120.3</cell>
+		<cell style="text-align:right">1,082.0</cell>
+		<cell style="text-align:right">114.0</cell>
+		<cell style="text-align:right">59.0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">TT-20 (Campaign)</cell>
+	</row>
+	<row>
+		<cell>AD Syringe 0.05ml </cell>
+		<cell style="text-align:right">186,223.7</cell>
+		<cell style="text-align:right">48,398.7</cell>
+		<cell style="text-align:right">24,040.3</cell>
+		<cell style="text-align:right">3,069.7</cell>
+		<cell style="text-align:right">3,234.3</cell>
+		<cell style="text-align:right">4,079.7</cell>
+		<cell style="text-align:right">AD Syringe 0.05ml </cell>
+	</row>
+	<row>
+		<cell>AD Syringe 0.5ml </cell>
+		<cell style="text-align:right">1,004,698.0</cell>
+		<cell style="text-align:right">188,225.3</cell>
+		<cell style="text-align:right">124,819.0</cell>
+		<cell style="text-align:right">14,912.0</cell>
+		<cell style="text-align:right">14,400.3</cell>
+		<cell style="text-align:right">19,940.3</cell>
+		<cell style="text-align:right">AD Syringe 0.5ml </cell>
+	</row>
+	<row>
+		<cell>Recon. Syr 5ml</cell>
+		<cell style="text-align:right">25,051.3</cell>
+		<cell style="text-align:right">5,378.0</cell>
+		<cell style="text-align:right">2,944.0</cell>
+		<cell style="text-align:right">425.0</cell>
+		<cell style="text-align:right">457.7</cell>
+		<cell style="text-align:right">517.7</cell>
+		<cell style="text-align:right">Recon. Syr 5ml</cell>
+	</row>
+	<row>
+		<cell>Recon. Syr 2ml</cell>
+		<cell style="text-align:right">13,247.3</cell>
+		<cell style="text-align:right">2,128.3</cell>
+		<cell style="text-align:right">1,225.0</cell>
+		<cell style="text-align:right">355.7</cell>
+		<cell style="text-align:right">229.7</cell>
+		<cell style="text-align:right">281.0</cell>
+		<cell style="text-align:right">Recon. Syr 2ml</cell>
+	</row>
+	<row>
+		<cell>Safety Box</cell>
+		<cell style="text-align:right">10,941.3</cell>
+		<cell style="text-align:right">2,471.7</cell>
+		<cell style="text-align:right">1,123.3</cell>
+		<cell style="text-align:right">187.0</cell>
+		<cell style="text-align:right">143.3</cell>
+		<cell style="text-align:right">184.7</cell>
+		<cell style="text-align:right">Safety Box</cell>
+	</row>
+</rows>

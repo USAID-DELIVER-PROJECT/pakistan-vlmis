@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows>
+	<row>
+		<cell>IPV</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+	</row>
+	<row>
+		<cell>bOPV</cell>
+		<cell style="text-align:right">654,600</cell>
+		<cell style="text-align:right">140,694</cell>
+		<cell style="text-align:right">96,217</cell>
+		<cell style="text-align:right">564,179</cell>
+		<cell style="text-align:right">700,015</cell>
+		<cell style="text-align:right">233,108</cell>
+		<cell style="text-align:right">291,980</cell>
+		<cell style="text-align:right">39,563</cell>
+		<cell style="text-align:right">201,440</cell>
+		<cell style="text-align:right">915</cell>
+		<cell style="text-align:right">42,420</cell>
+		<cell style="text-align:right">28,946</cell>
+	</row>
+	<row>
+		<cell>bOPV (IHR)</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">7,650</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">13,385</cell>
+		<cell style="text-align:right">15,516</cell>
+	</row>
+	<row>
+		<cell>mOPV1</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">807</cell>
+		<cell style="text-align:right">3,750</cell>
+		<cell style="text-align:right">80</cell>
+		<cell style="text-align:right">40</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">460</cell>
+		<cell style="text-align:right">8,200</cell>
+		<cell style="text-align:right">374</cell>
+		<cell style="text-align:right">24,506</cell>
+		<cell style="text-align:right">15,160</cell>
+		<cell style="text-align:right">10,040</cell>
+	</row>
+	<row>
+		<cell>tOPV</cell>
+		<cell style="text-align:right">930,640</cell>
+		<cell style="text-align:right">553,173</cell>
+		<cell style="text-align:right">526,302</cell>
+		<cell style="text-align:right">528,058</cell>
+		<cell style="text-align:right">516,978</cell>
+		<cell style="text-align:right">594,845</cell>
+		<cell style="text-align:right">542,313</cell>
+		<cell style="text-align:right">529,722</cell>
+		<cell style="text-align:right">503,823</cell>
+		<cell style="text-align:right">484,875</cell>
+		<cell style="text-align:right">513,361</cell>
+		<cell style="text-align:right">483,206</cell>
+	</row>
+	<row>
+		<cell>tOPV (Campaign)</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">17,138</cell>
+		<cell style="text-align:right">8,174</cell>
+		<cell style="text-align:right">36,779</cell>
+		<cell style="text-align:right">42,934</cell>
+		<cell style="text-align:right">623,843</cell>
+		<cell style="text-align:right">37,064</cell>
+		<cell style="text-align:right">441,174</cell>
+		<cell style="text-align:right">1,152</cell>
+		<cell style="text-align:right">1,371</cell>
+		<cell style="text-align:right">1,930</cell>
+		<cell style="text-align:right">226,274</cell>
+	</row>
+	<row>
+		<cell>tOPV (IHR)</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">50</cell>
+		<cell style="text-align:right">35</cell>
+		<cell style="text-align:right">60</cell>
+		<cell style="text-align:right">113</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">88</cell>
+		<cell style="text-align:right">93</cell>
+		<cell style="text-align:right">160</cell>
+		<cell style="text-align:right">0</cell>
+	</row>
+	<row>
+		<cell>BCG-20</cell>
+		<cell style="text-align:right">341,920</cell>
+		<cell style="text-align:right">179,322</cell>
+		<cell style="text-align:right">166,230</cell>
+		<cell style="text-align:right">159,667</cell>
+		<cell style="text-align:right">156,524</cell>
+		<cell style="text-align:right">161,144</cell>
+		<cell style="text-align:right">149,608</cell>
+		<cell style="text-align:right">151,787</cell>
+		<cell style="text-align:right">156,565</cell>
+		<cell style="text-align:right">154,697</cell>
+		<cell style="text-align:right">178,401</cell>
+		<cell style="text-align:right">150,583</cell>
+	</row>
+	<row>
+		<cell>Pentavalent-1</cell>
+		<cell style="text-align:right">477,134</cell>
+		<cell style="text-align:right">405,690</cell>
+		<cell style="text-align:right">404,131</cell>
+		<cell style="text-align:right">390,999</cell>
+		<cell style="text-align:right">385,989</cell>
+		<cell style="text-align:right">409,697</cell>
+		<cell style="text-align:right">418,370</cell>
+		<cell style="text-align:right">396,796</cell>
+		<cell style="text-align:right">382,190</cell>
+		<cell style="text-align:right">345,520</cell>
+		<cell style="text-align:right">365,657</cell>
+		<cell style="text-align:right">333,140</cell>
+	</row>
+	<row>
+		<cell>Pneumococcal-2 (PCV10)</cell>
+		<cell style="text-align:right">398,311</cell>
+		<cell style="text-align:right">403,723</cell>
+		<cell style="text-align:right">398,965</cell>
+		<cell style="text-align:right">388,904</cell>
+		<cell style="text-align:right">379,233</cell>
+		<cell style="text-align:right">406,685</cell>
+		<cell style="text-align:right">417,408</cell>
+		<cell style="text-align:right">397,591</cell>
+		<cell style="text-align:right">382,417</cell>
+		<cell style="text-align:right">332,919</cell>
+		<cell style="text-align:right">364,931</cell>
+		<cell style="text-align:right">333,766</cell>
+	</row>
+	<row>
+		<cell>Measles-10</cell>
+		<cell style="text-align:right">235,460</cell>
+		<cell style="text-align:right">250,237</cell>
+		<cell style="text-align:right">238,247</cell>
+		<cell style="text-align:right">225,804</cell>
+		<cell style="text-align:right">224,603</cell>
+		<cell style="text-align:right">240,451</cell>
+		<cell style="text-align:right">306,873</cell>
+		<cell style="text-align:right">264,983</cell>
+		<cell style="text-align:right">269,302</cell>
+		<cell style="text-align:right">236,342</cell>
+		<cell style="text-align:right">248,513</cell>
+		<cell style="text-align:right">235,834</cell>
+	</row>
+	<row>
+		<cell>Measles-10 (Campaign)</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">1,401</cell>
+		<cell style="text-align:right">1,249</cell>
+		<cell style="text-align:right">1,172</cell>
+		<cell style="text-align:right">885</cell>
+		<cell style="text-align:right">799</cell>
+		<cell style="text-align:right">1,046</cell>
+		<cell style="text-align:right">912</cell>
+		<cell style="text-align:right">110</cell>
+		<cell style="text-align:right">626</cell>
+		<cell style="text-align:right">60</cell>
+		<cell style="text-align:right">1,590</cell>
+	</row>
+	<row>
+		<cell>TT-10</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">855</cell>
+		<cell style="text-align:right">1,250</cell>
+		<cell style="text-align:right">568</cell>
+		<cell style="text-align:right">559</cell>
+		<cell style="text-align:right">1,267</cell>
+		<cell style="text-align:right">1,367</cell>
+		<cell style="text-align:right">49,309</cell>
+		<cell style="text-align:right">100,002</cell>
+		<cell style="text-align:right">90,111</cell>
+		<cell style="text-align:right">81,155</cell>
+		<cell style="text-align:right">39,388</cell>
+	</row>
+	<row>
+		<cell>TT-20</cell>
+		<cell style="text-align:right">405,700</cell>
+		<cell style="text-align:right">231,798</cell>
+		<cell style="text-align:right">211,698</cell>
+		<cell style="text-align:right">202,369</cell>
+		<cell style="text-align:right">204,692</cell>
+		<cell style="text-align:right">218,930</cell>
+		<cell style="text-align:right">230,509</cell>
+		<cell style="text-align:right">199,026</cell>
+		<cell style="text-align:right">134,904</cell>
+		<cell style="text-align:right">113,726</cell>
+		<cell style="text-align:right">117,336</cell>
+		<cell style="text-align:right">118,555</cell>
+	</row>
+	<row>
+		<cell>TT-20 (Campaign)</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">1,553</cell>
+		<cell style="text-align:right">1,091</cell>
+		<cell style="text-align:right">760</cell>
+		<cell style="text-align:right">591</cell>
+		<cell style="text-align:right">958</cell>
+		<cell style="text-align:right">645</cell>
+		<cell style="text-align:right">97</cell>
+		<cell style="text-align:right">183</cell>
+		<cell style="text-align:right">484</cell>
+		<cell style="text-align:right">849</cell>
+		<cell style="text-align:right">935</cell>
+	</row>
+	<row>
+		<cell>AD Syringe 0.05ml </cell>
+		<cell style="text-align:right">166,393</cell>
+		<cell style="text-align:right">171,303</cell>
+		<cell style="text-align:right">169,679</cell>
+		<cell style="text-align:right">163,638</cell>
+		<cell style="text-align:right">162,210</cell>
+		<cell style="text-align:right">172,149</cell>
+		<cell style="text-align:right">166,432</cell>
+		<cell style="text-align:right">271,214</cell>
+		<cell style="text-align:right">218,615</cell>
+		<cell style="text-align:right">190,443</cell>
+		<cell style="text-align:right">197,937</cell>
+		<cell style="text-align:right">170,291</cell>
+	</row>
+	<row>
+		<cell>AD Syringe 0.5ml </cell>
+		<cell style="text-align:right">1,234,322</cell>
+		<cell style="text-align:right">1,093,754</cell>
+		<cell style="text-align:right">1,032,051</cell>
+		<cell style="text-align:right">994,662</cell>
+		<cell style="text-align:right">1,058,775</cell>
+		<cell style="text-align:right">1,143,727</cell>
+		<cell style="text-align:right">1,240,030</cell>
+		<cell style="text-align:right">1,084,920</cell>
+		<cell style="text-align:right">1,128,357</cell>
+		<cell style="text-align:right">1,010,886</cell>
+		<cell style="text-align:right">1,069,593</cell>
+		<cell style="text-align:right">933,615</cell>
+	</row>
+	<row>
+		<cell>Recon. Syr 2ml</cell>
+		<cell style="text-align:right">18,727</cell>
+		<cell style="text-align:right">10,784</cell>
+		<cell style="text-align:right">11,080</cell>
+		<cell style="text-align:right">11,734</cell>
+		<cell style="text-align:right">12,264</cell>
+		<cell style="text-align:right">14,416</cell>
+		<cell style="text-align:right">12,226</cell>
+		<cell style="text-align:right">14,219</cell>
+		<cell style="text-align:right">13,483</cell>
+		<cell style="text-align:right">14,347</cell>
+		<cell style="text-align:right">13,813</cell>
+		<cell style="text-align:right">11,582</cell>
+	</row>
+	<row>
+		<cell>Recon. Syr 5ml</cell>
+		<cell style="text-align:right">60,444</cell>
+		<cell style="text-align:right">23,415</cell>
+		<cell style="text-align:right">22,646</cell>
+		<cell style="text-align:right">21,987</cell>
+		<cell style="text-align:right">24,862</cell>
+		<cell style="text-align:right">26,301</cell>
+		<cell style="text-align:right">30,778</cell>
+		<cell style="text-align:right">28,271</cell>
+		<cell style="text-align:right">28,838</cell>
+		<cell style="text-align:right">26,899</cell>
+		<cell style="text-align:right">25,299</cell>
+		<cell style="text-align:right">22,956</cell>
+	</row>
+	<row>
+		<cell>Safety Box</cell>
+		<cell style="text-align:right">12,078</cell>
+		<cell style="text-align:right">11,171</cell>
+		<cell style="text-align:right">10,884</cell>
+		<cell style="text-align:right">10,393</cell>
+		<cell style="text-align:right">11,088</cell>
+		<cell style="text-align:right">11,563</cell>
+		<cell style="text-align:right">12,076</cell>
+		<cell style="text-align:right">12,098</cell>
+		<cell style="text-align:right">12,073</cell>
+		<cell style="text-align:right">11,294</cell>
+		<cell style="text-align:right">11,429</cell>
+		<cell style="text-align:right">10,101</cell>
+	</row>
+</rows>

@@ -1,0 +1,112 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet box green">
+            <div class="portlet-title">
+                <div class="caption">
+                    <?php echo $this->translate("Monthly Consumption Report"); ?> (<?php echo $this->month . "-" . $this->year; ?>) - Last Reporting date : <?php echo $this->modified_date; ?>
+                </div>
+                <div class="tools">
+                    <a href="javascript:;" class="collapse">
+                    </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="monthlyConsumption table table-striped table-bordered table-hover dataTable no-footer">
+                            <!-- Table heading -->
+                            <thead>
+                                <tr style="background-color: lightgray">
+                                    <th class="col-md-1">
+                                        <?php echo $this->translate("Product") ?>
+                                    </th>
+                                    <th class="col-md-1">
+                                        <?php echo $this->translate("Opening Balance") ?><br><?php echo $this->translate("Doses Pcs") ?>
+                                    </th>
+                                    <th class="col-md-1">
+                                        <?php echo $this->translate("Received") ?><br><?php echo $this->translate("Doses Pcs") ?>
+                                    </th>
+                                    <th class="col-md-1" style="background-color: #1fc70c;">
+                                        <?php echo $this->translate("Dispensed") ?><br><?php echo $this->translate("Doses Pcs") ?>
+                                    </th>
+                                    <th class="col-md-1" style="background-color:#e1f20d;">
+                                        <?php echo $this->translate("Vials Used") ?><br><?php echo $this->translate("Vials Pcs") ?>
+                                    </th>
+                                    <th class="col-md-1" style="background-color: #e1f20d;">
+                                        <?php echo $this->translate("Unusable Vials") ?><br><?php echo $this->translate("Vials Pcs") ?>
+                                    </th>
+                                    <th class="col-md-1">
+                                        <?php echo $this->translate("Closing Balance") ?><br><?php echo $this->translate("Doses Pcs") ?>
+                                    </th>
+                                    <th class="col-md-1">
+                                        <?php echo $this->translate("Nearest Expiry") ?>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <!-- // Table heading END -->
+                            <!-- Table body -->
+                            <tbody>
+                                <!-- Table row -->
+                                <?php
+                                foreach ($this->items as $row1):
+                                    $row2 = $this->monthlyConsumtion($this->wh_id, $this->rpt_date, $row1['pk_id']);
+
+                                    $itemid = $row1['pk_id'];
+                                    if ($row1['item_category_id'] == 2) {
+                                        $vialsFunc = "onblur=\"getValue(this.value, '$row1[pk_id]')\"";
+                                        $style = 'readonly="readonly"';
+                                    } else {
+                                        $vialsFunc = '';
+                                        $style = '';
+                                    }
+
+                                    if (!empty($row2['nearestExpiry'])) {
+                                        $n_expiry = App_Controller_Functions::dateToUserFormat($row2['nearestExpiry']);
+                                    } else {
+                                        $n_expiry = '';
+                                    }
+                                    ?>
+                                    <tr class="gradeX">
+                                        <td class="col-md-1" style="width: 200px;">
+                                            <?php echo $row1['item_name']; ?>
+                                        </td>
+                                        <td style="width: 120px;">
+                                            <?php echo (!empty($row2['openingBalance'])) ? $row2['openingBalance'] : '0'; ?>
+                                        </td>
+                                        <td class="col-md-1" style="width: 120px;">
+                                            <?php echo (!empty($row2['receivedBalance'])) ? number_format($row2['receivedBalance']) : '0'; ?>
+                                        </td>
+                                        <td class="col-md-1" style="background-color:#1fc70c; width: 120px;">
+                                            <?php echo (!empty($row2['issueBalance'])) ? $row2['issueBalance'] : '0'; ?>
+                                        </td>
+                                        <td class="col-md-1" style="background-color: #e1f20d; width: 120px;">
+                                            <?php echo (!empty($row2['vialsUsed'])) ? $row2['vialsUsed'] : '0'; ?>
+                                        </td>
+                                        <td class="col-md-1" style="background-color: #e1f20d; width: 180px;">
+                                            <?php echo (!empty($row2['adjustments'])) ? abs($row2['adjustments']) / $row1['description'] : '0'; ?>
+                                        </td>
+                                        <td class="col-md-1" style="width: 120px; width: 150px;">
+                                            <?php echo (!empty($row2['closingBalance'])) ? $row2['closingBalance'] : '0'; ?>
+                                        </td>
+                                        <td class="col-md-1" style="width: 150px;">
+                                            <?php echo (!empty($n_expiry)) ? $n_expiry : '&nbsp;'; ?>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                endforeach;
+                                //
+                                //exit;
+                                ?>
+                                <!-- // Table row END -->
+                            </tbody>
+                            <!-- // Table body END -->
+                        </table>
+                        <div class="right">
+                            <button class="btn btn-warning input-sm" id="print-monthly-consumption" type="button">Print</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

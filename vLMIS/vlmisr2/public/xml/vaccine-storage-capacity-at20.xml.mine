@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows>
+	<row>
+		<cell>Khyber Pakhtunkhwa</cell>
+		<cell>Charsadda</cell>
+		<cell>THQ Tangi</cell>
+		<cell>DHQ hospital</cell>
+		<cell>0.00</cell>
+		<cell>0.00</cell>
+		<cell>0.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Punjab</cell>
+		<cell>Rajanpur</cell>
+		<cell>DHQ Rajanpur</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Balochistan</cell>
+		<cell>Pishin</cell>
+		<cell>DHQ Pishin</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Sindh</cell>
+		<cell>Hyderabad</cell>
+		<cell>Shah Bhittai Hospita UC-5</cell>
+		<cell>DHQ hospital</cell>
+		<cell></cell>
+		<cell>0.00</cell>
+		<cell></cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Balochistan</cell>
+		<cell>Quetta</cell>
+		<cell>Civil Hospital Quetta</cell>
+		<cell>DHQ hospital</cell>
+		<cell></cell>
+		<cell>0.00</cell>
+		<cell></cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>FATA</cell>
+		<cell>Upper Kurram Agency</cell>
+		<cell>THQ Alizai</cell>
+		<cell>DHQ hospital</cell>
+		<cell>20.00</cell>
+		<cell>0.00</cell>
+		<cell>20.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>FATA</cell>
+		<cell>Bajaur Agency</cell>
+		<cell>AHQ Hospital Khar</cell>
+		<cell>DHQ hospital</cell>
+		<cell>30.00</cell>
+		<cell>0.00</cell>
+		<cell>30.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>FATA</cell>
+		<cell>Mohmand Agency</cell>
+		<cell>AHQ Ghallanai </cell>
+		<cell>DHQ hospital</cell>
+		<cell></cell>
+		<cell>0.00</cell>
+		<cell></cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Sindh</cell>
+		<cell>Hyderabad</cell>
+		<cell>GH Qasimabad UC-3</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>FATA</cell>
+		<cell>SW Agency</cell>
+		<cell>AHQ Hospital Wana</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Balochistan</cell>
+		<cell>Jaffarabad</cell>
+		<cell>EPI Center L.H D.A. Yar-III</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Sindh</cell>
+		<cell>Larkana</cell>
+		<cell>THQ Rato Dero</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Punjab</cell>
+		<cell>Multan</cell>
+		<cell>CMC Women Lohari Gate</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Punjab</cell>
+		<cell>Dera Ghazi Khan</cell>
+		<cell>DHQ Urban 4</cell>
+		<cell>DHQ hospital</cell>
+		<cell>20.00</cell>
+		<cell>0.00</cell>
+		<cell>20.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Punjab</cell>
+		<cell>Muzaffargarh</cell>
+		<cell>DHQ Citty No-2</cell>
+		<cell>DHQ hospital</cell>
+		<cell>20.00</cell>
+		<cell>0.00</cell>
+		<cell>20.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Khyber Pakhtunkhwa</cell>
+		<cell>Lakki Marwat</cell>
+		<cell>DHQ Lakki Marwat</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Sindh</cell>
+		<cell>Jacobabad</cell>
+		<cell>GD Dasti</cell>
+		<cell>DHQ hospital</cell>
+		<cell>30.00</cell>
+		<cell>0.00</cell>
+		<cell>30.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Balochistan</cell>
+		<cell>Jaffarabad</cell>
+		<cell>ORT Jaffarabad-I</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>FATA</cell>
+		<cell>Upper Kurram Agency</cell>
+		<cell>AHQ H Parachinar</cell>
+		<cell>DHQ hospital</cell>
+		<cell>20.00</cell>
+		<cell>0.00</cell>
+		<cell>20.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Balochistan</cell>
+		<cell>Quetta</cell>
+		<cell>BHU Hazar Ganji</cell>
+		<cell>DHQ hospital</cell>
+		<cell></cell>
+		<cell>0.00</cell>
+		<cell></cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Khyber Pakhtunkhwa</cell>
+		<cell>Charsadda</cell>
+		<cell>CD MC 2 Charsadda</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Khyber Pakhtunkhwa</cell>
+		<cell>Mardan</cell>
+		<cell>MMC Mardan</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Sindh</cell>
+		<cell>Qambar </cell>
+		<cell>Town Centre II</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Punjab</cell>
+		<cell>Rawalpindi</cell>
+		<cell>MCD Taalli Mohala</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Punjab</cell>
+		<cell>Lahore</cell>
+		<cell>Mian Munshi Hospital</cell>
+		<cell>DHQ hospital</cell>
+		<cell>24.62</cell>
+		<cell>0.00</cell>
+		<cell>24.62</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Punjab</cell>
+		<cell>Lahore</cell>
+		<cell>127</cell>
+		<cell>DHQ hospital</cell>
+		<cell>20.00</cell>
+		<cell>0.00</cell>
+		<cell>20.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+	<row>
+		<cell>Punjab</cell>
+		<cell>Lahore</cell>
+		<cell>Said Mitha Hospital</cell>
+		<cell>DHQ hospital</cell>
+		<cell>10.00</cell>
+		<cell>0.00</cell>
+		<cell>10.00</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+		<cell>0</cell>
+	</row>
+</rows>

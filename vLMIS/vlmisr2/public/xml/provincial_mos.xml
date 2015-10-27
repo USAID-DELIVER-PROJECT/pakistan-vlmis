@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows>
+	<row>
+		<cell>IPV</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">IPV</cell>
+	</row>
+	<row>
+		<cell>bOPV</cell>
+		<cell style="text-align:right">541.7</cell>
+		<cell style="text-align:right">260.9</cell>
+		<cell style="text-align:right">268.8</cell>
+		<cell style="text-align:right">1,741.6</cell>
+		<cell style="text-align:right">610.2</cell>
+		<cell style="text-align:right">1.4</cell>
+		<cell style="text-align:right">bOPV</cell>
+	</row>
+	<row>
+		<cell>bOPV (IHR)</cell>
+		<cell style="text-align:right">0.0</cell>
+		<cell style="text-align:right">0.0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">bOPV (IHR)</cell>
+	</row>
+	<row>
+		<cell>mOPV1</cell>
+		<cell style="text-align:right">24.5</cell>
+		<cell style="text-align:right">42.6</cell>
+		<cell style="text-align:right">20.2</cell>
+		<cell style="text-align:right">3.3</cell>
+		<cell style="text-align:right">3.2</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">mOPV1</cell>
+	</row>
+	<row>
+		<cell>tOPV</cell>
+		<cell style="text-align:right">4.9</cell>
+		<cell style="text-align:right">157.8</cell>
+		<cell style="text-align:right">9.8</cell>
+		<cell style="text-align:right">9.2</cell>
+		<cell style="text-align:right">29.5</cell>
+		<cell style="text-align:right">3.2</cell>
+		<cell style="text-align:right">tOPV</cell>
+	</row>
+	<row>
+		<cell>tOPV (Campaign)</cell>
+		<cell style="text-align:right">210.0</cell>
+		<cell style="text-align:right">24.3</cell>
+		<cell style="text-align:right">96.7</cell>
+		<cell style="text-align:right">124.8</cell>
+		<cell style="text-align:right">226.0</cell>
+		<cell style="text-align:right">3.1</cell>
+		<cell style="text-align:right">tOPV (Campaign)</cell>
+	</row>
+	<row>
+		<cell>tOPV (IHR)</cell>
+		<cell style="text-align:right">0.0</cell>
+		<cell style="text-align:right">0.8</cell>
+		<cell style="text-align:right">0.2</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">tOPV (IHR)</cell>
+	</row>
+	<row>
+		<cell>DIL-BCG-20</cell>
+		<cell style="text-align:right">2,008.9</cell>
+		<cell style="text-align:right">31,650.0</cell>
+		<cell style="text-align:right">300.3</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">DIL-BCG-20</cell>
+	</row>
+	<row>
+		<cell>BCG-20</cell>
+		<cell style="text-align:right">5.8</cell>
+		<cell style="text-align:right">53.0</cell>
+		<cell style="text-align:right">18.9</cell>
+		<cell style="text-align:right">27.5</cell>
+		<cell style="text-align:right">17.4</cell>
+		<cell style="text-align:right">13.2</cell>
+		<cell style="text-align:right">BCG-20</cell>
+	</row>
+	<row>
+		<cell>Pentavalent-1</cell>
+		<cell style="text-align:right">3.5</cell>
+		<cell style="text-align:right">45.9</cell>
+		<cell style="text-align:right">11.1</cell>
+		<cell style="text-align:right">23.6</cell>
+		<cell style="text-align:right">14.6</cell>
+		<cell style="text-align:right">3.2</cell>
+		<cell style="text-align:right">Pentavalent-1</cell>
+	</row>
+	<row>
+		<cell>Pneumococcal-2 (PCV10)</cell>
+		<cell style="text-align:right">3.4</cell>
+		<cell style="text-align:right">44.2</cell>
+		<cell style="text-align:right">9.1</cell>
+		<cell style="text-align:right">72.4</cell>
+		<cell style="text-align:right">0.1</cell>
+		<cell style="text-align:right">3.7</cell>
+		<cell style="text-align:right">Pneumococcal-2 (PCV10)</cell>
+	</row>
+	<row>
+		<cell>Measles-10</cell>
+		<cell style="text-align:right">2.7</cell>
+		<cell style="text-align:right">113.7</cell>
+		<cell style="text-align:right">72.7</cell>
+		<cell style="text-align:right">33.9</cell>
+		<cell style="text-align:right">59.7</cell>
+		<cell style="text-align:right">6.7</cell>
+		<cell style="text-align:right">Measles-10</cell>
+	</row>
+	<row>
+		<cell>DIL-Measles-10</cell>
+		<cell style="text-align:right">5,763.2</cell>
+		<cell style="text-align:right">223.0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">DIL-Measles-10</cell>
+	</row>
+	<row>
+		<cell>Measles-10 (Campaign)</cell>
+		<cell style="text-align:right">0.2</cell>
+		<cell style="text-align:right">7,519.5</cell>
+		<cell style="text-align:right">1,442.6</cell>
+		<cell style="text-align:right">0.0</cell>
+		<cell style="text-align:right">0.0</cell>
+		<cell style="text-align:right">0.0</cell>
+		<cell style="text-align:right">Measles-10 (Campaign)</cell>
+	</row>
+	<row>
+		<cell>DIL-Measles-10 (Campaign)</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">DIL-Measles-10 (Campaign)</cell>
+	</row>
+	<row>
+		<cell>TT-10</cell>
+		<cell style="text-align:right">0.9</cell>
+		<cell style="text-align:right">51.8</cell>
+		<cell style="text-align:right">0.0</cell>
+		<cell style="text-align:right">9.9</cell>
+		<cell style="text-align:right">6.0</cell>
+		<cell style="text-align:right">0.5</cell>
+		<cell style="text-align:right">TT-10</cell>
+	</row>
+	<row>
+		<cell>TT-20</cell>
+		<cell style="text-align:right">2.3</cell>
+		<cell style="text-align:right">9.5</cell>
+		<cell style="text-align:right">11.8</cell>
+		<cell style="text-align:right">21.9</cell>
+		<cell style="text-align:right">19.1</cell>
+		<cell style="text-align:right">6.7</cell>
+		<cell style="text-align:right">TT-20</cell>
+	</row>
+	<row>
+		<cell>TT-20 (Campaign)</cell>
+		<cell style="text-align:right">680.7</cell>
+		<cell style="text-align:right">1,600.0</cell>
+		<cell style="text-align:right">1,822.6</cell>
+		<cell style="text-align:right">0.0</cell>
+		<cell style="text-align:right">0.0</cell>
+		<cell style="text-align:right">0</cell>
+		<cell style="text-align:right">TT-20 (Campaign)</cell>
+	</row>
+	<row>
+		<cell>AD Syringe 0.05ml </cell>
+		<cell style="text-align:right">3.5</cell>
+		<cell style="text-align:right">0.3</cell>
+		<cell style="text-align:right">57.9</cell>
+		<cell style="text-align:right">85.6</cell>
+		<cell style="text-align:right">9.4</cell>
+		<cell style="text-align:right">2.5</cell>
+		<cell style="text-align:right">AD Syringe 0.05ml </cell>
+	</row>
+	<row>
+		<cell>AD Syringe 0.5ml </cell>
+		<cell style="text-align:right">4.7</cell>
+		<cell style="text-align:right">0.2</cell>
+		<cell style="text-align:right">17.7</cell>
+		<cell style="text-align:right">97.9</cell>
+		<cell style="text-align:right">142.4</cell>
+		<cell style="text-align:right">0.3</cell>
+		<cell style="text-align:right">AD Syringe 0.5ml </cell>
+	</row>
+	<row>
+		<cell>Recon. Syr 5ml</cell>
+		<cell style="text-align:right">23.8</cell>
+		<cell style="text-align:right">1.2</cell>
+		<cell style="text-align:right">140.7</cell>
+		<cell style="text-align:right">110.9</cell>
+		<cell style="text-align:right">496.1</cell>
+		<cell style="text-align:right">2.9</cell>
+		<cell style="text-align:right">Recon. Syr 5ml</cell>
+	</row>
+	<row>
+		<cell>Recon. Syr 2ml</cell>
+		<cell style="text-align:right">13.1</cell>
+		<cell style="text-align:right">1.8</cell>
+		<cell style="text-align:right">11.0</cell>
+		<cell style="text-align:right">24.1</cell>
+		<cell style="text-align:right">1.9</cell>
+		<cell style="text-align:right">6.5</cell>
+		<cell style="text-align:right">Recon. Syr 2ml</cell>
+	</row>
+	<row>
+		<cell>Safety Box</cell>
+		<cell style="text-align:right">9.2</cell>
+		<cell style="text-align:right">0.4</cell>
+		<cell style="text-align:right">39.2</cell>
+		<cell style="text-align:right">228.1</cell>
+		<cell style="text-align:right">202.9</cell>
+		<cell style="text-align:right">2.8</cell>
+		<cell style="text-align:right">Safety Box</cell>
+	</row>
+</rows>
