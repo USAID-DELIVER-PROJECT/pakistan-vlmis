@@ -103,7 +103,7 @@ if (!empty($sel_month)) {
         mygrid.setImagePath("<?php echo $this->baseUrl(); ?>/common/reports/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
         //mygrid.setHeader("District,#cspan,Consumption,AMC,On Hand,MOS,#cspan");
         mygrid.setHeader(",<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'><?php echo "District Report For Province/Region = $this->location_name  And Product = $this->item_name (" . date('F', mktime(0, 0, 0, $sel_month)) . ' ' . $sel_year . ")"; ?></div>,#cspan,#cspan,#cspan,#cspan,#cspan");
-        mygrid.attachHeader("<span>District Id</span>,<span title='District Name'>District</span>,<span title='Product Consumption'>Consumption (Doses)</span>,<span title='Average Monthly Consumption'>AMC (Doses)</span>,<span title='Product On Hand'>On Hand (Doses)</span>,<div style='text-align:center;' title='Months of Scale'>Months of Stock (MOS)</div>,#cspan");
+        mygrid.attachHeader("<span>District Id</span>,<span title='District Name'>District</span>,<span title='Product Consumption'>Consumption (Doses)</span>,<span title='Average Monthly Consumption'>AMC (Doses)</span>,<span title='Product On Hand'>Product On Hand (Doses)</span>,<div style='text-align:center;' title='Months of Scale'>Months of Stock (MOS)</div>,#cspan");
         mygrid.setInitWidths("150,*,*,*,*,40,100");
         mygrid.setColAlign("left,left,right,right,right,center,center");
         //mygrid.setColSorting(",,str,str,str,str,str");

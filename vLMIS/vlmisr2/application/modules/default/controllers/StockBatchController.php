@@ -14,19 +14,22 @@ class StockBatchController extends App_Controller_Base {
             if ($form->isValid($this->_request->getPost())) {
                 $data = $form->getValues();
                 $stock_batch->form_values = $data;
+                $status = $this->_request->getPost('status');
             }
         } else {
-            $stock_batch->form_values = array('warehouse_id' => $this->_identity->getWarehouseId());
-            $form->status->setValue(1);
+            $status = 6;
+            $stock_batch->form_values = array('warehouse_id' => $this->_identity->getWarehouseId(), 'item_pack_size_id' => 3);
+            $form->status->setValue($status);
         }
 
         $data = $stock_batch->searchStockBatch();
         $this->view->data = $data;
         $this->view->form = $form;
+        $this->view->status = $status;
+        $this->view->role_id = $this->_identity->getRoleId();
     }
 
     public function mergeStakeholderItemPackSizeAction() {
-
         $item_pack_sizes = new Model_ItemPackSizes();
         $items = $item_pack_sizes->getAllManageItems();
         $this->view->items = $items;
@@ -225,27 +228,35 @@ class StockBatchController extends App_Controller_Base {
         if (isset($this->_request->id) && !empty($this->_request->id)) {
             $stock_batch = new Model_StockBatch();
             $stock_batch->form_values['item_pack_size_id'] = $this->_request->id;
-            $result = $stock_batch->getBatchDetail();
-            $running_doses = 0;
-            $stacked_doses = 0;
-            $finished_doses = 0;
-            $total = 0;
 
-            if (!empty($result)) {
-                (int) $running_doses = $result[0]['RunningQty'] * $result[0]['description'];
-                (int) $stacked_doses = $result[0]['StackedQty'] * $result[0]['description'];
-                (int) $finished_doses = $result[0]['FinishedQty'] * $result[0]['description'];
-                (int) $total = $running_doses + $stacked_doses + $finished_doses;
+            $items = $this->_em->getRepository("ItemPackSizes")->find($this->_request->id);
+
+            if ($items->getItemCategory()->getPkId() == 1 || $items->getItemCategory()->getPkId() == 4) {
+                $result = $stock_batch->getBatchDetail();
+            } else {
+                $result = $stock_batch->getNonVaccineBatchDetail();
             }
 
-            $data = array(
-                'running_doses' => $running_doses,
-                'stacked_doses' => $stacked_doses,
-                'finished_doses' => $finished_doses,
-                'total' => $total
-            );
+            /* $running_doses = 0;
+              $stacked_doses = 0;
+              $finished_doses = 0;
+              $total = 0;
 
-            $this->view->data = $data;
+              if (!empty($result)) {
+              (int) $running_doses = $result[0]['RunningQty'] * $result[0]['description'];
+              (int) $stacked_doses = $result[0]['StackedQty'] * $result[0]['description'];
+              (int) $finished_doses = $result[0]['FinishedQty'] * $result[0]['description'];
+              (int) $total = $running_doses + $stacked_doses + $finished_doses;
+              }
+
+              $data = array(
+              'running_doses' => $running_doses,
+              'stacked_doses' => $stacked_doses,
+              'finished_doses' => $finished_doses,
+              'total' => $total
+              ); */
+
+            //$this->view->data = $data;
             $this->view->result = $result;
         }
     }
@@ -287,7 +298,7 @@ class StockBatchController extends App_Controller_Base {
 
     public function batchSummaryAction() {
         $this->_helper->layout->setLayout('print');
-        $this->view->headTitle("Batch Summary");
+        //$this->view->headTitle("Batch Summary");
         $stock_batch = new Model_StockBatch();
 
         if (!empty($this->_request->type)) {
@@ -295,6 +306,7 @@ class StockBatchController extends App_Controller_Base {
             $data = $stock_batch->searchStockBatch();
             $this->view->data = $data;
             $this->view->print_title = "Batch Management";
+            $this->view->status = $this->_request->getParam('status');
         } else {
             $stock_batch->form_values['adjustment_no'] = $this->_request->adjustment_no;
             $stock_batch->form_values['adjustment_type'] = $this->_request->adjustment_type;
@@ -302,10 +314,133 @@ class StockBatchController extends App_Controller_Base {
             $stock_batch->form_values['date_from'] = $this->_request->date_from;
             $stock_batch->form_values['date_to'] = $this->_request->date_to;
             $summary = $stock_batch->batchSummary();
+            $expired_summary = $stock_batch->expiredBatchSummary();
             $this->view->summary = $summary;
+            $this->view->expired_summary = $expired_summary;
             $this->view->print_title = "Batch Management Summary";
         }
         $this->view->warehousename = $this->_identity->getWarehouseName();
+        $this->view->username = $this->_identity->getUserName();
+    }
+
+    public function stockPlacementComparisonAction() {
+
+        if ($this->_request->isPost()) {
+            $wh_id = $this->_request->getParam('warehouse');
+        } else {
+            $wh_id = 159; // Federal Vaccine Store 
+        }
+
+        $stock_batch = new Model_StockBatch();
+        $stock_batch->form_values['wh_id'] = $wh_id;
+
+        $batch_total = $stock_batch->batchProductTotal();
+        $this->view->batch_total = $batch_total;
+
+        $stakeholder_total = $stock_batch->stakeholderProductTotal();
+        $this->view->stakeholder_total = $stakeholder_total;
+
+        $priority_total = $stock_batch->priorityProductTotal();
+        $this->view->priority_total = $priority_total;
+
+        $warehouse = new Model_Warehouses;
+        $wh_name = $warehouse->getWarehouseNameByWarehouseId($wh_id);
+        $this->view->warehousename = $wh_name;
+        $this->view->warehouseid = $wh_id;
+
+        $params = array(
+            "office" => $this->_request->getParam('office', 0),
+            "province" => $this->_request->getParam('combo1', $this->_identity->getProvinceId()),
+            "district" => $this->_request->getParam('combo2', $this->_identity->getDistrictId()),
+            "warehouse" => $this->_request->getParam('warehouse', 0)
+        );
+
+        $this->view->params = $params;
+
+        $base_url = Zend_Registry::get('baseurl');
+
+        $this->view->headScript()->appendFile($base_url . '/js/all_level_combos.js');
+    }
+
+    public function stockPlacementComparisonPrintAction() {
+        $this->_helper->layout->setLayout('print');
+        $this->view->headTitle("Stock Placement Comparison");
+        $this->view->print_title = "Stock Placement Comparison";
+
+        $wh_id = $this->_request->getParam('id');
+        $stock_batch = new Model_StockBatch();
+        $stock_batch->form_values['wh_id'] = $wh_id;
+
+        $batch_total = $stock_batch->batchProductTotal();
+        $this->view->batch_total = $batch_total;
+        $stakeholder_total = $stock_batch->stakeholderProductTotal();
+        $this->view->stakeholder_total = $stakeholder_total;
+        $priority_total = $stock_batch->priorityProductTotal();
+        $this->view->priority_total = $priority_total;
+
+        $warehouse = new Model_Warehouses;
+        $wh_name = $warehouse->getWarehouseNameByWarehouseId($wh_id);
+        $this->view->warehousename = $wh_name;
+        $this->view->warehouseid = $wh_id;
+    }
+
+    public function dsStockPlacementComparisonAction() {
+
+        if ($this->_request->isPost()) {
+            $wh_id = $this->_request->getParam('warehouse');
+        } else {
+            $wh_id = 159; // Federal Vaccine Store 
+        }
+
+        $stock_batch = new Model_StockBatch();
+        $stock_batch->form_values['wh_id'] = $wh_id;
+
+        $batch_total = $stock_batch->dsBatchProductTotal();
+        $this->view->batch_total = $batch_total;
+        $stakeholder_total = $stock_batch->dsStakeholderProductTotal();
+        $this->view->stakeholder_total = $stakeholder_total;
+        $priority_total = $stock_batch->dsPlacementProductTotal();
+        $this->view->priority_total = $priority_total;
+
+        $warehouse = new Model_Warehouses;
+        $wh_name = $warehouse->getWarehouseNameByWarehouseId($wh_id);
+        $this->view->warehousename = $wh_name;
+        $this->view->warehouseid = $wh_id;
+
+        $params = array(
+            "office" => $this->_request->getParam('office', 0),
+            "province" => $this->_request->getParam('combo1', $this->_identity->getProvinceId()),
+            "district" => $this->_request->getParam('combo2', $this->_identity->getDistrictId()),
+            "warehouse" => $this->_request->getParam('warehouse', 0)
+        );
+
+        $this->view->params = $params;
+
+        $base_url = Zend_Registry::get('baseurl');
+
+        $this->view->headScript()->appendFile($base_url . '/js/all_level_combos.js');
+    }
+
+    public function dsStockPlacementComparisonPrintAction() {
+        $this->_helper->layout->setLayout('print');
+        $this->view->headTitle("Dry Store Stock Placement Comparison");
+        $this->view->print_title = "Dry Store Stock Placement Comparison";
+
+        $wh_id = $this->_request->getParam('id');
+        $stock_batch = new Model_StockBatch();
+        $stock_batch->form_values['wh_id'] = $wh_id;
+
+        $batch_total = $stock_batch->dsBatchProductTotal();
+        $this->view->batch_total = $batch_total;
+        $stakeholder_total = $stock_batch->dsStakeholderProductTotal();
+        $this->view->stakeholder_total = $stakeholder_total;
+        $priority_total = $stock_batch->dsPlacementProductTotal();
+        $this->view->priority_total = $priority_total;
+
+        $warehouse = new Model_Warehouses;
+        $wh_name = $warehouse->getWarehouseNameByWarehouseId($wh_id);
+        $this->view->warehousename = $wh_name;
+        $this->view->warehouseid = $wh_id;
     }
 
     public function batchSummary2Action() {
@@ -346,7 +481,7 @@ class StockBatchController extends App_Controller_Base {
 
     public function stakeholderSummaryAction() {
         $this->_helper->layout->setLayout('print');
-        $this->view->headTitle("Batch Summary");
+        $this->view->headTitle("Manufacturer wise stock summary");
         $stock_batch = new Model_StockBatch();
 
         $stock_batch->form_values['adjustment_no'] = $this->_request->adjustment_no;
@@ -355,26 +490,46 @@ class StockBatchController extends App_Controller_Base {
         $stock_batch->form_values['date_from'] = $this->_request->date_from;
         $stock_batch->form_values['date_to'] = $this->_request->date_to;
         $summary = $stock_batch->stakeholderProductSummary();
+        $expired_summary = $stock_batch->stakeholderExpiredProductSummary();
         $this->view->summary = $summary;
+        $this->view->expired_summary = $expired_summary;
         $this->view->print_title = "Batch Management Summary";
 
         $this->view->warehousename = $this->_identity->getWarehouseName();
+        $this->view->username = $this->_identity->getUserName();
     }
 
     public function ajaxRunningBatchesAction() {
         $this->_helper->layout->disableLayout();
         $stock_batch = new Model_StockBatch();
         $page = $this->_request->getParam("page", '');
+        $adjustment_type = $this->_request->getParam("adjustment_type", '');
 
         if (isset($this->_request->item_id) && !empty($this->_request->item_id)) {
             if ($page == 'adjustment') {
                 $stock_batch->form_values['item_id'] = $this->_request->item_id;
+                $stock_batch->form_values['adj_type'] = $adjustment_type;
                 $this->view->all_running_batches = $stock_batch->getAllBatchesByItemId();
+            } else if ($page == 'vvm-management') {
+                $stock_batch->form_values['item_pack_size_id'] = $this->_request->item_id;
+                $stock_batch->form_values['transaction_date'] = $this->_request->transaction_date;
+                $this->view->all_running_batches = $stock_batch->getAllRunningBatches();
             } else {
                 $stock_batch->form_values['item_pack_size_id'] = $this->_request->item_id;
-                $this->view->all_running_batches = $stock_batch->getAllRunningBatches();
+                $stock_batch->form_values['transaction_date'] = $this->_request->transaction_date;
+
+                $wh_id = $this->_identity->getWarehouseId();
+                $wh = $this->_em->getRepository("Warehouses")->find($wh_id);
+                $itm = $this->_em->getRepository("ItemPackSizes")->find($this->_request->item_id);
+
+                if ($itm->getItemCategory()->getPkId() == 1 || $itm->getItemCategory()->getPkId() == 4) {
+                    $this->view->all_running_batches = $stock_batch->getAllPriorityBatches();
+                } else {
+                    $this->view->all_running_batches = $stock_batch->getAllRunningBatches();
+                }
             }
         }
+
         if (isset($this->_request->batch) && !empty($this->_request->batch)) {
             $stock_batch->form_values['pk_id'] = $this->_request->batch;
             $this->view->batch_expiry = $stock_batch->getBatchExpiry();
@@ -383,13 +538,20 @@ class StockBatchController extends App_Controller_Base {
             $stock_batch->form_values['pk_id'] = $this->_request->number;
             $this->view->available_quantity = $stock_batch->getBatchExpiry();
         }
+        $this->view->page = $page;
     }
 
     public function ajaxAvailableBatchQuantityAction() {
         $this->_helper->layout->disableLayout();
 
+        $page = $this->_request->page;
+        $batch_id = $this->_request->batch;
+        if (!empty($page) && $page == 'issue') {
+            list($batch_id, $priority) = explode("|", $this->_request->batch);
+        }
+
         $stock_batch = new Model_StockBatch();
-        $stock_batch->form_values['pk_id'] = $this->_request->batch;
+        $stock_batch->form_values['pk_id'] = $batch_id;
         $stock_batch->form_values['trans_date'] = App_Controller_Functions::dateToDbFormat($this->_request->tr_date);
         $batch_expiry = $stock_batch->getBatchAvailableBalanceExpiry();
 
@@ -400,6 +562,21 @@ class StockBatchController extends App_Controller_Base {
             echo json_encode($batch_expiry);
         } else {
             $this->view->batch_expiry = $batch_expiry;
+        }
+    }
+
+    public function ajaxCheckAdjustmentTypeAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender(TRUE);
+
+        $type = $this->_request->type;
+        $adj_type = $this->_em->getRepository("TransactionTypes")->find($type);
+        $type_sign = $adj_type->getNature();
+
+        if ($type_sign == "+") {
+            echo 'positive';
+        } else {
+            echo 'negative';
         }
     }
 
@@ -432,7 +609,7 @@ class StockBatchController extends App_Controller_Base {
         $stock_batch = new Model_StockBatch();
         $arr = explode('|', $this->_request->id);
         $this->view->array_data = $arr;
-        $stock_batch->form_values['batch_id'] = $arr['0'];
+        $stock_batch->form_values['batch_id'] = $arr[0];
         $this->view->data = $stock_batch->getPlacementHistory();
         $this->view->data1 = $stock_batch->getPlacementVvmStage();
         //$this->_em->getRepository("Placements")->findBy(array('stockBatch',$this->_request->id));
@@ -444,21 +621,152 @@ class StockBatchController extends App_Controller_Base {
         $stock_batch = new Model_StockBatch();
         $stock_batch->form_values['batch_id'] = $this->_request->getParam('batch_id');
         $stock_batch->form_values['item_id'] = $this->_request->getParam('item_id');
+        $stock_batch->form_values['type'] = $this->_request->getParam('type');
         $item_pack_size = $this->_em->getRepository('ItemPackSizes')->find($this->_request->getParam('item_id'));
-//if vaccine
-        if ($item_pack_size->getItemCategory()->getPkId() == 1) {
+        //if vaccine
+        if ($item_pack_size->getItemCategory() != null && ($item_pack_size->getItemCategory()->getPkId() == 1 || $item_pack_size->getItemCategory()->getPkId() == 4)) {
             $this->view->locations = $stock_batch->getBatchLocations();
         } else {
             $this->view->locations = $stock_batch->getBactchLocationDryStore();
         }
     }
 
-    public function ajaxGetProductLocationsAction() {
+    public function ajaxAvailableVvmStagesAction() {
+        $this->_helper->layout->disableLayout();
+        $wh_id = $this->_identity->getWarehouseId();
+
+        $placements = new Model_Placements();
+        $batch_id = $this->_request->getParam('batch');
+        $page = $this->_request->getParam('page');
+        if (!empty($page) && $page == 'issue') {
+            list($batch_id, $priority) = explode("|", $batch_id);
+        }
+
+        $batch = $this->_em->getRepository("StockBatch")->find($batch_id);
+        $item_cat = $batch->getItemPackSize()->getItemCategory()->getPkId();
+
+        $placements->form_values['priority'] = $priority;
+        $this->view->vvmstages = $placements->getAvailableVvmStages($batch_id, $item_cat);
+        $this->view->role = $this->_identity->getRoleId();
+        $this->view->item_cat = $item_cat;
+        $wh = $this->_em->getRepository("Warehouses")->find($wh_id);
+        $this->view->is_placement_enable = 1; //$wh->getIsPlacementEnable();
+    }
+
+    public function ajaxGetExistingBatchesAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender(TRUE);
+
+        $product = $this->_request->getParam('product');
+        $batch = new Model_StockBatch();
+        $batches = $batch->getExistingBatches($product);
+
+        echo $batches;
+    }
+
+    public function ajaxProductVvmStagesAction() {
+        $this->_helper->layout->disableLayout();
+        //$this->_helper->viewRenderer->setNoRender(TRUE);
+
+        $product = $this->_request->getParam('product');
+        $item = $this->_em->getRepository("ItemPackSizes")->find($product);
+        $group = $item->getVvmGroup();
+        $this->view->group = $group;
+        $vvm_stages = $this->_em->getRepository("VvmGroups")->findBy(array("vvmGroup" => $group));
+        $this->view->item_vvm = $vvm_stages;
+    }
+
+    public function ajaxAvailableBatchQuantityExpiryAction() {
         $this->_helper->layout->disableLayout();
 
         $stock_batch = new Model_StockBatch();
-        $stock_batch->form_values['product_id'] = $this->_request->getParam('product_id');
-        $this->view->locations = $stock_batch->getProductLocations();
+        $stock_batch->form_values['pk_id'] = $this->_request->batch;
+        $stock_batch->form_values['trans_date'] = App_Controller_Functions::dateToDbFormat($this->_request->tr_date);
+        $batch_expiry = $stock_batch->getBatchAvailableBalanceExpiry();
+
+        $type = $this->_request->getParam('type', 0);
+
+        if ($type === 'json') {
+            $this->_helper->viewRenderer->setNoRender(TRUE);
+            echo json_encode($batch_expiry);
+        } else {
+            $this->view->batch_expiry = $batch_expiry;
+        }
+    }
+
+    public function ajaxAvailableIssueBatchQuantityAction() {
+        $this->_helper->layout->disableLayout();
+
+        $stock_batch = new Model_StockBatch();
+        $stock_batch->form_values['pk_id'] = $this->_request->batch;
+        $stock_batch->form_values['trans_date'] = App_Controller_Functions::dateToDbFormat($this->_request->tr_date);
+        $batch_expiry = $stock_batch->getBatchAvailableBalanceExpiry();
+
+        $type = $this->_request->getParam('type', 0);
+
+        if ($type === 'json') {
+            $this->_helper->viewRenderer->setNoRender(TRUE);
+            echo json_encode($batch_expiry);
+        } else {
+            $this->view->batch_expiry = $batch_expiry;
+        }
+    }
+
+    public function ajaxIssueRunningBatchesAction() {
+        $this->_helper->layout->disableLayout();
+        $stock_batch = new Model_StockBatch();
+        $page = $this->_request->getParam("page", '');
+        $adjustment_type = $this->_request->getParam("adjustment_type", '');
+
+        if (isset($this->_request->item_id) && !empty($this->_request->item_id)) {
+            if ($page == 'adjustment') {
+                $stock_batch->form_values['item_id'] = $this->_request->item_id;
+                $stock_batch->form_values['adj_type'] = $adjustment_type;
+                $this->view->all_running_batches = $stock_batch->getAllBatchesByItemId();
+            } else {
+                $stock_batch->form_values['item_pack_size_id'] = $this->_request->item_id;
+                $stock_batch->form_values['transaction_date'] = $this->_request->transaction_date;
+                $stock_batch->form_values['batch_no'] = $this->_request->batch_no;
+
+                $wh_id = $this->_identity->getWarehouseId();
+                $wh = $this->_em->getRepository("Warehouses")->find($wh_id);
+                $itm = $this->_em->getRepository("ItemPackSizes")->find($this->_request->item_id);
+
+                if ($itm->getItemCategory()->getPkId() == 1 || $itm->getItemCategory()->getPkId() == 4) {
+                    $this->view->all_running_batches = $stock_batch->getAllIssuePriorityBatches();
+                } else {
+                    $this->view->all_running_batches = $stock_batch->getAllIssueRunningBatches();
+                }
+            }
+        }
+
+        if (isset($this->_request->batch) && !empty($this->_request->batch)) {
+            $stock_batch->form_values['pk_id'] = $this->_request->batch;
+            $this->view->batch_expiry = $stock_batch->getBatchExpiry();
+        }
+        if (isset($this->_request->number) && !empty($this->_request->number)) {
+            $stock_batch->form_values['pk_id'] = $this->_request->number;
+            $this->view->available_quantity = $stock_batch->getBatchExpiry();
+        }
+    }
+
+    public function ajaxIssueAvailableVvmStagesAction() {
+        $this->_helper->layout->disableLayout();
+        $wh_id = $this->_identity->getWarehouseId();
+
+        $placements = new Model_Placements();
+        $batch_id = $this->_request->getParam('batch');
+        $priority = $this->_request->getParam('priority');
+
+        $batch = $this->_em->getRepository("StockBatch")->find($batch_id);
+        $item_cat = $batch->getItemPackSize()->getItemCategory()->getPkId();
+
+        $placements->form_values['priority'] = $priority;
+        $this->view->vvmstages = $placements->getAvailableVvmStages($batch_id, $item_cat);
+        $this->view->role = $this->_identity->getRoleId();
+        $this->view->item_cat = $item_cat;
+        $wh = $this->_em->getRepository("Warehouses")->find($wh_id);
+        $this->view->is_placement_enable = 1; //$wh->getIsPlacementEnable();
     }
 
 }

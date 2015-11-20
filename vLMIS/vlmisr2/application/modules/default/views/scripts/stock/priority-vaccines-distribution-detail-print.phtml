@@ -510,10 +510,11 @@
 </br>
 </br>
 <div style="float:left;">
-
-    <b>Print Date:</b> <?php echo date('d/m/y') . ' <b>by</b> ' . $this->username; ?>
+    <div class="col-md-12 left">
+        <b>Printed By:</b> <?php echo $this->username ?><br> 
+        <b>Print Date:</b> <?php echo date("d/m/Y"); ?>
+    </div>
 </div> 
-
 </br></br>
 <div class="col-md-12" class="widget">
     <div class="widget-body right">

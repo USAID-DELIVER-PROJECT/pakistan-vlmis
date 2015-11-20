@@ -3,7 +3,7 @@ $(function () {//
         $.ajax({
             type: "POST",
             url: appName + "/stock/transfer-stock-vaccines",
-            data: {placement_id: $(this).attr('editid'), bin_id: $("#bin_id").val(), quantity_per_pack: $("#quantity_per_pack").val()},
+            data: {placement_id: $(this).attr('editid')}, //asset name
             //data: {barcode_type_id: bar_id, number: $('#item_pack_size_id').val()},
             dataType: 'html',
             success: function (data) {

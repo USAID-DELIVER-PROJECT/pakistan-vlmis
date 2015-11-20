@@ -65,7 +65,7 @@ class Model_LogBook extends Model_Base {
                 $this->_em->flush();
 
                 $log_book_id = $log_book->getPkId();
-                exit;
+
                 foreach ($item_id as $key => $val) {
                     $log_book_item_doses = new LogBookItemDoses();
                     $logBook = $this->_em->getRepository('LogBook')->find($log_book_id);
@@ -79,5 +79,67 @@ class Model_LogBook extends Model_Base {
             }
         }
     }
+
+    public function deleteLogBook($id) {
+
+        $log_book_doses = $this->_em->getRepository("LogBookItemDoses")->findBy(array("logBook" => $id));
+
+        if (count($log_book_doses) > 0) {
+            $this->_em->remove($log_book_doses[0]->getLogBook());
+            foreach ($log_book_doses as $log_doses) {
+                $this->_em->remove($log_doses);
+            }
+        }
+
+        $this->_em->flush();
+
+        return true;
+    }
+
+    public function checkLogbookName() {
+        $form_values = $this->form_values;
+
+        $temp = $form_values['do'];
+
+        $temp = base64_decode(substr($temp, 1, strlen($temp) - 1));
+
+        $temp = explode("|", $temp);
+
+        $warehouse_id = $temp[0];
+        $rpt_date = $temp[1];
+        $tt = explode("-", $rpt_date);
+        $yy = $tt[0];
+        $mm = $tt[1];
+
+        $str_sql = $this->_em->createQueryBuilder()
+                ->select("lb")
+                ->from("LogBook", "lb")
+                ->where("lb.name = '" . $form_values['name'] . "'")
+                ->andWhere("lb.fatherName = '" . $form_values['fname'] . "'")
+                ->andWhere("lb.warehouse = '" . $warehouse_id . "'")
+                ->andWhere("DATE_FORMAT(lb.vaccinationDate,'%Y-%m') = '" . $yy . "-" . $mm . "'");
+
+        $result = $str_sql->getQuery()->getResult();
+
+        if (count($result) > 0) {
+            echo 1;
+        } else {
+            echo 0;
+        }
+    }
+       public function getLogBook($wh_id,$date_in) {
+            $querypro = "SELECT
+                    log_book.pk_id
+                    FROM
+                    log_book
+                    WHERE
+                    log_book.warehouse_id = '$wh_id' AND
+                    DATE_FORMAT(log_book.vaccination_date,'%Y-%m') = '$date_in' ";
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($querypro);
+
+        $row->execute();
+        return $row->fetchAll();
+       }
 
 }

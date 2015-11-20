@@ -24,9 +24,8 @@ function getColorName(color,description) {
         return;
    }
    var desc = "- "+ description;
-   districtRanking(filtered_json,desc);
-   gridFilter(color);
-      
+   gridFilter(color); 
+   districtRanking(filtered_json,desc);   
 }
 
 function getFullColor() {

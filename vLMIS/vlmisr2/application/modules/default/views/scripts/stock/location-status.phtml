@@ -41,7 +41,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="control-label" for="level"><?php echo $this->translate("Shelf"); ?><span class="red">*</span></label>
+                                            <label class="control-label" for="level"><?php echo $this->translate("Row"); ?><span class="red">*</span></label>
                                             <div class="controls">
                                                 <?php echo $this->form->level; ?>
                                             </div>
@@ -67,32 +67,32 @@
                                     $data_arr = array();
                                     $data_arr = $this->result;
                                     
-                                    $maxRows = $this->max_value_row;
+                                    $maxRows = $this->max_value_shelf;
                                     $maxCols = $this->max_value_rack;
 
-                                    //  print "MaxRw=".$maxRows." Max COls=".$maxCols;
+                                    //print "MaxRw=".$maxRows." Max COls=".$maxCols;
 
                                     for ($rr = 1; $rr <= $maxRows; $rr++) {
 
                                         for ($cc = 1; $cc <= $maxCols; $cc++) {
                                             //print "<br>[".$hit."]<br>";
                                             //print_r($locArray);
-                                            for ($pp = 1; $pp < 5; $pp++) {
+                                            for ($pp = 1; $pp < 6; $pp++) {
                                                 if ($hit == 0) {
                                                     $rowStatus = array();
                                                     $rowStatus = $data_arr[$Rowcounter];
-                                                    //   print "<pre>";
-                                                    //  print_r($rowStatus);
+                                                    //print "<pre>";
+                                                    //print_r($rowStatus);
                                                     $locid = $rowStatus['pk_id'];
                                                     $plc_locid = $rowStatus['placement_locationsid'];
                                                     $locname = $rowStatus['location_name'];
                                                     $row1 = (int) $rowStatus['myrow'];
                                                     $rack = (int) $rowStatus['myrack'];
-                                                     $pallet = (int) $rowStatus['mypallet'];
+                                                    $pallet = (int) $rowStatus['mypallet'];
                                                 }
                                                 
 
-                                                 //   print " Hit Pre=".$hit." RC=". $Rowcounter." | ". $rr ." | ". $row1 ." | ".  $cc ." | ". $rack ." | ". $pallet."<br>";
+                                                //print " Hit Pre=".$hit." RC=". $Rowcounter." | ". $rr ." | ". $row1 ." | ".  $cc ." | ". $rack ." | ". $pallet."<br>";
                                                  
                                                 if ($rr == $row1 && $cc == $rack && $pallet == $pp) {
                                                     $locArray[$rr][$cc][$pp] = $locname . "|" . $plc_locid;
@@ -112,40 +112,43 @@
 
                                     for ($a = 1; $a <= $maxRows; $a++):
                                         ?>
-                                        <tr style="border: 3px solid green;" >
+                                        <tr style="border: 3px solid #d3d3d3;" >
                                             <?php
                                             for ($x = 1; $x <= $maxCols; $x++):
                                                 ?>
                                                 <td
-                                                    style="width:<?php echo round(100 / $maxCols, 2) . '%'; ?>;height: 86px; padding: 4px; border-right: 4px solid green; border-left: 4px solid green;">
+                                                    style="width:<?php echo round(100 / $maxCols, 2) . '%'; ?>;height: 86px; padding: 4px; border-right: 4px solid #d3d3d3; border-left: 4px solid #d3d3d3;">
                                                         <?php
                                                         if ($locArray[$a][$x][1] != "&nbsp;" || $locArray[$a][$x][2] != "&nbsp;" ||
-                                                                $locArray[$a][$x][3] != "&nbsp;" || $locArray[$a][$x][4] != "&nbsp;") {
+                                                                $locArray[$a][$x][3] != "&nbsp;" || $locArray[$a][$x][4] != "&nbsp;" || $locArray[$a][$x][5] != "&nbsp;") {
                                                             ?>
                                                         <table style="border: 2px solid green; width:100%;">
                                                             <tr>
-                                                                <td
-                                                                    style="width:50%;border: 2px solid white; background-color: green;"><?php list($l1, $loc1) = explode('|', $locArray[$a][$x][1]); ?>
+                                                                <td style="width:50%;border: 2px solid white; background-color: green;"><?php list($l1, $loc1) = explode('|', $locArray[$a][$x][1]); ?>
                                                                     <a itemid="<?php echo $loc1; ?>" class="btn product-location  btn-link btn-mini" style="color:#fff;" href="<?php echo $this->baseUrl(); ?>/stock/stock-in-bin?id=<?php echo $loc1 . "&area=" . $this->getarea . "&level=" . $this->getlevel; ?>">
                                                                         <?php echo $l1; ?></a>
                                                                 </td>
-                                                                <td
-                                                                    style="width:50%;border: 2px solid white; background-color: green;"><?php list($l1, $loc1) = explode('|', $locArray[$a][$x][2]); ?>
+                                                                <td style="width:50%;border: 2px solid white; background-color: green;"><?php list($l1, $loc1) = explode('|', $locArray[$a][$x][2]); ?>
                                                                     <a itemid="<?php echo $loc1; ?>" class="btn product-location  btn-link btn-mini" style="color:#fff;" href="<?php echo $this->baseUrl(); ?>/stock/stock-in-bin?id=<?php echo $loc1 . "&area=" . $this->getarea . "&level=" . $this->getlevel; ?>">
                                                                         <?php echo $l1; ?></a>
                                                                 </td>
                                                             </tr>
                                                             <tr >
-                                                                <td
-                                                                    style=" border: 2px solid white; background-color: green;"><?php list($l1, $loc1) = explode('|', $locArray[$a][$x][3]); ?>
+                                                                <td style=" border: 2px solid white; background-color: green;"><?php list($l1, $loc1) = explode('|', $locArray[$a][$x][3]); ?>
                                                                     <a itemid="<?php echo $loc1; ?>" class="btn product-location  btn-link btn-mini" style="color:#fff;" href="<?php echo $this->baseUrl(); ?>/stock/stock-in-bin?id=<?php echo $loc1 . "&area=" . $this->getarea . "&level=" . $this->getlevel; ?>">
                                                                         <?php echo $l1; ?></a>
                                                                 </td>
-                                                                <td
-                                                                    style=" border: 2px solid white; background-color: green;"><?php list($l1, $loc1) = explode('|', $locArray[$a][$x][4]); ?>
-                                                                    <a itemid="<?php echo $loc1; ?>" class="btn product-location  btn-link btn-mini" style="color:#fff;" href="<?php echo $this->baseUrl(); ?>/stock/stock-in-bin?id=<?php echo $loc1 . "&area=" . $area . "&level=" . $this->getlevel; ?>">
+                                                                <td style=" border: 2px solid white; background-color: green;"><?php list($l1, $loc1) = explode('|', $locArray[$a][$x][4]); ?>
+                                                                    <a itemid="<?php echo $loc1; ?>" class="btn product-location  btn-link btn-mini" style="color:#fff;" href="<?php echo $this->baseUrl(); ?>/stock/stock-in-bin?id=<?php echo $loc1 . "&area=" . $this->getarea . "&level=" . $this->getlevel; ?>">
                                                                         <?php echo $l1; ?></a>
                                                                 </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style=" border: 2px solid white; background-color: green;"><?php list($l1, $loc1) = explode('|', $locArray[$a][$x][5]); ?>
+                                                                    <a itemid="<?php echo $loc1; ?>" class="btn product-location  btn-link btn-mini" style="color:#fff;" href="<?php echo $this->baseUrl(); ?>/stock/stock-in-bin?id=<?php echo $loc1 . "&area=" . $this->getarea . "&level=" . $this->getlevel; ?>">
+                                                                        <?php echo $l1; ?></a>
+                                                                </td>
+                                                                <td style=" border: 2px solid white;"></td>
                                                             </tr>
                                                         </table>
                                                     <?php } ?></td>

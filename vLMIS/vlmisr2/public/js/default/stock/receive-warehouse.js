@@ -1,9 +1,29 @@
-$(function () {
+$(function() {
     /*$("#rec_date").datepicker({
      minDate: $("#issue_date").val(),
      maxDate: 0,
      dateFormat: 'dd/mm/yy'
      });*/
+
+    $("input[id$='-missing']").bind("paste", function(e) {
+        e.preventDefault();
+    });
+    $("input[id$='-missing']").keydown(function(e) {
+        if (e.shiftKey || e.ctrlKey || e.altKey) { // if shift, ctrl or alt keys held down
+            e.preventDefault();         // Prevent character input
+        } else {
+            var n = e.keyCode;
+            if (!((n == 8)              // backspace
+                    || (n == 9)                // Tab
+                    || (n == 46)                // delete
+                    || (n >= 35 && n <= 40)     // arrow keys/home/end
+                    || (n >= 48 && n <= 57)     // numbers on keyboard
+                    || (n >= 96 && n <= 105))   // number on keypad
+                    ) {
+                e.preventDefault();     // Prevent character input
+            }
+        }
+    });
 
     $('#rec_date').datetimepicker({
         dayOfWeekStart: 1,
@@ -13,7 +33,7 @@ $(function () {
         maxDate: 0
     });
 
-    $("input[id$='-stage1']").change(function () {
+    $("input[id$='-stage1']").change(function() {
         var value = $(this).attr("id");
         var id = value.replace("-stage1", "");
 
@@ -34,11 +54,11 @@ $(function () {
         $("#" + id + "-received").val(total);
 
         if (total > quantity) {
-            alert("Qauntity should not greater than " + quantity);
+            alert("Quantity should not be greater than " + quantity);
         }
     });
 
-    $("input[id$='-stage2']").change(function () {
+    $("input[id$='-stage2']").change(function() {
         var value = $(this).attr("id");
         var id = value.replace("-stage2", "");
 
@@ -59,11 +79,11 @@ $(function () {
         $("#" + id + "-received").val(total);
 
         if (total > quantity) {
-            alert("Qauntity should not greater than " + quantity);
+            alert("Quantity should not be greater than " + quantity);
         }
     });
 
-    $("input[id$='-stage3']").change(function () {
+    $("input[id$='-stage3']").change(function() {
         var value = $(this).attr("id");
         var id = value.replace("-stage3", "");
 
@@ -84,7 +104,7 @@ $(function () {
         $("#" + id + "-received").val(total);
 
         if (total > quantity) {
-            alert("Qauntity should not greater than " + quantity);
+            alert("Quantity should not be greater than " + quantity);
         }
     });
 
@@ -100,7 +120,7 @@ $(function () {
         limit: 2
     });
 
-    $('#save').click(function (e) {
+    $('#save').click(function(e) {
         e.preventDefault();
         var flag = 'true';
 
@@ -109,7 +129,7 @@ $(function () {
             flag = 'false';
         }
 
-        $("input[id$='-received']").each(function () {
+        $("input[id$='-received']").each(function() {
             var value = $(this).attr("id");
             var id = value.replace("-received", "");
             var qty = $('#' + id + '-qty').val();
@@ -122,29 +142,41 @@ $(function () {
             }
         });
 
-        $("input[id$='-missing']").each(function () {
+
+
+
+        $("input[id$='-missing']").each(function() {
             var value = $(this).attr("id");
             var id = value.replace("-missing", "");
             $('#' + id + '-types').attr("required", true);
-            var qty = $(this).val();
-            var avaqty = $('#' + id + '-qty').val() - $('#' + id + '-received').val();
+            var adjqty = $(this).val();
+            var qty = $('#' + id + '-qty').val();
+            adjqty = parseInt(adjqty.replace(",", ""));
+            qty = parseInt(qty.replace(",", ""));
 
-            if (parseInt(qty) > parseInt(avaqty)) {
+            if (adjqty > qty) {
                 alert("Adjustment quantity should not be greater than available quantity.");
                 $(this).focus();
                 flag = 'false';
             }
+
             if (qty != '' && !$.isNumeric(qty)) {
-                alert("Adjustment quantity should be an integer value");
+                alert("Adjustment quantity should be number");
+                $(this).focus();
+                flag = 'false';
+            }
+            if (adjqty == 'NaN' && adjqty != '' && isNaN(adjqty)) {
+                alert("Adjustment quantity should be number");
                 $(this).focus();
                 flag = 'false';
             }
         });
 
+
         if (flag == 'true') {
             if (confirm('Are you sure you received all the items?')) {
                 var checkedAtLeastOne = false;
-                $('input[type="checkbox"]').each(function () {
+                $('input[type="checkbox"]').each(function() {
                     if ($(this).is(":checked")) {
                         $('#receive_stock').submit();
                         return false;
@@ -155,18 +187,22 @@ $(function () {
 
     });
 
-    $("input[id$='-missing']").keyup(function (e) {
+    $("input[id$='-missing']").keyup(function(e) {
         var value = $(this).attr("id");
         var id = value.replace("-missing", "");
         $('#' + id + '-types').attr("required", true);
-        var qty = $(this).val();
-        var avaqty = $('#' + id + '-qty').val() - $('#' + id + '-received').val();
-        if (parseInt(qty) > parseInt(avaqty)) {
+        var adjqty = $(this).val();
+        var qty = $('#' + id + '-qty').val();
+        adjqty = parseInt(adjqty.replace(",", ""));
+        qty = parseInt(qty.replace(",", ""));
+
+        if (adjqty > qty) {
             alert("Adjustment quantity should not be greater than available quantity.");
             $(this).focus();
+            flag = 'false';
         }
         if (qty != '' && !$.isNumeric(qty)) {
-            alert("Adjustment quantity should be an integer value");
+            alert("Adjustment quantity should be number");
             $('#' + id + '-types').attr("disabled", true);
             $(this).focus();
         }

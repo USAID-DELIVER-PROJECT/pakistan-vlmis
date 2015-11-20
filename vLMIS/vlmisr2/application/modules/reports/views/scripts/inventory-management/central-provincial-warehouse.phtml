@@ -18,19 +18,24 @@ $str_indicator = $this->str_indicator;
 $wh_type = $this->wh_type;
 $warehouse_id = $this->warehouse_id;
 
-if (!empty($wh_type)) {
-    $warehouseId = " AND warehouses_data.warehouse_id=" . $warehouse_id;
-    $getWHName = $this->reports()->getWarehousename($warehouse_id);
-    $whName = $getWHName[0]['warehouse_name'];
-    $where = " Office.geo_level_id = " . $wh_type . $warehouseId;
-}
+/* if (!empty($wh_type)) {
+  $warehouseId = " AND warehouses_data.warehouse_id=" . $warehouse_id;
+  $warehouseId1 = " AND hf_data_master.warehouse_id=" . $warehouse_id;
+  $getWHName = $this->reports()->getWarehousename($warehouse_id);
+  $whName = $getWHName[0]['warehouse_name'];
+  $where = " Office.geo_level_id = " . $wh_type . $warehouseId;
+  $where1 = " Office.geo_level_id = " . $wh_type . $warehouseId1;
+  } */
+
+$getWHName = $this->reports()->getWarehousename($warehouse_id);
+$whName = $getWHName[0]['warehouse_name'];
 
 if ($sel_indicator == 1) {
-    $colName = 'SUM(warehouses_data.issue_balance) AS total';
+    $where = "stock_batch.warehouse_id = $warehouse_id AND stock_master.transaction_type_id = 2 AND DATE_FORMAT(stock_master.transaction_date,'%Y-%m') = ";
 } else if ($sel_indicator == 2) {
-    $colName = 'SUM(warehouses_data.closing_balance) AS total';
+    $where = "stock_batch.warehouse_id = $warehouse_id AND DATE_FORMAT(stock_master.transaction_date,'%Y-%m') <= ";
 } else if ($sel_indicator == 3) {
-    $colName = 'SUM(warehouses_data.received_balance) AS total';
+    $where = "stock_batch.warehouse_id = $warehouse_id AND stock_master.transaction_type_id = 1 AND DATE_FORMAT(stock_master.transaction_date,'%Y-%m') = ";
 }
 
 $data_arr = array();
@@ -44,7 +49,6 @@ foreach ($this->item_id as $row) {
 }
 // Headers of the Grid
 $header = 'Product';
-;
 $width = '*';
 $ro = 'ro';
 
@@ -55,14 +59,22 @@ foreach ($period as $date) {
     $width .= ',75';
     $ro .= ',ro';
 
-    $query_vals = $this->reports()->getCentralProvincialReport($colName, $where, $str_date);
+    //$query_vals = $this->reports()->getCentralProvincialReport($colName,$colName1, $where,$where1, $str_date);
+    $cond = $where . " '" . $str_date . "'";
+    $query_vals = $this->reports()->getEPIStoresReport($cond);
 
     foreach ($query_vals as $row) {
+        $date1 = new DateTime($str_date);
+        $date2 = new DateTime(date("Y-m"));
+        if($date1 > $date2){
+            $row['total'] = 0;
+        }
         $data_arr[$row['item_id']][$count] = $row['total'];
     }
     $count++;
 }
 
+//App_Controller_Functions::pr($data_arr);
 $xml_store = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 $xml_store .= "<rows>";
 
@@ -71,15 +83,16 @@ $sum_arr = array();
 foreach ($data_arr as $dis_id => $sub_arr) {
     $xml_store .= "<row>";
 
-    $param = base64_encode($sel_indicator . '|' . $start_date . '|' . $end_date . '|' . $sel_prov . '|' . $dis_id . '|' . $sub_arr[0]);
+    //$param = base64_encode($sel_indicator . '|' . $start_date . '|' . $end_date . '|' . $sel_prov . '|' . $dis_id . '|' . $sub_arr[0]);
     // $xml_store .= "<cell><![CDATA[<a href=javascript:functionCall('$param')>$sub_arr[0]</a>]]>^_self</cell>";
     $xml_store .= "<cell>$sub_arr[0]</cell>";
 
     foreach ($sub_arr as $key => $value) {
         if (!isset($sum_arr[$key])) {
             $sum_arr[$key] = 0;
-        }
-        $sum_arr[$key] += $value;
+        } else {
+            $sum_arr[$key] += $value;
+        }        
 
         if ($key > 0) {
             $xml_store .= "<cell style=\"text-align:right\">" . number_format($value) . "</cell>";

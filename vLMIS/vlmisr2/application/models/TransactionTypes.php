@@ -19,6 +19,8 @@ class Model_TransactionTypes extends Model_Base {
     const LOST_RECOVERED = 8;
     const PHYSICALLY_FOUND = 12;
     const PHYSICALLY_NOT_FOUND = 13;
+    const OPENING_BALANCE = 15;
+    const CHANGE_PURPOSE_POSITIVE = 16;
 
     public function __construct() {
         parent::__construct();
@@ -29,7 +31,8 @@ class Model_TransactionTypes extends Model_Base {
         $str_sql = $this->_em->createQueryBuilder()
                 ->select("tt.transactionTypeName,tt.pkId")
                 ->from("TransactionTypes", "tt")
-                ->where("tt.isAdjustment > 0 ");
+                ->where("tt.isAdjustment > 0 ")
+                ->andWhere("tt.status = 1 ");
         $row = $str_sql->getQuery()->getResult();
         if (!empty($row) && count($row) > 0) {
             return $row;

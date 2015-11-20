@@ -1,12 +1,14 @@
 <?php
 
+
+
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * HfDataDetail
  */
-class HfDataDetail {
-
+class HfDataDetail
+{
     /**
      * @var integer $pkId
      */
@@ -48,7 +50,7 @@ class HfDataDetail {
     private $pregnantWomen;
 
     /**
-     * @var integer $pregnantWomen
+     * @var integer $nonPregnantWomen
      */
     private $nonPregnantWomen;
 
@@ -77,12 +79,14 @@ class HfDataDetail {
      */
     private $ageGroup;
 
+
     /**
      * Get pkId
      *
      * @return integer 
      */
-    public function getPkId() {
+    public function getPkId()
+    {
         return $this->pkId;
     }
 
@@ -91,7 +95,8 @@ class HfDataDetail {
      *
      * @param decimal $fixedInsideUcMale
      */
-    public function setFixedInsideUcMale($fixedInsideUcMale) {
+    public function setFixedInsideUcMale($fixedInsideUcMale)
+    {
         $this->fixedInsideUcMale = $fixedInsideUcMale;
     }
 
@@ -100,7 +105,8 @@ class HfDataDetail {
      *
      * @return decimal 
      */
-    public function getFixedInsideUcMale() {
+    public function getFixedInsideUcMale()
+    {
         return $this->fixedInsideUcMale;
     }
 
@@ -109,7 +115,8 @@ class HfDataDetail {
      *
      * @param decimal $fixedInsideUcFemale
      */
-    public function setFixedInsideUcFemale($fixedInsideUcFemale) {
+    public function setFixedInsideUcFemale($fixedInsideUcFemale)
+    {
         $this->fixedInsideUcFemale = $fixedInsideUcFemale;
     }
 
@@ -118,7 +125,8 @@ class HfDataDetail {
      *
      * @return decimal 
      */
-    public function getFixedInsideUcFemale() {
+    public function getFixedInsideUcFemale()
+    {
         return $this->fixedInsideUcFemale;
     }
 
@@ -127,7 +135,8 @@ class HfDataDetail {
      *
      * @param decimal $fixedOutsideUcMale
      */
-    public function setFixedOutsideUcMale($fixedOutsideUcMale) {
+    public function setFixedOutsideUcMale($fixedOutsideUcMale)
+    {
         $this->fixedOutsideUcMale = $fixedOutsideUcMale;
     }
 
@@ -136,7 +145,8 @@ class HfDataDetail {
      *
      * @return decimal 
      */
-    public function getFixedOutsideUcMale() {
+    public function getFixedOutsideUcMale()
+    {
         return $this->fixedOutsideUcMale;
     }
 
@@ -145,7 +155,8 @@ class HfDataDetail {
      *
      * @param decimal $fixedOutsideUcFemale
      */
-    public function setFixedOutsideUcFemale($fixedOutsideUcFemale) {
+    public function setFixedOutsideUcFemale($fixedOutsideUcFemale)
+    {
         $this->fixedOutsideUcFemale = $fixedOutsideUcFemale;
     }
 
@@ -154,7 +165,8 @@ class HfDataDetail {
      *
      * @return decimal 
      */
-    public function getFixedOutsideUcFemale() {
+    public function getFixedOutsideUcFemale()
+    {
         return $this->fixedOutsideUcFemale;
     }
 
@@ -163,7 +175,8 @@ class HfDataDetail {
      *
      * @param decimal $referalMale
      */
-    public function setReferalMale($referalMale) {
+    public function setReferalMale($referalMale)
+    {
         $this->referalMale = $referalMale;
     }
 
@@ -172,7 +185,8 @@ class HfDataDetail {
      *
      * @return decimal 
      */
-    public function getReferalMale() {
+    public function getReferalMale()
+    {
         return $this->referalMale;
     }
 
@@ -181,7 +195,8 @@ class HfDataDetail {
      *
      * @param decimal $referalFemale
      */
-    public function setReferalFemale($referalFemale) {
+    public function setReferalFemale($referalFemale)
+    {
         $this->referalFemale = $referalFemale;
     }
 
@@ -190,7 +205,8 @@ class HfDataDetail {
      *
      * @return decimal 
      */
-    public function getReferalFemale() {
+    public function getReferalFemale()
+    {
         return $this->referalFemale;
     }
 
@@ -199,7 +215,8 @@ class HfDataDetail {
      *
      * @param integer $pregnantWomen
      */
-    public function setPregnantWomen($pregnantWomen) {
+    public function setPregnantWomen($pregnantWomen)
+    {
         $this->pregnantWomen = $pregnantWomen;
     }
 
@@ -208,25 +225,28 @@ class HfDataDetail {
      *
      * @return integer 
      */
-    public function getPregnantWomen() {
+    public function getPregnantWomen()
+    {
         return $this->pregnantWomen;
     }
 
     /**
-     * Set pregnantWomen
+     * Set nonPregnantWomen
      *
-     * @param integer $pregnantWomen
+     * @param integer $nonPregnantWomen
      */
-    public function setNonPregnantWomen($nonPregnantWomen) {
+    public function setNonPregnantWomen($nonPregnantWomen)
+    {
         $this->nonPregnantWomen = $nonPregnantWomen;
     }
 
     /**
-     * Get pregnantWomen
+     * Get nonPregnantWomen
      *
      * @return integer 
      */
-    public function getNonPregnantWomen() {
+    public function getNonPregnantWomen()
+    {
         return $this->nonPregnantWomen;
     }
 
@@ -235,7 +255,8 @@ class HfDataDetail {
      *
      * @param decimal $outreachMale
      */
-    public function setOutreachMale($outreachMale) {
+    public function setOutreachMale($outreachMale)
+    {
         $this->outreachMale = $outreachMale;
     }
 
@@ -244,7 +265,8 @@ class HfDataDetail {
      *
      * @return decimal 
      */
-    public function getOutreachMale() {
+    public function getOutreachMale()
+    {
         return $this->outreachMale;
     }
 
@@ -253,7 +275,8 @@ class HfDataDetail {
      *
      * @param decimal $outreachFemale
      */
-    public function setOutreachFemale($outreachFemale) {
+    public function setOutreachFemale($outreachFemale)
+    {
         $this->outreachFemale = $outreachFemale;
     }
 
@@ -262,7 +285,8 @@ class HfDataDetail {
      *
      * @return decimal 
      */
-    public function getOutreachFemale() {
+    public function getOutreachFemale()
+    {
         return $this->outreachFemale;
     }
 
@@ -271,7 +295,8 @@ class HfDataDetail {
      *
      * @param integer $vaccineScheduleId
      */
-    public function setVaccineScheduleId($vaccineScheduleId) {
+    public function setVaccineScheduleId($vaccineScheduleId)
+    {
         $this->vaccineScheduleId = $vaccineScheduleId;
     }
 
@@ -280,7 +305,8 @@ class HfDataDetail {
      *
      * @return integer 
      */
-    public function getVaccineScheduleId() {
+    public function getVaccineScheduleId()
+    {
         return $this->vaccineScheduleId;
     }
 
@@ -289,7 +315,8 @@ class HfDataDetail {
      *
      * @param HfDataMaster $hfDataMaster
      */
-    public function setHfDataMaster(\HfDataMaster $hfDataMaster) {
+    public function setHfDataMaster(\HfDataMaster $hfDataMaster)
+    {
         $this->hfDataMaster = $hfDataMaster;
     }
 
@@ -298,7 +325,8 @@ class HfDataDetail {
      *
      * @return HfDataMaster 
      */
-    public function getHfDataMaster() {
+    public function getHfDataMaster()
+    {
         return $this->hfDataMaster;
     }
 
@@ -307,7 +335,8 @@ class HfDataDetail {
      *
      * @param ListDetail $ageGroup
      */
-    public function setAgeGroup(\ListDetail $ageGroup) {
+    public function setAgeGroup(\ListDetail $ageGroup)
+    {
         $this->ageGroup = $ageGroup;
     }
 
@@ -316,8 +345,8 @@ class HfDataDetail {
      *
      * @return ListDetail 
      */
-    public function getAgeGroup() {
+    public function getAgeGroup()
+    {
         return $this->ageGroup;
     }
-
 }

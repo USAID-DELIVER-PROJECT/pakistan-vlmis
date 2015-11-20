@@ -15,7 +15,11 @@ class Form_Maps_Mos extends Zend_Form {
         "vvm_level"=> "Level",
         "province" => "Province/Region",
         "product_item"=> "Product",
-         "map_type" => "Level"
+        "map_type" => "Level",
+        "batch_no"=> "Batch No",
+        "prov" => "Province/Region",
+        "dist" => "District",
+        "cc_type"=> "Type",
     );
 
 
@@ -29,6 +33,10 @@ class Form_Maps_Mos extends Zend_Form {
 
     private $_reporting_list = array(
         "reporting_product" => array()
+    );
+    
+    private $_province = array(
+        "prov" => array()
     );
     
     private $_province_list = array(
@@ -65,8 +73,12 @@ class Form_Maps_Mos extends Zend_Form {
         $this->_province_list["province"]['all'] = "Select";
         foreach ($res as $loc) {
             $this->_province_list["province"][$loc['pk_id']] = $loc['location_name'];
+            $this->_province["prov"][$loc['pk_id']] = $loc['location_name'];
         }
-
+        
+       
+        
+       
         $this->_reporting_list["reporting_product"]['%'] = "All Product";
         foreach ($result as $item) {
             $this->_reporting_list["reporting_product"][$item['pkId']] = $item['itemName'];
@@ -96,6 +108,21 @@ class Form_Maps_Mos extends Zend_Form {
                     ));
                     $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
                     break;
+                case "dist":
+                    $this->addElement("select", $col, array(
+                        "attribs" => array("class" => "form-control"),
+                        "allowEmpty" => false,
+                        "filters" => array("StringTrim", "StripTags")
+                    ));
+                    $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
+                break;
+                case "batch_no":
+                $this->addElement("text", $col, array(
+                    "attribs" => array("class" => "form-control"),
+                    "allowEmpty" => false
+                ));
+                $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
+                break;
                 case "year":
                     $this->addElement("select", $col, array(
                         "attribs" => array("class" => "form-control"),
@@ -119,6 +146,17 @@ class Form_Maps_Mos extends Zend_Form {
                         "multiOptions" => array(
                             '1'=>'ILR/Refrigerators at District + Field Level',
                             '3'=>'Cold Rooms at District Level'
+                        )
+                    ));
+                    $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
+                    break;
+                 case "cc_type":
+                    $this->addElement("select", $col, array(
+                        "attribs" => array("class" => "form-control"),
+                        "allowEmpty" => false,
+                        "filters" => array("StringTrim", "StripTags"),
+                        "multiOptions" => array(
+                            '1'=>'ILR/Refrigerators at Tehsil + Field Level'
                         )
                     ));
                     $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
@@ -165,7 +203,7 @@ class Form_Maps_Mos extends Zend_Form {
                         "filters" => array("StringTrim", "StripTags"),
                         "multiOptions" => array(
                             'C'=>'Consumption',
-                            'A'=>'Avg.Monthly Consumption'
+                            'A'=>'Avg.Consumption'
                         )
                     ));
                     $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
@@ -227,6 +265,17 @@ class Form_Maps_Mos extends Zend_Form {
                     "required" => true,
                     "registerInArrayValidator" => false,
                     "multiOptions" => $this->_province_list[$col]
+                ));
+                $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
+            }
+              if (in_array($col, array_keys($this->_province))) {
+                $this->addElement("select", $col, array(
+                    "attribs" => array("class" => "form-control"),
+                    "filters" => array("StringTrim", "StripTags"),
+                    "allowEmpty" => false,
+                    "required" => true,
+                    "registerInArrayValidator" => false,
+                    "multiOptions" => $this->_province[$col]
                 ));
                 $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
             }

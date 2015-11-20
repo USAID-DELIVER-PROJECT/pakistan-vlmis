@@ -31,13 +31,21 @@ class Form_AdjustmentSearch extends Zend_Form {
             $this->_list["adjustment_type"][''] = 'Select';
             $this->_list["adjustment_type"][$trans['pkId']] = $trans['transactionTypeName'];
         }
-
-        $item_pack_sizes = new Model_ItemPackSizes();
-        $result2 = $item_pack_sizes->getAllItems();
+        // This code gets all the products
+        // $item_pack_sizes = new Model_ItemPackSizes();
+        // $result2 = $item_pack_sizes->getAllItems();        
+        // Get adjusted products names
+        
+        $stock_master = new Model_StockMaster();
+        $result2 = $stock_master->getAdjustedProducts();
         $this->_list["product"][''] = "All";
         foreach ($result2 as $item) {
             $this->_list["product"][$item['pkId']] = $item['itemName'];
         }
+        
+        $date_from = date('01/m/Y');
+        $date_to = date('d/m/Y');
+        
         foreach ($this->_fields as $col => $name) {
             switch ($col) {
 
@@ -55,7 +63,7 @@ class Form_AdjustmentSearch extends Zend_Form {
                 case "expiry_date":
 
                     $this->addElement("text", $col, array(
-                        "attribs" => array("class" => "form-control"),
+                        "attribs" => array("class" => "form-control", "style" => "position: relative; z-index: 100000;"),
                         "allowEmpty" => false,
                         "filters" => array("StringTrim", "StripTags"),
                         "validators" => array()
@@ -65,12 +73,22 @@ class Form_AdjustmentSearch extends Zend_Form {
                 default:
                     break;
                 case "date_from":
-                case "date_to":
                     $this->addElement("text", $col, array(
-                        "attribs" => array("class" => "form-control", 'readonly' => 'true'),
+                        "attribs" => array("class" => "form-control", "readonly" => "true", "style" => "position: relative; z-index: 100000;"),
                         "allowEmpty" => false,
                         "filters" => array("StringTrim", "StripTags"),
-                        "validators" => array()
+                        "validators" => array(),
+                        "value" => $date_from
+                    ));
+                    $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
+                    break;
+                case "date_to":
+                    $this->addElement("text", $col, array(
+                        "attribs" => array("class" => "form-control", "readonly" => "true", "style" => "position: relative; z-index: 100000;"),
+                        "allowEmpty" => false,
+                        "filters" => array("StringTrim", "StripTags"),
+                        "validators" => array(),
+                        "value" => $date_to
                     ));
                     $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
                     break;

@@ -57,7 +57,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                                                           
+
                             </div>
                         </div>
                         <div class="row">
@@ -235,15 +235,28 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-3">
-                                                                                <div class="control-group">
-                                                                                    <label class="control-label" for="activity_id">
-                                <?php echo $this->translate("Purpose"); ?>
-                                                                                    </label>
-                                                                                    <div class="controls">
-                                <?php echo $this->from_edit->activity_id; ?>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
+                                                    <div class="control-group">
+                                                        <label class="control-label" for="activity_id">
+                                                            <?php echo $this->translate("Purpose"); ?>
+                                                        </label>
+                                                        <div class="controls">
+                                                            <?php echo $this->from_edit->activity_id; ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <div class="control-group">
+                                                        <label class="control-label" for="voucher_type">
+                                                            <?php echo $this->translate("Voucher Type"); ?>
+                                                        </label>
+                                                        <div class="controls">
+                                                            <?php echo $this->form->voucher_type; ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
                                             </div>
                                         </div>
                                         <div class="row">
@@ -310,11 +323,13 @@
                                             <th><?php echo $this->translate("Quantity"); ?></th>
                                             <th><?php echo $this->translate("Unit"); ?></th>
                                             <th><?php echo $this->translate("Expiry Date"); ?></th>
+                                            <th><?php echo $this->translate("Created On"); ?></th>
                                             <th class="nonprint">&nbsp;</th>
                                         </tr>
                                     </thead>
                                     <!-- // Table heading END -->
                                     <!-- Table body -->
+                                    <?php // echo $this->vouchertype; ?>
                                     <tbody>
                                         <?php
                                         $m_res = array();
@@ -324,7 +339,13 @@
                                                 ?>
                                                 <tr class="gradeX">
                                                     <td><?php echo date("d/m/Y", strtotime($row['transactionDate'])); ?></td>
-                                                    <td><a  onclick="window.open('print-issue?id=<?php echo $row['pkId']; ?>', '_blank', 'scrollbars=1,width=840,height=595');" href="javascript:void(0);"> <?php echo $row['transactionNumber']; ?></a></td>
+                                                    <td><a  onclick="window.open('<?php
+                                                        if ($this->vouchertype == 1) {
+                                                            echo "print-issue";
+                                                        } elseif ($this->vouchertype == 2) {
+                                                            echo "print-issue-cancel";
+                                                        }
+                                                        ?>?id=<?php echo $row['pkId']; ?>', '_blank', 'scrollbars=1,width=840,height=595');" href="javascript:void(0);"> <?php echo $row['transactionNumber']; ?></a></td>
                                                     <td><?php echo $row['warehouseName']; ?></td>
                                                     <td><?php echo '&nbsp;' . $row['transactionReference']; ?></td>
                                                     <td><?php echo $row['itemName']; ?></td>
@@ -332,13 +353,14 @@
                                                     <td class="right"><?php echo number_format($row['quantity']); ?></td>
                                                     <td><?php echo $row['itemUnitName']; ?></td>
                                                     <td><?php echo date("d/m/Y", strtotime($row['expiryDate'])); ?></td>
-                                                    <td class="nonprint">
-                                                      
+                                                    <td><?php echo $row['createdDate']; ?></td>
+                                                    <td class="nonprint">                                                     
                                                         <?php if ($this->isIssueDelete($row['detailId'])) { ?>
-                                                        <a data-toggle="notyfy" id="<?php echo $row['detailId']; ?>" data-type="confirm" data-layout="top" class="fa fa-times cursor-hand"></a> <?php } ?>
-                                                        <!-- <?php //if ($this->isIssueEdit($row['detailId'])) { ?> | <a id="<?php  //echo $row['detailId']; ?>-stockedit" class="fa fa-edit cursor-hand"></a> <?php //} ?> -->
-                                                  
-                                                    </td></tr>
+                                                            <a data-toggle="notyfy" id="<?php echo $row['detailId']; ?>" data-type="confirm" data-layout="top" class="fa fa-times cursor-hand"></a>
+                                                        <?php } ?>
+                                                        <!-- <?php //if ($this->isIssueEdit($row['detailId'])) {   ?> | <a id="<?php //echo $row['detailId'];   ?>-stockedit" class="fa fa-edit cursor-hand"></a> <?php //}   ?> -->
+                                                    </td>
+                                                </tr>
                                                 <?php
                                                 $i++;
                                             endforeach;
@@ -347,7 +369,7 @@
                                     </tbody>
                                     <!-- // Table body END -->
                                 </table>
-                                <?php if (count($this->result) > 0) { ?>
+                                <?php if (count($this->result) > 0 && $this->vouchertype != 2) { ?>
                                     <div class="right" style="float:right;">
                                         <b><?php echo $this->translate("Detail"); ?>: </b>
                                         <input type="radio" name="groupBy" id="none" value="none" checked="checked" /> <?php echo $this->translate("None"); ?>

@@ -44,12 +44,12 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $warehouse_data = new Model_WarehousesData();
             //$year = $warehouse_data->getMaxYear();
             $year = date("Y");
-            //$warehouse_data->getMaxMonth($year);
-            if (date('d') > 10) {
-                $month = date("m", strtotime("-1"));
-            } else {
-                $month = date("m", strtotime("-2"));
-            }
+            $warehouse_data->getMaxMonth($year);
+//            if (date('d') > 10) {
+//                $month = date("m", strtotime("-1"));
+//            } else {
+            $month = date("m", strtotime("-2 month"));
+//            }
 
             $stakeholder = new Model_Stakeholders();
             $stk = $stakeholder->nationReport();
@@ -76,6 +76,94 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         }
         $this->view->item_id = $item;
         $this->view->geo_level_id = 1;
+    }
+
+    public function provincialVaccineCoverageAction() {
+        $this->_helper->layout->setLayout('reports');
+        // $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_id = 'PVCOVERAGE';
+        $this->view->actionpage = 'provincial-vaccine-coverage';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $this->view->report_title = 'Annualized Vaccines Coverage Report';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $locations = new Model_Locations();
+
+        $item = $item_pack_sizes->VaccineProductsReport();
+        $this->view->item_id = $item;
+        //filters
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->province = $this->_request->province;
+            $locations->form_values['pk_id'] = $this->_request->province;
+            $this->view->loc_name = "Province:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->province = $province = 1;
+            $this->view->loc_name = "Province:" . ' ' . 'Punjab';
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district1 = $this->_request->district;
+        } else {
+            $this->view->district1 = 33;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 2;
+        }
+
+
+        if (!empty($this->_request->year_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = 12;
+        } else {
+            $year = date("Y");
+
+            $this->view->year_sel = $year;
+            $this->view->month_sel = 12;
+        }
+
+        $month = 12;
+        $this->view->prov_sel = $province;
+
+        if (isset($this->_request->stk_sel) && !empty($this->_request->stk_sel)) {
+            $this->view->stk_sel = $sel_stk = $this->_request->stk_sel;
+        } else {
+            $this->view->stk_sel = $sel_stk = 1;
+        }
+
+        if (isset($this->_request->prod_sel) && !empty($this->_request->prod_sel)) {
+            $this->view->sel_item = $sel_item = $this->_request->prod_sel;
+        } else {
+            $this->view->sel_item = $sel_item = 26;
+        }
+
+        $end_date1 = $year . '-' . ($month) . '-01';
+        //echo $end_date1;
+
+        $end_date = date('Y-m-d', strtotime("-1 days", strtotime("+1 month", strtotime($end_date1))));
+        $start_date = date('Y-m-d', strtotime("-11 month", strtotime($end_date1)));
+        $this->view->start_date = $start_date;
+        $this->view->end_date = $end_date;
+        // Start date and End date
+        $begin = new DateTime($start_date);
+        $end = new DateTime($end_date);
+        $diff = $begin->diff($end);
+        $interval = DateInterval::createFromDateString('1 month');
+        $period = new DatePeriod($begin, $interval, $end);
+        $this->view->period = $period;
+        $this->view->sel_item = $sel_item;
+        $stakeholder = new Model_Stakeholders();
+        $stk = $stakeholder->nationReport();
+        $this->view->stk = $stk;
+        $locations = new Model_Locations();
+        $lct = $locations->devisionalReport();
+        $this->view->location = $lct;
     }
 
     public function provincialReportAction() {
@@ -113,11 +201,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         } else {
             $warehouse_data = new Model_WarehousesData();
             $year = date("Y");
-            if (date('d') > 10) {
-                $month = date("m", strtotime("-1"));
-            } else {
-                $month = date("m", strtotime("-2"));
-            }
+//            if (date('d') > 10) {
+//                $month = date("m", strtotime("-1"));
+//            } else {
+            $month = date("m", strtotime("-2 month"));
+//            }
             //$warehouse_data->getMaxMonth($year);
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
@@ -195,11 +283,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->month_sel = $month = $this->_request->month_sel;
         } else {
             $year = date("Y");
-            if (date('d') > 10) {
-                $month = date("m", strtotime("-1"));
-            } else {
-                $month = date("m", strtotime("-2"));
-            }
+//            if (date('d') > 10) {
+//                $month = date("m", strtotime("-1"));
+//            } else {
+            $month = date("m", strtotime("-2 month"));
+//            }
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
         }
@@ -350,11 +438,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->item_id = $item;
             $warehouse_data = new Model_WarehousesData();
             $year = date("Y");
-            if (date('d') > 10) {
-                $month = date("m", strtotime("-1"));
-            } else {
-                $month = date("m", strtotime("-2"));
-            }
+//            if (date('d') > 10) {
+//                $month = date("m", strtotime("-1"));
+//            } else {
+            $month = date("m", strtotime("-2 month"));
+//            }
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
             $this->view->report_id = 'SDISTRICTREPORT';
@@ -458,11 +546,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->item_id = $item;
             $warehouse_data = new Model_WarehousesData();
             $year = date("Y");
-            if (date('d') > 10) {
-                $month = date("m", strtotime("-1"));
-            } else {
-                $month = date("m", strtotime("-2"));
-            }
+//            if (date('d') > 10) {
+//                $month = date("m", strtotime("-1"));
+//            } else {
+            $month = date("m", strtotime("-2 month"));
+//            }
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
             $this->view->report_id = 'TEHSILREPORT';
@@ -597,11 +685,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->item_id = $item;
             $warehouse_data = new Model_WarehousesData();
             $year = date("Y");
-            if (date('d') > 10) {
-                $month = date("m", strtotime("-1"));
-            } else {
-                $month = date("m", strtotime("-2"));
-            }
+//            if (date('d') > 10) {
+//                $month = date("m", strtotime("-1"));
+//            } else {
+            $month = date("m", strtotime("-2 month"));
+//            }
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
             $this->view->report_id = 'UCREPORT';
@@ -719,11 +807,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         } else {
             $year = date("Y");
 
-            if (date('d') > 10) {
-                $month = date("m", strtotime("-1"));
-            } else {
-                $month = date("m", strtotime("-2"));
-            }
+//            if (date('d') > 10) {
+//                $month = date("m", strtotime("-1"));
+//            } else {
+            $month = date("m", strtotime("-2 month"));
+//            }
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
         }
@@ -758,18 +846,22 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         }
 
         if ($this->_request->prov_sel) {
+
             $locations->form_values['pk_id'] = $this->_request->prov_sel;
-            $this->view->location_name = $locations->getLocationName();
+            $this->view->location_name = "Province:" . ' ' . $locations->getLocationName();
         } else {
-            $this->view->location_name = "Punjab";
+            $this->view->location_name = "Province:" . ' ' . "Punjab";
         }
 
         if ($this->_request->dist_id) {
             $this->view->in_dist = $this->_request->dist_id;
             $this->view->sel_dist = $this->_request->dist_id;
+            $locations->form_values['pk_id'] = $this->_request->dist_id;
+            $this->view->district_name = "District:" . ' ' . $locations->getLocationName();
         } else {
             $this->view->in_dist = '';
             $this->view->sel_dist = '';
+            $this->view->district_name = "";
         }
 
 
@@ -808,6 +900,192 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $this->view->location = $lct;
     }
 
+    public function storeIssuanceReportAction() {
+
+        $this->_helper->layout->setLayout('reports');
+        // $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_id = 'STOREISSUANCEREPORT';
+        $this->view->actionpage = 'store-issuance-report';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $this->view->report_title = 'Store Issuance Report';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $locations = new Model_Locations();
+
+        $item = $item_pack_sizes->VaccineProductsReport();
+        $this->view->item_id = $item;
+        //filters
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->province = $province = $this->_request->province;
+            //$locations->form_values['pk_id'] = $this->_request->province;
+            //$this->view->loc_name = "Province:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->province = $province = 1;
+            //$this->view->loc_name = "Province:" . ' ' . 'Punjab';
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district1 = $this->_request->district;
+        } else {
+            $this->view->district1 = 33;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 1;
+        }
+
+        if (!empty($this->_request->year_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = 12;
+        } else {
+            $year = date("Y");
+            $this->view->year_sel = $year;
+            $this->view->month_sel = 12;
+        }
+
+        $month = 12;
+        $this->view->prov_sel = $province;
+
+        if (isset($this->_request->stk_sel) && !empty($this->_request->stk_sel)) {
+            $this->view->stk_sel = $sel_stk = $this->_request->stk_sel;
+        } else {
+            $this->view->stk_sel = $sel_stk = 1;
+        }
+
+        if (isset($this->_request->prod_sel) && !empty($this->_request->prod_sel)) {
+            $this->view->sel_item = $sel_item = $this->_request->prod_sel;
+        } else {
+            $this->view->sel_item = $sel_item = 26;
+        }
+
+        $end_date1 = $year . '-' . ($month) . '-01';
+        //echo $end_date1;
+
+        $end_date = date('Y-m-d', strtotime("-1 days", strtotime("+1 month", strtotime($end_date1))));
+        $start_date = date('Y-m-d', strtotime("-11 month", strtotime($end_date1)));
+        $this->view->start_date = $start_date;
+        $this->view->end_date = $end_date;
+        // Start date and End date
+        $begin = new DateTime($start_date);
+        $end = new DateTime($end_date);
+        $diff = $begin->diff($end);
+        $interval = DateInterval::createFromDateString('1 month');
+        $period = new DatePeriod($begin, $interval, $end);
+        $this->view->period = $period;
+        $this->view->sel_item = $sel_item;
+        $stakeholder = new Model_Stakeholders();
+        $stk = $stakeholder->nationReport();
+        $this->view->stk = $stk;
+        $locations = new Model_Locations();
+        $lct = $locations->devisionalReport();
+        $this->view->location = $lct;
+    }
+
+    public function storeIssuanceReportOldAction() {
+
+        $this->_helper->layout->setLayout('reports');
+        $this->view->report_id = 'STOREISSUANCEREPORT';
+        $this->view->report_title = 'Store Issuance Report';
+        $this->view->actionpage = 'store-issuance-report';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '95%';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $location = new Model_Locations();
+        $warehouses_data = new Model_WarehousesData();
+        if ($this->_request->prov_sel) {
+            $province = $this->_request->prov_sel;
+        }
+
+        if (!empty($this->_request->year_sel)) {
+            $year = $this->_request->year_sel;
+        } else {
+            $year = 2015;
+        }
+        $this->view->year_sel = $year;
+
+        if (!empty($this->_request->prod_sel)) {
+            $this->view->sel_prod = $this->_request->prod_sel;
+            $this->view->sel_item = $this->_request->prod_sel;
+        } else {
+            $this->view->sel_prod = 3;
+        }
+        if (!empty($this->_request->prov_sel)) {
+            $this->view->prov_sel = $prov_sel = $this->_request->prov_sel;
+        }
+
+        $item_pack_sizes = new Model_ItemPackSizes();
+        if ($this->_request->prod_sel) {
+            $item_pack_sizes->form_values['pk_id'] = $this->_request->prod_sel;
+            $this->view->item_name = $item_pack_sizes->getProductName();
+        } else {
+            $item_pack_sizes->form_values['pk_id'] = '28';
+            $this->view->item_name = $item_pack_sizes->getProductName();
+        }
+
+        if (isset($this->_request->dist_id) && !empty($this->_request->dist_id)) {
+            $locations = new Model_Locations();
+            $locations->form_values['geo_level_id'] = 4;
+            $locations->form_values['province_id'] = $this->_request->prov_sel;
+
+            $district = $locations->getLocationsByLevelByProvince();
+            $this->view->district = $district;
+            $this->view->sel_dist = $this->_request->dist_id;
+
+            $location->form_values['province_id'] = $province;
+            $location->form_values['district_id'] = $this->_request->dist_id;
+            $location_name = $location->ucLocations();
+            $provinces = $location->nationalReport();
+            $item = $item_pack_sizes->productsReport();
+            $this->view->item_id = $item;
+            $this->view->location_id = $location_name;
+            $this->view->location = $provinces;
+        } else {
+            $locations = new Model_Locations();
+            $location_name = $location->nationalReport();
+            $item = $item_pack_sizes->productsReport();
+            $this->view->item_id = $item;
+            $this->view->location_id = $location_name;
+            $this->view->location = $location_name;
+            $this->view->district = array();
+        }
+
+        /* $locations = new Model_Locations();
+          if ($this->_request->prov_sel) {
+          $locations->form_values['pk_id'] = $this->_request->prov_sel;
+          $this->view->location_name = $locations->getLocationName();
+          } else {
+          $this->view->location_name = "Punjab";
+          } */
+
+        $end_date1 = $year . '-12-01';
+        $end_date = date('Y-m-d', strtotime("-1 days", strtotime("+1 month", strtotime($end_date1))));
+        $start_date = date('Y-m-d', strtotime("-364 days", strtotime($end_date)));
+
+        // Start date and End date
+        $begin = new DateTime($start_date);
+        $end = new DateTime($end_date);
+        $diff = $begin->diff($end);
+        $interval = DateInterval::createFromDateString('1 month');
+        $period = new DatePeriod($begin, $interval, $end);
+        $this->view->period = $period;
+        //$stakeholder = new Model_Stakeholders();
+        //$stk = $stakeholder->nationReport();
+        //$this->view->stk = $stk;
+        //$locations = new Model_Locations();
+        //$lct = $locations->devisionalReport();
+        //$this->view->location = $lct;
+        //$locations->form_values['province_id'] = '1';
+        //$locations->form_values['district_id'] = '';
+        //$lct2 = $locations->tehsilLocations();
+        //$this->view->loc = $lct2;
+    }
+
     public function districtsYearlyReportAction() {
         $this->_helper->layout->setLayout('reports');
         $this->view->report_id = 'DISTRICTWAREHOUSE';
@@ -823,21 +1101,17 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         } else {
             $province = 1;
         }
-        $location->form_values['province_id'] = $province;
-        $location_name = $location->getLocations();
-        $item = $item_pack_sizes->productsReport();
-        $this->view->item_id = $item;
-        $this->view->location_id = $location_name;
+
         if (!empty($this->_request->year_sel) && !empty($this->_request->ending_month)) {
             $this->view->year_sel = $year = $this->_request->year_sel;
             $this->view->month_sel = $month = $this->_request->ending_month;
         } else {
             $year = date("Y");
-            if (date('d') > 10) {
-                $month = date("m", strtotime("-1"));
-            } else {
-                $month = date("m", strtotime("-2"));
-            }
+//            if (date('d') > 10) {
+//                $month = date("m", strtotime("-1"));
+//            } else {
+            $month = date("m", strtotime("-2 month"));
+//            }
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
         }
@@ -872,12 +1146,47 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $item_pack_sizes->form_values['pk_id'] = '28';
             $this->view->item_name = $item_pack_sizes->getProductName();
         }
+        if (isset($this->_request->dist_id) && !empty($this->_request->dist_id)) {
+            $locations = new Model_Locations();
+            $locations->form_values['geo_level_id'] = '4';
+            $locations->form_values['province_id'] = $this->_request->prov_sel;
+
+            $district = $locations->getLocationsByLevelByProvince();
+            $this->view->district = $district;
+            $this->view->sel_dist = $this->_request->dist_id;
+
+            $location->form_values['province_id'] = $province;
+            $location->form_values['district_id'] = $this->_request->dist_id;
+            $location_name = $location->tehsilLocationsDistrict();
+            $item = $item_pack_sizes->productsReport();
+            $this->view->item_id = $item;
+            $this->view->location_id = $location_name;
+
+            $locations->form_values['pk_id'] = $this->_request->dist_id;
+            $this->view->district_name = "District:" . ' ' . $locations->getLocationName();
+        } else {
+            $locations = new Model_Locations();
+            $locations->form_values['geo_level_id'] = '4';
+            $locations->form_values['province_id'] = '1';
+            $district = $locations->getLocationsByLevelByProvince();
+            $this->view->district = $district;
+            $this->view->sel_dist = "";
+
+            $location->form_values['province_id'] = $province;
+            $location_name = $location->getLocations();
+            $item = $item_pack_sizes->productsReport();
+            $this->view->item_id = $item;
+            $this->view->location_id = $location_name;
+            $this->view->district_name = "";
+        }
+
         $locations = new Model_Locations();
         if ($this->_request->prov_sel) {
             $locations->form_values['pk_id'] = $this->_request->prov_sel;
-            $this->view->location_name = $locations->getLocationName();
+            $this->view->location_name = "Province:" . ' ' . $locations->getLocationName();
+            // $this->view->location_name = $locations->getLocationName();
         } else {
-            $this->view->location_name = "Punjab";
+            $this->view->location_name = "Province:" . ' ' . "Punjab";
         }
 
         if ($sel_indicator == 1) {
@@ -909,6 +1218,10 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $locations = new Model_Locations();
         $lct = $locations->devisionalReport();
         $this->view->location = $lct;
+        $locations->form_values['province_id'] = '1';
+        $locations->form_values['district_id'] = '';
+        $lct2 = $locations->tehsilLocations();
+        $this->view->loc = $lct2;
     }
 
     public function wastagesReportAction() {
@@ -922,21 +1235,46 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $item_pack_sizes = new Model_ItemPackSizes();
         $location = new Model_Locations();
         $warehouses_data = new Model_WarehousesData();
-        $item = $item_pack_sizes->productsReport();
+        $item = $item_pack_sizes->VaccineProductsReport();
         if (!empty($this->_request->level)) {
             $this->view->sel_level = $level_sel = $this->_request->level;
         } else {
             $this->view->sel_level = $level_sel = '2';
         }
-
-
-        if (!empty($this->_request->prov_sel)) {
-            $this->view->prov_sel = $prov_sel = $this->_request->prov_sel;
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->province = $province = $this->_request->province;
         } else {
-            $this->view->prov_sel = $prov_sel = "1";
+            $this->view->province = $province = 1;
         }
-        $location->form_values['level_id'] = $level_sel;
-        $location->form_values['province_id'] = $prov_sel;
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district = $district = $this->_request->district;
+        } else {
+            $this->view->district = $district = 1;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 2;
+        }
+
+        if ($this->_request->wh_type == 2) {
+            $location->form_values['pk_id'] = $this->_request->province;
+            $this->view->loc_name = "Province:" . ' ' . $location->getLocationName();
+        } elseif ($this->_request->wh_type == 4) {
+            $location->form_values['pk_id'] = $this->_request->district;
+            $this->view->loc_name = "District:" . ' ' . $location->getLocationName();
+        } else {
+            $this->view->loc_name = "Province:" . ' ' . 'Punjab';
+        }
+
+        $location->form_values['level_id'] = $wh_type;
+        $location->form_values['province_id'] = $province;
+        $location->form_values['district_id'] = $district;
         $location_name = $location->getLocationWastages();
         $this->view->item_id = $item;
         $this->view->location_id = $location_name;
@@ -947,7 +1285,7 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         } else {
             $year = date("Y");
 
-            $month = date("m", strtotime("-1 month"));
+            $month = date("m", strtotime("-2 month"));
 
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
@@ -960,7 +1298,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->sel_prod = 6;
             $this->view->sel_item = 6;
         }
-
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 2;
+        }
 
         if (isset($this->_request->stk_sel) && !empty($this->_request->stk_sel)) {
             $this->view->stk_sel = $sel_stk = $this->_request->stk_sel;
@@ -992,7 +1334,7 @@ class Reports_InventoryManagementController extends App_Controller_Base {
     public function shipmentReportAction() {
         $this->_helper->layout->setLayout('reports');
         $this->view->report_id = 'SHIPMENTREPORT';
-        $this->view->report_title = 'Warehouse Shipment Report';
+        $this->view->report_title = 'Stock Shipment Report';
         $this->view->actionpage = 'shipment-report';
         $this->view->parameters = 'TS01I';
         $this->view->parameter_width = '95%';
@@ -1029,6 +1371,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->district = $this->_request->district;
         } else {
             $this->view->district = 1;
+        }
+        if (isset($this->_request->division) && !empty($this->_request->division)) {
+            $this->view->division = $this->_request->division;
+        } else {
+            $this->view->division = 1;
         }
         if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
             $this->view->tehsil = $this->_request->tehsil;
@@ -1080,7 +1427,7 @@ class Reports_InventoryManagementController extends App_Controller_Base {
     public function centralProvincialWarehouseAction() {
         $this->_helper->layout->setLayout('reports');
         $this->view->report_id = 'CENTRALWAREHOUSE';
-        $this->view->report_title = 'Federal/Provincial Warehouse Report';
+        $this->view->report_title = 'Federal/Provincial Store Report';
         $this->view->actionpage = 'central-provincial-warehouse';
         $this->view->parameters = 'TS01I';
         $this->view->parameter_width = '100%';
@@ -1160,6 +1507,10 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $this->view->location = $lct;
     }
 
+    public function allStockReportAction() {
+        $this->_helper->layout->setLayout('reports');
+    }
+
     public function reportedProvincesAction() {
         $this->_helper->layout->setLayout('reports');
         $this->view->report_id = 'REPORTEDPROVINCES';
@@ -1214,7 +1565,7 @@ class Reports_InventoryManagementController extends App_Controller_Base {
 
         $end_date1 = $year . '-' . ($month) . '-01';
         $end_date = date('Y-m-d', strtotime("-1 days", strtotime("+1 month", strtotime($end_date1))));
-        $start_date = date('Y-m-d', strtotime("-5 month", strtotime($end_date1)));
+        $start_date = date('Y-m-d', strtotime("-2 month", strtotime($end_date1)));
 
         if ($this->_request->prov_sel == 'all') {
             $this->view->location_name = "All";
@@ -1244,7 +1595,7 @@ class Reports_InventoryManagementController extends App_Controller_Base {
     public function stockOnHandAction() {
         $this->_helper->layout->setLayout('reports');
         $this->view->report_id = 'SOH';
-        $this->view->report_title = 'Provincial/Regional Store-Stock on Hand';
+        $this->view->report_title = 'Provincial/Regional Stock on Hand';
         $this->view->actionpage = 'stock-on-hand';
         $this->view->parameters = 'T';
         $this->view->parameter_width = '100%';
@@ -1264,11 +1615,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->month_sel = $month = $this->_request->month_sel;
         } else {
             $year = date("Y");
-            if (date('d') > 10) {
-                $month = date("m") - 1;
-            } else {
-                $month = date("m") - 2;
-            }
+//            if (date('d') > 10) {
+//                $month = date("m") - 1;
+//            } else {
+            $month = date("m", strtotime("-2 month"));
+//            }
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
         }
@@ -1335,7 +1686,7 @@ class Reports_InventoryManagementController extends App_Controller_Base {
     public function monthOfStockAction() {
         $this->_helper->layout->setLayout('reports');
         $this->view->report_id = 'MOS';
-        $this->view->report_title = 'Provincial/Regional Store-Months of Stock';
+        $this->view->report_title = 'Provincial/Regional Months of Stock';
         $this->view->actionpage = 'month-of-stock';
         $this->view->parameters = 'T';
         $this->view->parameter_width = '100%';
@@ -1355,11 +1706,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->month_sel = $month = $this->_request->month_sel;
         } else {
             $year = date("Y");
-            if (date('d') > 10) {
-                $month = date("m") - 1;
-            } else {
-                $month = date("m") - 2;
-            }
+//            if (date('d') > 10) {
+//                $month = date("m") - 1;
+//            } else {
+            $month = date("m", strtotime("-2 month"));
+//            }
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
         }
@@ -1410,7 +1761,7 @@ class Reports_InventoryManagementController extends App_Controller_Base {
     public function consumptionAction() {
         $this->_helper->layout->setLayout('reports');
         $this->view->report_id = 'CONSUMPTION';
-        $this->view->report_title = 'Provincial/Regional Store-Consumption';
+        $this->view->report_title = 'Provincial/Regional Consumption';
         $this->view->actionpage = 'consumption';
         $this->view->parameters = 'T';
         $this->view->parameter_width = '100%';
@@ -1430,11 +1781,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->month_sel = $month = $this->_request->month_sel;
         } else {
             $year = date("Y");
-            if (date('d') > 10) {
-                $month = date("m", strtotime("-1"));
-            } else {
-                $month = date("m", strtotime("-2"));
-            }
+//            if (date('d') > 10) {
+//                $month = date("m", strtotime("-1"));
+//            } else {
+            $month = date("m", strtotime("-2 month"));
+//            }
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
         }
@@ -1485,7 +1836,7 @@ class Reports_InventoryManagementController extends App_Controller_Base {
     public function amcAction() {
         $this->_helper->layout->setLayout('reports');
         $this->view->report_id = 'AMC';
-        $this->view->report_title = 'Provincial/Regional Store-Average Monthly Consumption';
+        $this->view->report_title = 'Provincial/Regional Average Monthly Consumption';
         $this->view->actionpage = 'amc';
         $this->view->parameters = 'T';
         $this->view->parameter_width = '100%';
@@ -1504,11 +1855,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->month_sel = $month = $this->_request->month_sel;
         } else {
             $year = date("Y");
-            if (date('d') > 10) {
-                $month = date("m", strtotime("-1"));
-            } else {
-                $month = date("m", strtotime("-2"));
-            }
+//            if (date('d') > 10) {
+//                $month = date("m", strtotime("-1"));
+//            } else {
+            $month = date("m", strtotime("-2 month"));
+//            }
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
         }
@@ -1568,10 +1919,20 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $item = $item_pack_sizes->productsReport();
         $this->view->item_id = $item;
         $location = new Model_Locations();
-        if (!empty($this->_request->prov_sel)) {
-            $province = $this->_request->prov_sel;
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->province = $this->_request->province;
         } else {
-            $province = 1;
+            $this->view->province = $province = 1;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district = $this->_request->district;
+        } else {
+            $this->view->district = 1;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
         }
         $location->form_values['province_id'] = $province;
         $location_name = $location->districtLocations();
@@ -1591,10 +1952,21 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->month_sel = $month;
             // $this->view->month_sel = $month;
         }
-        if (!empty($this->_request->rep_indicators)) {
-            $this->view->sel_indicator = $sel_indicator = $this->_request->rep_indicators;
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
         } else {
-            $this->view->sel_indicator = $sel_indicator = 1;
+            $this->view->wh_type = $wh_type = 2;
+        }
+        if (isset($this->_request->warehouse_id) && !empty($this->_request->warehouse_id)) {
+            $this->view->warehouse_id = $warehouse_id = $this->_request->warehouse_id;
+        } else {
+            $this->view->warehouse_id = $warehouse_id = 162;
+        }
+
+        if (isset($this->_request->wh_prov_sel) && !empty($this->_request->wh_prov_sel)) {
+            $this->view->wh_prov_sel = $wh_prov_sel = $this->_request->wh_prov_sel;
+        } else {
+            $this->view->wh_prov_sel = $wh_prov_sel = '';
         }
 
         $this->view->prov_sel = $province;
@@ -1605,19 +1977,10 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->stk_sel = $sel_stk = 1;
         }
 
-        if ($sel_indicator == 1) {
-            $str_indicator = "\'Consumption\'";
-        } else if ($sel_indicator == 2) {
-            $str_indicator = "\'Stock on Hand\'";
-        } else if ($sel_indicator == 3) {
-            $str_indicator = "\'Received\'";
-        } else if ($sel_indicator == 4) {
-            $str_indicator = "\'Issued\'";
-        }
-        $this->view->str_indicator = $str_indicator;
+
         $end_date1 = $year . '-' . ($month) . '-01';
         $end_date = date('Y-m-d', strtotime("-1 days", strtotime("+1 month", strtotime($end_date1))));
-        $start_date = date('Y-m-d', strtotime("-5 month", strtotime($end_date1)));
+        $start_date = date('Y-m-d', strtotime("-2 month", strtotime($end_date1)));
         $this->view->start_date = $start_date;
         $this->view->end_date = $end_date;
         // Start date and End date
@@ -1648,10 +2011,20 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $item = $item_pack_sizes->productsReport();
         $this->view->item_id = $item;
         $location = new Model_Locations();
-        if (!empty($this->_request->prov_sel)) {
-            $province = $this->_request->prov_sel;
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->province = $this->_request->province;
         } else {
-            $province = 1;
+            $this->view->province = $province = 1;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district = $this->_request->district;
+        } else {
+            $this->view->district = 1;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
         }
         $location->form_values['province_id'] = $province;
         $location_name = $location->districtLocations();
@@ -1669,6 +2042,11 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             }
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
+        }
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 2;
         }
         if (!empty($this->_request->rep_indicators)) {
             $this->view->sel_indicator = $sel_indicator = $this->_request->rep_indicators;
@@ -1725,12 +2103,26 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $item = $item_pack_sizes->productsReport();
         $this->view->item_id = $item;
         $location = new Model_Locations();
-        if (!empty($this->_request->prov_sel)) {
-            $province = $this->_request->prov_sel;
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->province = $this->_request->province;
         } else {
-            $province = 1;
+            $this->view->province = $province = 1;
         }
-
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district = $this->_request->district;
+        } else {
+            $this->view->district = 1;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 2;
+        }
         $location->form_values['province_id'] = $province;
         $location_name = $location->districtLocations();
         $this->view->location_name = $location_name;
@@ -1762,16 +2154,6 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->stk_sel = $sel_stk = 1;
         }
 
-        if ($sel_indicator == 1) {
-            $str_indicator = "\'Consumption\'";
-        } else if ($sel_indicator == 2) {
-            $str_indicator = "\'Stock on Hand\'";
-        } else if ($sel_indicator == 3) {
-            $str_indicator = "\'Received\'";
-        } else if ($sel_indicator == 4) {
-            $str_indicator = "\'Issued\'";
-        }
-        $this->view->str_indicator = $str_indicator;
         $end_date1 = $year . '-' . ($month) . '-01';
         $end_date = date('Y-m-d', strtotime("-1 days", strtotime("+1 month", strtotime($end_date1))));
         $start_date = date('Y-m-d', strtotime("-5 month", strtotime($end_date1)));
@@ -1797,7 +2179,7 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $this->_helper->layout->setLayout('reports');
         $this->view->report_id = 'SNONREPDIST';
         $this->view->actionpage = 'non-reported-districts-by-facility';
-        $this->view->parameters = 'TSP';
+        $this->view->parameters = 'TS01IP';
         $this->view->parameter_width = '100%';
 
         $item_pack_sizes = new Model_ItemPackSizes();
@@ -1805,10 +2187,20 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $item = $item_pack_sizes->productsReport();
         $this->view->item_id = $item;
         $location = new Model_Locations();
-        if ($this->_request->prov_sel) {
-            $province = $this->_request->prov_sel;
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->province = $this->_request->province;
         } else {
-            $province = 1;
+            $this->view->province = $province = 1;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district1 = $this->_request->district;
+        } else {
+            $this->view->district1 = 33;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
         }
         $location->form_values['province_id'] = $province;
         $location_name = $location->districtLocations();
@@ -1826,21 +2218,7 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->year_sel = $year;
             $this->view->month_sel = $month;
         }
-        $this->view->prov_sel = $prov_sel = $this->_request->prov_sel;
-        $this->view->dist_id = $dist_sel = $this->_request->dist_id;
 
-        if (isset($this->_request->prov_sel) && !empty($this->_request->prov_sel)) {
-            $this->view->prov_sel = $prov_sel = $this->_request->prov_sel;
-        } else {
-            $this->view->prov_sel = $prov_sel = 1;
-        }
-        if (isset($this->_request->dist_id)) { //&& !empty($this->_request->dist_id)
-            $this->view->dist_id_hidden = $this->_request->dist_id;
-            $this->view->sel_dist = $dist_id = $this->_request->dist_id;
-        } else {
-            $this->view->dist_id_hidden = '33';
-            $this->view->sel_dist = $dist_id = '33';
-        }
 
         if (isset($this->_request->stk_sel) && !empty($this->_request->stk_sel)) {
             $this->view->stk_sel = $sel_stk = $this->_request->stk_sel;
@@ -1848,13 +2226,20 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->stk_sel = $sel_stk = 1;
         }
 
-        if (!empty($this->_request->prov_sel)) {
-            $this->view->location_name = "Punjab";
+
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $locations = new Model_Locations();
+            $locations->form_values['pk_id'] = $this->_request->province;
+            $this->view->location_name = $locations->getLocationName();
         } else {
-            $location->form_values['pk_id'] = $this->_request->prov_sel;
-            $this->view->location_name = $location->getLocationName();
+            $this->view->location_name = "Punjab";
         }
 
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 2;
+        }
         $end_date = $year . '-' . ($month) . '-01';
         $end_date = date('Y-m-d', strtotime("-1 days", strtotime("+1 month", strtotime($end_date))));
         $start_date = date('Y-m-d', strtotime("-364 days", strtotime($end_date)));
@@ -1884,7 +2269,7 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $this->view->report_id = 'SNONREPDIST';
         $this->view->report_title = 'Non-reported EPI Centers Report for';
         $this->view->actionpage = 'non-reported-districts-by-uc';
-        $this->view->parameters = 'TSP';
+        $this->view->parameters = 'TS01IP';
         $this->view->parameter_width = '100%';
 
         $item_pack_sizes = new Model_ItemPackSizes();
@@ -1892,10 +2277,20 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $item = $item_pack_sizes->productsReport();
         $this->view->item_id = $item;
         $location = new Model_Locations();
-        if ($this->_request->prov_sel) {
-            $this->view->prov_sel = $province = $this->_request->prov_sel;
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->province = $this->_request->province;
         } else {
-            $this->view->prov_sel = $province = 1;
+            $this->view->province = $province = 1;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district1 = $this->_request->district;
+        } else {
+            $this->view->district1 = 33;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
         }
         $location->form_values['province_id'] = $province;
         $location_name = $location->districtLocations();
@@ -1915,29 +2310,20 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->month_sel = $month;
         }
 
-        if (!empty($this->_request->prov_sel)) {
-            $this->view->location_name = "Punjab";
-        } else {
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
             $locations = new Model_Locations();
-            $locations->form_values['pk_id'] = $this->_request->prov_sel;
+            $locations->form_values['pk_id'] = $this->_request->province;
             $this->view->location_name = $locations->getLocationName();
-        }
-
-        //$this->view->dist_sel = $dist_sel = $this->_request->dist_id;
-        if (isset($this->_request->dist_id)) { //&& !empty($this->_request->dist_id)
-            $this->view->dist_id_hidden = $this->_request->dist_id;
-            $this->view->sel_dist = $dist_sel = $this->_request->dist_id;
         } else {
-            $this->view->dist_id_hidden = 33;
-            $this->view->sel_dist = $dist_sel = 33;
+            $this->view->location_name = "Punjab";
         }
 
-        if (isset($this->_request->stk_sel) && !empty($this->_request->stk_sel)) {
-            $this->view->stk_sel = $sel_stk = $this->_request->stk_sel;
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
         } else {
-            $this->view->stk_sel = $sel_stk = 1;
+            $this->view->wh_type = $wh_type = 2;
         }
-
         $end_date = $year . '-' . ($month) . '-01';
         $end_date = date('Y-m-d', strtotime("-1 days", strtotime("+1 month", strtotime($end_date))));
         $start_date = date('Y-m-d', strtotime("-364 days", strtotime($end_date)));
@@ -1990,15 +2376,13 @@ class Reports_InventoryManagementController extends App_Controller_Base {
     }
 
     public function reportedUcUserAction() {
-        $this->_helper->layout->disableLayout();
-        $this->_helper->layout->setLayout('reports');
+        $this->_helper->layout->setLayout('print-report');
         $param = explode('-', base64_decode($this->_request->getParam('param', '')));
         $this->view->param = $param;
     }
 
     public function reportedWarehouseListAction() {
-        $this->_helper->layout->disableLayout();
-        $this->_helper->layout->setLayout('reports');
+        $this->_helper->layout->setLayout('print-report');
         $param = explode('-', base64_decode($this->_request->getParam('param', '')));
         $this->view->param = $param;
     }
@@ -2008,12 +2392,14 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $this->_helper->layout->setLayout("print-report");
         $param = explode('|', base64_decode($this->_request->getParam('param', '')));
         $this->view->param = $param;
+        $this->view->is_new_report = 2;
     }
 
     public function popupDataEntryFacilityAction() {
         // $this->_helper->layout->disableLayout();
         $this->_helper->layout->setLayout("print-report");
         $param = $this->_request->getParam('param', '');
+        $this->view->is_new_report = 2;
         $this->view->param = $param;
     }
 
@@ -2148,19 +2534,27 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $stock_master->form_values['tehsil'] = $this->_request->tehsil;
         } else {
             $tehsil_id = $this->_identity->getTehsilId($this->_userid);
-
+            if (empty($tehsil_id)) {
+                $tehsil_id = '1';
+            }
             $this->view->tehsil = $tehsil_id;
             $stock_master->form_values['tehsil'] = $tehsil_id;
         }
-        $data_arr = $stock_master->getDataEntryStatusFederal();
-        $data_arr1 = $stock_master->getDataEntryStatusProvincial();
-        $data_arr2 = $stock_master->getDataEntryStatusDistrict();
-        $data_arr3 = $stock_master->getDataEntryStatusTehsil();
+//        $data_arr = $stock_master->getDataEntryStatusFederal();
+//        $data_arr1 = $stock_master->getDataEntryStatusProvincial();
+//        $data_arr2 = $stock_master->getDataEntryStatusDistrict();
+//        $data_arr3 = $stock_master->getDataEntryStatusTehsil();
 
-        $this->view->data = $data_arr;
-        $this->view->data1 = $data_arr1;
-        $this->view->data2 = $data_arr2;
-        $this->view->data3 = $data_arr3;
+//        $this->view->data = $data_arr;
+//        $this->view->data1 = $data_arr1;
+//        $this->view->data2 = $data_arr2;
+//        $this->view->data3 = $data_arr3;
+        
+        
+        $this->view->data = $stock_master->getFederalWarehouses();
+        $this->view->data1 = $stock_master->getProvincialWarehouses();
+        $this->view->data2 = $stock_master->getDistrictWarehouses();
+        $this->view->data3 = $stock_master->getTehsilWarehouses();
 
         $this->view->role_id = $this->_identity->getRoleId();
 
@@ -2312,11 +2706,6 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->time_period = date("d/m/Y");
             $form->time_period->setValue(date("d/m/Y"));
         }
-
-
-
-
-
         $this->view->role_id = $this->_identity->getRoleId();
 
         $base_url = Zend_Registry::get('baseurl');
@@ -2363,11 +2752,6 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->time_period = date("d/m/Y");
             $form->time_period->setValue(date("d/m/Y"));
         }
-
-
-
-
-
         $this->view->role_id = $this->_identity->getRoleId();
 
         $base_url = Zend_Registry::get('baseurl');
@@ -2481,17 +2865,19 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $stock_master = new Model_StockMaster();
         $result = $stock_master->getSufficientProductReport();
 
-        /* $today_date = new DateTime(date("Y-m-d"));
-          $last_year = $today_date->modify("-1 year");
-          $from_date = $last_year->format('d F, Y');
-          $to_date = date("d F, Y"); */
+        $today_date = new DateTime(date("Y-m-d"));
+        $last_year = $today_date->modify("-1 year");
+        $this->view->from_date = $from_date = $last_year->format('d F, Y');
+        $this->view->to_date = $to_date = date("d F, Y");
 
         $this->view->result = $result;
-        $this->view->headTitle("Stock Sufficiency Report - 2014");
-        $xmlstore = "<chart exportEnabled='1' exportAction='Download' bgColor='white' caption='Stock Sufficiency Graph' 
+        $this->view->headTitle("Stock Sufficiency Report, $from_date - $to_date");
+
+        $xmlstore = "<chart exportEnabled='1' exportAction='Download' bgColor='white' caption='Stock Sufficiency Graph'
          exportFileName='District wise percentage of UCs having wastage > 50% " . date('Y-m-d H:i:s') . "' yAxisName='MOS (Avg. Issuance)' showValues='1' formatNumberScale='0' theme='fint' numberSuffix=''>";
         foreach ($result as $data) {
-            $month6 = ROUND($data['soh'] / $data['avg_issue'], 1);
+            echo $data['avg_issue'];
+            $month6 = ROUND($data['soh'] / $data['amc'], 1);
             $month = ($month6 > 0) ? $month6 . " months" : '';
 
             $xmlstore .= "<set label='$data[item_name]' value='" . $month . "' />";
@@ -2499,6 +2885,24 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $xmlstore .="</chart>";
 
         $this->view->xml_store = $xmlstore;
+    }
+
+    public function pipelineReportAction() {
+
+        //$base_url = Zend_Registry::get('baseurl');
+        //$this->view->inlineScript()->appendFile($base_url . '/js/all_level_combos.js');
+        $this->view->role_id = $this->_identity->getRoleId();
+
+        $stock_master = new Model_StockMaster();
+        $result = $stock_master->getPipelineProductReport();
+
+        $today_date = new DateTime(date("Y-m-d"));
+        $last_year = $today_date->modify("-1 year");
+        $this->view->from_date = $from_date = $last_year->format('d F, Y');
+        $this->view->to_date = $to_date = date("d F, Y");
+
+        $this->view->result = $result;
+        $this->view->headTitle("Pipeline Report, $from_date - $to_date");
     }
 
     public function statusReportAction() {
@@ -2592,62 +2996,99 @@ class Reports_InventoryManagementController extends App_Controller_Base {
 
     public function stockIssuanceAction() {
         $stock_master = new Model_StockMaster();
+        $warehouse = $this->_identity->getWarehouseName();
+        $role_id = $this->_identity->getRoleId();
 
         if ($this->_request->isPost()) {
             $stock_master->form_values = $this->_request->getParams();
             $this->view->month = $this->_request->getParam('month');
             $this->view->year = $this->_request->getParam('year');
+            //if ($role_id == 23 || $role_id == 3) {
+            $wh = new Model_Warehouses();
+            $warehouse = $wh->getWarehouseNameByWarehouseId($this->_request->getParam('warehouse'));
+            //}
         } else {
             $stock_master->form_values = array(
                 'month' => date("m"),
-                'year' => date("Y")
+                'year' => date("Y"),
+                'warehouse' => 159
             );
         }
 
         $this->view->month = $this->_request->getParam('month', date("m"));
         $this->view->year = $this->_request->getParam('year', date("Y"));
+        $this->view->warehouse = $this->_request->getParam('warehouse', 159);
+        $this->view->params = $this->_request->getParams();
         $this->view->result = $stock_master->getStockIssuanceByDate();
-        $this->view->warehousename = $this->_identity->getWarehouseName();
+        $this->view->warehousename = $warehouse;
+        $this->view->role_id = $role_id;
+
+        $this->view->menu_type = 1;
+        $base_url = Zend_Registry::get('baseurl');
+        $this->view->headScript()->appendFile($base_url . '/js/all_level_combos.js');
     }
 
     public function printStockIssuanceAction() {
         $this->_helper->layout->setLayout('print');
+        $wh = new Model_Warehouses();
 
         $stock_master = new Model_StockMaster();
+        $this->view->headTitle("Stock Issuance Report");
         $stock_master->form_values = $this->_request->getParams();
         $this->view->month = $this->_request->getParam('month', date("m"));
         $this->view->year = $this->_request->getParam('year', date("Y"));
         $this->view->result = $stock_master->getStockIssuanceByDate();
-        $this->view->warehousename = $this->_identity->getWarehouseName();
+        $this->view->username = $this->_identity->getUserName();
+        $this->view->warehousename = $wh->getWarehouseNameByWarehouseId($this->_request->getParam('warehouse'));
     }
 
     public function stockReportAction() {
         $stock_master = new Model_StockMaster();
+        $warehouse = $this->_identity->getWarehouseName();
+        $role_id = $this->_identity->getRoleId();
+        $wh_id = $this->_request->getParam('warehouse', 159);
 
         if ($this->_request->isPost()) {
             $stock_master->form_values = $this->_request->getParams();
+            if ($role_id == 23 || $role_id == 3) {
+                $wh = new Model_Warehouses();
+                $warehouse = $wh->getWarehouseNameByWarehouseId($this->_request->getParam('warehouse'));
+            }
         } else {
             $stock_master->form_values = array(
                 'month' => date("m"),
                 'year' => date("Y")
             );
+            $warehouse = $this->_identity->getWarehouseName();
         }
 
         $this->view->month = $this->_request->getParam('month', date("m"));
         $this->view->year = $this->_request->getParam('year', date("Y"));
+        $this->view->warehouse = $wh_id;
+        $this->view->params = $this->_request->getParams();
         $this->view->result = $stock_master->getStockReportByDate();
-        $this->view->warehousename = $this->_identity->getWarehouseName();
+        $this->view->warehousename = $warehouse;
+        $this->view->lastdate = $stock_master->getStockLastDate($wh_id);
+        $this->view->role_id = $role_id;
+
+        $this->view->menu_type = 1;
+        $base_url = Zend_Registry::get('baseurl');
+        $this->view->headScript()->appendFile($base_url . '/js/all_level_combos.js');
     }
 
     public function printStockReportAction() {
         $this->_helper->layout->setLayout('print');
+        $wh = new Model_Warehouses();
 
         $stock_master = new Model_StockMaster();
         $stock_master->form_values = $this->_request->getParams();
+        $this->view->headTitle("Stock Balance Report");
+        $this->view->print_title = "Stock Balance Report";
         $this->view->month = $this->_request->getParam('month', date("m"));
         $this->view->year = $this->_request->getParam('year', date("Y"));
         $this->view->result = $stock_master->getStockReportByDate();
-        $this->view->warehousename = $this->_identity->getWarehouseName();
+        $this->view->username = $this->_identity->getUserName();
+        $this->view->warehousename = $wh->getWarehouseNameByWarehouseId($this->_request->getParam('warehouse'));
     }
 
     public function ucWise1Action() {
@@ -2692,9 +3133,6 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $district = $locations->getLocationsByLevelByProvinceConsumption();
             $this->view->district = $district;
         }
-
-
-
         $this->view->prov_sel = $prov_sel;
 
         if (isset($this->_request->stk_sel) && !empty($this->_request->stk_sel)) {
@@ -2743,6 +3181,106 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $this->view->items_tt = $items_tt;
     }
 
+    public function bcgCoverageDetailAction() {
+        $this->_helper->layout->setLayout('reports');
+        $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_title = 'BCG Vaccine Coverage Detail Report';
+        $this->view->actionpage = 'bcg-coverage-detail';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $locations = new Model_Locations();
+
+
+        //FOR BCG ITEM
+        $item_pack_sizes->form_values = 6;
+        $items = $item_pack_sizes->getItemForConsumptionReport();
+        $this->view->items = $items;
+
+        //For locations Combo
+        $lct = $locations->conusmptionReportLocations();
+        $this->view->location = $lct;
+
+        if (!empty($this->_request->from_year_sel) && !empty($this->_request->from_month_sel)) {
+            $this->view->from_year_sel = $from_year = $this->_request->from_year_sel;
+            $this->view->from_month_sel = $from_month = $this->_request->from_month_sel;
+        } else {
+            $from_year = date("Y");
+
+            $this->view->from_year_sel = $from_year;
+            $this->view->from_month_sel = $from_month = date("m", strtotime("-4 month"));
+        }
+
+
+
+        if (!empty($this->_request->month_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = $this->_request->month_sel;
+        } else {
+            $year = date("Y");
+
+            if (date('d') > 10) {
+
+
+                $month = date("m", strtotime("-2 month"));
+            } else {
+                $month = date("m", strtotime("-2 month"));
+            }
+            $this->view->year_sel = $year;
+            $this->view->month_sel = $month;
+        }
+
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->prov_sel = $province = $this->_request->province;
+        } else {
+            $this->view->prov_sel = $province = 2;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district_id = $district_id = $this->_request->district;
+        } else {
+            $this->view->district_id = $district_id = 30;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 4;
+        }
+
+        if ($this->_request->wh_type == 4) {
+            $locations->form_values['pk_id'] = $this->_request->district;
+            $this->view->loc_name = "District:" . ' ' . $locations->getLocationName();
+        } elseif ($this->_request->wh_type == 5) {
+            $locations->form_values['pk_id'] = $this->_request->tehsil;
+            $this->view->loc_name = "Tehsil:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->loc_name = "District:" . ' ' . 'Badin';
+        }
+
+        $locations->form_values['geo_level_id'] = '4';
+        $locations->form_values['province_id'] = $province;
+        $district = $locations->getLocationsByLevelByProvinceConsumption();
+        $this->view->district = $district;
+        $this->view->prov_sel = $province;
+
+        $locations->form_values['dist_id'] = $district_id;
+        $locations->form_values['year'] = $year;
+        $distrctName = $locations->getLocationForReport();
+        $res = $locations->getLocationsForConsumptionReport();
+        $this->view->result = $res;
+
+
+        //FOR Excel File Name
+        $reportingDate = $year . '-' . $month . '-01';
+        $fileName = 'BCG-Vaccine-Coverage' . $distrctName . '_for_' . date('M-Y', strtotime($reportingDate));
+        $this->view->file_name = $fileName;
+    }
+
     public function ucWise2Action() {
         $this->_helper->layout->setLayout('reports');
         $this->view->report_id = 'UCWISE2';
@@ -2786,8 +3324,6 @@ class Reports_InventoryManagementController extends App_Controller_Base {
 
             $this->view->district = $district;
         }
-
-
 
         $this->view->prov_sel = $prov_sel;
 
@@ -2879,8 +3415,6 @@ class Reports_InventoryManagementController extends App_Controller_Base {
             $this->view->district = $district;
         }
 
-
-
         $this->view->prov_sel = $prov_sel;
 
         if (isset($this->_request->stk_sel) && !empty($this->_request->stk_sel)) {
@@ -2929,6 +3463,1129 @@ class Reports_InventoryManagementController extends App_Controller_Base {
         $this->view->items = $items;
         $this->view->items_non_vaccinces = $items_non_vaccines;
         $this->view->items_tt = $items_tt;
+    }
+
+    public function vaccinesCoverageAction() {
+
+        $this->_helper->layout->setLayout('reports');
+        // $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_id = 'VCOVERAGE';
+        $this->view->actionpage = 'vaccines-coverage';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $this->view->report_title = 'Annualized Vaccines Coverage Report';
+        $locations = new Model_Locations();
+        //filters
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->province = $this->_request->province;
+        } else {
+            $this->view->province = $province = 1;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district1 = $this->_request->district;
+            $locations->form_values['pk_id'] = $this->_request->district;
+            $this->view->loc_name = "District:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->district1 = 33;
+            $this->view->loc_name = "District:" . ' ' . 'Bahawalpur';
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 4;
+        }
+
+        if (!empty($this->_request->year_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = 12;
+        } else {
+            $year = date("Y");
+
+            $this->view->year_sel = $year;
+            $this->view->month_sel = 12;
+        }
+
+        $month = 12;
+        $this->view->prov_sel = $province;
+
+        if (isset($this->_request->stk_sel) && !empty($this->_request->stk_sel)) {
+            $this->view->stk_sel = $sel_stk = $this->_request->stk_sel;
+        } else {
+            $this->view->stk_sel = $sel_stk = 1;
+        }
+
+        $end_date1 = $year . '-' . ($month) . '-01';
+        //  echo $end_date1;
+
+        $end_date = date('Y-m-d', strtotime("-1 days", strtotime("+1 month", strtotime($end_date1))));
+        $start_date = date('Y-m-d', strtotime("-11 month", strtotime($end_date1)));
+        $this->view->start_date = $start_date;
+        $this->view->end_date = $end_date;
+        // Start date and End date
+        $begin = new DateTime($start_date);
+        $end = new DateTime($end_date);
+        $diff = $begin->diff($end);
+        $interval = DateInterval::createFromDateString('1 month');
+        $period = new DatePeriod($begin, $interval, $end);
+        $this->view->period = $period;
+        $this->view->sel_item = $this->_request->prod_sel;
+        $stakeholder = new Model_Stakeholders();
+        $stk = $stakeholder->nationReport();
+        $this->view->stk = $stk;
+        $locations = new Model_Locations();
+        $lct = $locations->devisionalReport();
+        $this->view->location = $lct;
+    }
+
+    public function vaccineStatusWastageAction() {
+
+        $this->_helper->layout->setLayout('reports');
+        // $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_id = 'VSTATUSWASTAGE';
+        $this->view->actionpage = 'vaccine-status-wastage';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $this->view->report_title = 'Vaccine Stock Status Uc Wise';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $locations = new Model_Locations();
+        $item = $item_pack_sizes->VaccineProductsReport();
+        $this->view->item_id = $item;
+        //filters
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->province = $this->_request->province;
+        } else {
+            $this->view->province = $province = 1;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district1 = $this->_request->district;
+        } else {
+            $this->view->district1 = 33;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 4;
+        }
+        //  $location->form_values['province_id'] = $province;
+        //  $location_name = $location->districtLocations();
+        // $this->view->location_name = $location_name;
+        if ($this->_request->wh_type == 4) {
+            $locations->form_values['pk_id'] = $this->_request->district;
+            $this->view->loc_name = "District:" . ' ' . $locations->getLocationName();
+        } elseif ($this->_request->wh_type == 5) {
+            $locations->form_values['pk_id'] = $this->_request->tehsil;
+            $this->view->loc_name = "Tehsil:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->loc_name = "District:" . ' ' . 'Bahawalpur';
+        }
+        if (!empty($this->_request->from_year_sel) && !empty($this->_request->from_month_sel)) {
+            $this->view->from_year_sel = $from_year = $this->_request->from_year_sel;
+            $this->view->from_month_sel = $from_month = $this->_request->from_month_sel;
+        } else {
+            $from_year = date("Y");
+
+            $this->view->from_year_sel = $from_year;
+            $this->view->from_month_sel = $from_month = date("m", strtotime("-3 month"));
+        }
+
+
+        if (!empty($this->_request->month_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = $this->_request->month_sel;
+        } else {
+            $year = date("Y");
+
+            $this->view->year_sel = $year;
+            $this->view->month_sel = $month = date("m", strtotime("-1"));
+        }
+
+        $month = 12;
+        $this->view->prov_sel = $province;
+
+        if (isset($this->_request->stk_sel) && !empty($this->_request->stk_sel)) {
+            $this->view->stk_sel = $sel_stk = $this->_request->stk_sel;
+        } else {
+            $this->view->stk_sel = $sel_stk = 1;
+        }
+        if (isset($this->_request->prod_sel) && !empty($this->_request->prod_sel)) {
+            $this->view->sel_item = $sel_item = $this->_request->prod_sel;
+        } else {
+            $this->view->sel_item = $sel_item = 26;
+        }
+        $this->view->sel_item = $sel_item;
+        $end_date1 = $year . '-' . ($month) . '-01';
+        //  echo $end_date1;
+
+        $end_date = date('Y-m-d', strtotime("-1 days", strtotime("+1 month", strtotime($end_date1))));
+        $start_date = date('Y-m-d', strtotime("-11 month", strtotime($end_date1)));
+        $this->view->start_date = $start_date;
+        $this->view->end_date = $end_date;
+        // Start date and End date
+        $begin = new DateTime($start_date);
+        $end = new DateTime($end_date);
+        $diff = $begin->diff($end);
+        $interval = DateInterval::createFromDateString('1 month');
+        $period = new DatePeriod($begin, $interval, $end);
+        $this->view->period = $period;
+
+        $stakeholder = new Model_Stakeholders();
+        $stk = $stakeholder->nationReport();
+        $this->view->stk = $stk;
+        $locations = new Model_Locations();
+        $lct = $locations->devisionalReport();
+        $this->view->location = $lct;
+    }
+
+    public function vaccineDropoutRateAction() {
+
+        $this->_helper->layout->setLayout('reports');
+        // $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_id = 'VDROPOUTRATE';
+        $this->view->actionpage = 'vaccine-dropout-rate';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $this->view->report_title = 'Vaccine Dropout Rate at';
+        $item_pack_sizes = new Model_ItemPackSizes();
+
+        $item = $item_pack_sizes->productsReport();
+        $this->view->item_id = $item;
+        //filters
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->province = $this->_request->province;
+        } else {
+            $this->view->province = $province = 2;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district1 = $this->_request->district;
+        } else {
+            $this->view->district1 = 30;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 4;
+        }
+        $locations = new Model_Locations();
+        if ($this->_request->wh_type == 4) {
+            $locations->form_values['pk_id'] = $this->_request->district;
+            $this->view->loc_name = "District:" . ' ' . $locations->getLocationName();
+        } elseif ($this->_request->wh_type == 5) {
+            $locations->form_values['pk_id'] = $this->_request->tehsil;
+            $this->view->loc_name = "Tehsil:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->loc_name = "District:" . ' ' . 'Bahawalpur';
+        }
+        //  $location->form_values['province_id'] = $province;
+        //  $location_name = $location->districtLocations();
+        // $this->view->location_name = $location_name;
+
+        if (!empty($this->_request->from_year_sel) && !empty($this->_request->from_month_sel)) {
+            $this->view->from_year_sel = $from_year = $this->_request->from_year_sel;
+            $this->view->from_month_sel = $from_month = $this->_request->from_month_sel;
+        } else {
+            $from_year = date("Y");
+
+            $this->view->from_year_sel = $from_year;
+            $this->view->from_month_sel = $from_month = date("m", strtotime("-3 month"));
+        }
+
+
+
+        if (!empty($this->_request->month_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = $this->_request->month_sel;
+        } else {
+            $year = date("Y");
+
+            $this->view->year_sel = $year;
+            $this->view->month_sel = $month = date("m", strtotime("-1"));
+        }
+
+        $month = 12;
+        $this->view->prov_sel = $province;
+
+        if (isset($this->_request->stk_sel) && !empty($this->_request->stk_sel)) {
+            $this->view->stk_sel = $sel_stk = $this->_request->stk_sel;
+        } else {
+            $this->view->stk_sel = $sel_stk = 1;
+        }
+        if (isset($this->_request->prod_sel) && !empty($this->_request->prod_sel)) {
+            $this->view->sel_item = $sel_item = $this->_request->prod_sel;
+        } else {
+            $this->view->sel_item = $sel_item = 26;
+        }
+        $this->view->sel_item = $sel_item;
+        $end_date1 = $year . '-' . ($month) . '-01';
+        //  echo $end_date1;
+
+        $end_date = date('Y-m-d', strtotime("-1 days", strtotime("+1 month", strtotime($end_date1))));
+        $start_date = date('Y-m-d', strtotime("-11 month", strtotime($end_date1)));
+        $this->view->start_date = $start_date;
+        $this->view->end_date = $end_date;
+        // Start date and End date
+        $begin = new DateTime($start_date);
+        $end = new DateTime($end_date);
+        $diff = $begin->diff($end);
+        $interval = DateInterval::createFromDateString('1 month');
+        $period = new DatePeriod($begin, $interval, $end);
+        $this->view->period = $period;
+
+        $stakeholder = new Model_Stakeholders();
+        $stk = $stakeholder->nationReport();
+        $this->view->stk = $stk;
+        $locations = new Model_Locations();
+        $lct = $locations->devisionalReport();
+        $this->view->location = $lct;
+    }
+
+    public function stockMovementReportAction() {
+        $this->_helper->layout->setLayout('reports');
+        //$this->view->report_id = 'CENTRALWAREHOUSE';
+        $this->view->report_id = 'STOCKMOVEMENT';
+        $this->view->report_title = 'Stock Movement Report';
+        $this->view->actionpage = 'stock-movement-report';
+        $this->view->parameters = 'TS01I';
+        $this->view->parameter_width = '100%';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $warehouses_data = new Model_WarehousesData();
+        $item = $item_pack_sizes->productsReport();
+        $this->view->item_id = $item;
+
+        if (!empty($this->_request->ending_month) && !empty($this->_request->ending_month)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = $this->_request->ending_month;
+        } else {
+            $year = date("Y");
+            if (date('d') > 10) {
+                $month = date("m", strtotime("-1"));
+            } else {
+                $month = date("m", strtotime("-2"));
+            }
+            $this->view->year_sel = $year;
+            $this->view->month_sel = $month;
+        }
+        if (!empty($this->_request->rep_indicators)) {
+            $this->view->sel_indicator = $sel_indicator = $this->_request->rep_indicators;
+        } else {
+            $this->view->sel_indicator = $sel_indicator = 1;
+        }
+        $this->view->prov_sel = $prov_sel = $this->_request->prov_sel;
+
+        if (isset($this->_request->stk_sel) && !empty($this->_request->stk_sel)) {
+            $this->view->stk_sel = $sel_stk = $this->_request->stk_sel;
+        } else {
+            $this->view->stk_sel = $sel_stk = 1;
+        }
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 1;
+        }
+        if (isset($this->_request->warehouse_id) && !empty($this->_request->warehouse_id)) {
+            $this->view->warehouse_id = $warehouse_id = $this->_request->warehouse_id;
+        } else {
+            $this->view->warehouse_id = $warehouse_id = 159;
+        }
+
+        if (isset($this->_request->wh_prov_sel) && !empty($this->_request->wh_prov_sel)) {
+            $this->view->wh_prov_sel = $wh_prov_sel = $this->_request->wh_prov_sel;
+        } else {
+            $this->view->wh_prov_sel = $wh_prov_sel = '';
+        }
+        //to warehouse
+        if (isset($this->_request->to_wh_type) && !empty($this->_request->to_wh_type)) {
+            $this->view->to_wh_type = $wh_type = $this->_request->to_wh_type;
+        } else {
+            $this->view->to_wh_type = $wh_type = 2;
+        }
+        if (isset($this->_request->to_warehouse_id) && !empty($this->_request->to_warehouse_id)) {
+            $this->view->to_warehouse_id = $warehouse_id = $this->_request->to_warehouse_id;
+        } else {
+            $this->view->to_warehouse_id = $warehouse_id = 162;
+        }
+
+        if (isset($this->_request->to_wh_prov_sel) && !empty($this->_request->to_wh_prov_sel)) {
+            $this->view->to_wh_prov_sel = $wh_prov_sel = $this->_request->to_wh_prov_sel;
+        } else {
+            $this->view->to_wh_prov_sel = $wh_prov_sel = '';
+        }
+
+        //to warehouse end
+        if ($sel_indicator == 1) {
+            $str_indicator = "\'Issue\'";
+        } else if ($sel_indicator == 2) {
+            $str_indicator = "\'Stock on Hand\'";
+        } else if ($sel_indicator == 3) {
+            $str_indicator = "\'Received\'";
+        }
+        $this->view->str_indicator = $str_indicator;
+
+        $end_date = $year . '-' . ($month) . '-01';
+        $end_date = date('Y-m-d', strtotime("-1 days", strtotime("+1 month", strtotime($end_date))));
+        $start_date = date('Y-m-d', strtotime("-364 days", strtotime($end_date)));
+
+        // Start date and End date
+        $begin = new DateTime($start_date);
+        $end = new DateTime($end_date);
+        $diff = $begin->diff($end);
+        $interval = DateInterval::createFromDateString('1 month');
+        $period = new DatePeriod($begin, $interval, $end);
+        $this->view->period = $period;
+        $this->view->sel_item = $this->_request->prod_sel;
+        $stakeholder = new Model_Stakeholders();
+        $stk = $stakeholder->nationReport();
+        $this->view->stk = $stk;
+        $locations = new Model_Locations();
+        $lct = $locations->nationalReport();
+        $this->view->location = $lct;
+    }
+
+    public function toWhTypeAction() {
+        $this->_helper->layout->disableLayout();
+
+        $this->view->wh_type = $this->_request->getParam('SkOfcLvl');
+    }
+
+    public function ttCoverageDetailAction() {
+        $this->_helper->layout->setLayout('reports');
+        $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_title = 'TT Vaccine Coverage Detail Report';
+        $this->view->actionpage = 'tt-coverage-detail';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $locations = new Model_Locations();
+
+
+        //FOR BCG ITEM
+        $item_pack_sizes->form_values = 6;
+        $items = $item_pack_sizes->getItemForConsumptionReport();
+        $this->view->items = $items;
+
+        //For locations Combo
+        $lct = $locations->conusmptionReportLocations();
+        $this->view->location = $lct;
+
+        if (!empty($this->_request->from_year_sel) && !empty($this->_request->from_month_sel)) {
+            $this->view->from_year_sel = $from_year = $this->_request->from_year_sel;
+            $this->view->from_month_sel = $from_month = $this->_request->from_month_sel;
+        } else {
+            $from_year = date("Y");
+
+            $this->view->from_year_sel = $from_year;
+            $this->view->from_month_sel = $from_month = date("m", strtotime("-4 month"));
+        }
+
+        if (!empty($this->_request->month_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = $this->_request->month_sel;
+        } else {
+            $year = date("Y");
+
+            if (date('d') > 10) {
+
+
+                $month = date("m", strtotime("-2 month"));
+            } else {
+                $month = date("m", strtotime("-2 month"));
+            }
+            $this->view->year_sel = $year;
+            $this->view->month_sel = $month;
+        }
+
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->prov_sel = $prov_sel = $this->_request->province;
+        } else {
+            $this->view->prov_sel = $prov_sel = 2;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district_id = $district_id = $this->_request->district;
+        } else {
+            $this->view->district_id = $district_id = 30;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 4;
+        }
+
+        if ($this->_request->wh_type == 4) {
+            $locations->form_values['pk_id'] = $this->_request->district;
+            $this->view->loc_name = "District:" . ' ' . $locations->getLocationName();
+        } elseif ($this->_request->wh_type == 5) {
+            $locations->form_values['pk_id'] = $this->_request->tehsil;
+            $this->view->loc_name = "Tehsil:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->loc_name = "District:" . ' ' . 'Badin';
+        }
+        $locations->form_values['geo_level_id'] = '4';
+        $locations->form_values['province_id'] = $prov_sel;
+        $district = $locations->getLocationsByLevelByProvinceConsumption();
+        $this->view->district = $district;
+        $this->view->prov_sel = $prov_sel;
+
+
+        $distrctName = $locations->getLocationForReport();
+        $locations->form_values['dist_id'] = $district_id;
+        $locations->form_values['year'] = $year;
+        $res = $locations->getLocationsForConsumptionReport();
+        $this->view->result = $res;
+
+
+        //FOR Excel File Name
+        $reportingDate = $year . '-' . $month . '-01';
+        $fileName = 'tt' . $distrctName . '_for_' . date('M-Y', strtotime($reportingDate));
+        $this->view->file_name = $fileName;
+    }
+
+    public function pentavalentCoverageDetailAction() {
+        $this->_helper->layout->setLayout('reports');
+        $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_title = 'Pentavalent Vaccine Coverage Detail Report';
+        $this->view->actionpage = 'pentavalent-coverage-detail';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $locations = new Model_Locations();
+
+
+        //FOR Pentavalent ITEM
+        $item_pack_sizes->form_values = 7;
+        $items = $item_pack_sizes->getItemForConsumptionReport();
+        $this->view->items = $items;
+
+        //For locations Combo
+        $lct = $locations->conusmptionReportLocations();
+        $this->view->location = $lct;
+
+        if (!empty($this->_request->from_year_sel) && !empty($this->_request->from_month_sel)) {
+            $this->view->from_year_sel = $from_year = $this->_request->from_year_sel;
+            $this->view->from_month_sel = $from_month = $this->_request->from_month_sel;
+        } else {
+            $from_year = date("Y");
+
+            $this->view->from_year_sel = $from_year;
+            $this->view->from_month_sel = $from_month = date("m", strtotime("-4 month"));
+        }
+
+        if (!empty($this->_request->month_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = $this->_request->month_sel;
+        } else {
+            $year = date("Y");
+
+            if (date('d') > 10) {
+
+
+                $month = date("m", strtotime("-2 month"));
+            } else {
+                $month = date("m", strtotime("-2 month"));
+            }
+            $this->view->year_sel = $year;
+            $this->view->month_sel = $month;
+        }
+
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->prov_sel = $province = $this->_request->province;
+        } else {
+            $this->view->prov_sel = $province = 2;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district_id = $district_id = $this->_request->district;
+        } else {
+            $this->view->district_id = $district_id = 30;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 4;
+        }
+        if ($this->_request->wh_type == 4) {
+            $locations->form_values['pk_id'] = $this->_request->district;
+            $this->view->loc_name = "District:" . ' ' . $locations->getLocationName();
+        } elseif ($this->_request->wh_type == 5) {
+            $locations->form_values['pk_id'] = $this->_request->tehsil;
+            $this->view->loc_name = "Tehsil:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->loc_name = "District:" . ' ' . 'Badin';
+        }
+        $locations->form_values['geo_level_id'] = '4';
+        $locations->form_values['province_id'] = $province;
+        $district = $locations->getLocationsByLevelByProvinceConsumption();
+        $this->view->district = $district;
+        $this->view->prov_sel = $province;
+
+
+        $distrctName = $locations->getLocationForReport();
+        $locations->form_values['dist_id'] = $district_id;
+        $locations->form_values['year'] = $year;
+        $res = $locations->getLocationsForConsumptionReport();
+        $this->view->result = $res;
+
+
+        //FOR Excel File Name
+        $reportingDate = $year . '-' . $month . '-01';
+        $fileName = 'PentavalentCoverageDetail_' . $distrctName . '_for_' . date('M-Y', strtotime($reportingDate));
+        $this->view->file_name = $fileName;
+    }
+
+    public function measlesCoverageDetailAction() {
+        $this->_helper->layout->setLayout('reports');
+        $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_title = 'Measles Vaccine Coverage Detail Report';
+        $this->view->actionpage = 'measles-coverage-detail';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $locations = new Model_Locations();
+
+
+        //FOR Pentavalent ITEM
+        $item_pack_sizes->form_values = 9;
+        $items = $item_pack_sizes->getItemForConsumptionReport();
+        $this->view->items = $items;
+
+        //For locations Combo
+        $lct = $locations->conusmptionReportLocations();
+        $this->view->location = $lct;
+
+        if (!empty($this->_request->from_year_sel) && !empty($this->_request->from_month_sel)) {
+            $this->view->from_year_sel = $from_year = $this->_request->from_year_sel;
+            $this->view->from_month_sel = $from_month = $this->_request->from_month_sel;
+        } else {
+            $from_year = date("Y");
+
+            $this->view->from_year_sel = $from_year;
+            $this->view->from_month_sel = $from_month = date("m", strtotime("-4 month"));
+        }
+
+        if (!empty($this->_request->year_sel) && !empty($this->_request->month_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = $this->_request->month_sel;
+        } else {
+            $year = date("Y");
+
+            if (date('d') > 10) {
+
+
+                $month = date("m", strtotime("-2 month"));
+            } else {
+                $month = date("m", strtotime("-2 month"));
+            }
+            $this->view->year_sel = $year;
+            $this->view->month_sel = $month;
+        }
+
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->prov_sel = $prov_sel = $this->_request->province;
+        } else {
+            $this->view->prov_sel = $prov_sel = 2;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district_id = $district_id = $this->_request->district;
+        } else {
+            $this->view->district_id = $district_id = 30;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 4;
+        }
+
+        if ($this->_request->wh_type == 4) {
+            $locations->form_values['pk_id'] = $this->_request->district;
+            $this->view->loc_name = "District:" . ' ' . $locations->getLocationName();
+        } elseif ($this->_request->wh_type == 5) {
+            $locations->form_values['pk_id'] = $this->_request->tehsil;
+            $this->view->loc_name = "Tehsil:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->loc_name = "District:" . ' ' . 'Badin';
+        }
+        $locations->form_values['geo_level_id'] = '4';
+        $locations->form_values['province_id'] = $prov_sel;
+        $district = $locations->getLocationsByLevelByProvinceConsumption();
+        $this->view->district = $district;
+        $this->view->prov_sel = $prov_sel;
+
+        $distrctName = $locations->getLocationForReport();
+        $locations->form_values['dist_id'] = $district_id;
+        $locations->form_values['year'] = $year;
+        $res = $locations->getLocationsForConsumptionReport();
+        $this->view->result = $res;
+
+
+        //FOR Excel File Name
+        $reportingDate = $year . '-' . $month . '-01';
+        $fileName = 'MeaslesCoverageDetail_' . $distrctName . '_for_' . date('M-Y', strtotime($reportingDate));
+        $this->view->file_name = $fileName;
+    }
+
+    public function pcvCoverageDetailAction() {
+        $this->_helper->layout->setLayout('reports');
+        $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_title = 'PCV Vaccine Coverage Detail Report';
+        $this->view->actionpage = 'pcv-coverage-detail';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $locations = new Model_Locations();
+
+
+        //FOR Pcv ITEM
+        $item_pack_sizes->form_values = 8;
+        $items = $item_pack_sizes->getItemForConsumptionReport();
+        $this->view->items = $items;
+
+        //For locations Combo
+        $lct = $locations->conusmptionReportLocations();
+        $this->view->location = $lct;
+
+        if (!empty($this->_request->from_year_sel) && !empty($this->_request->from_month_sel)) {
+            $this->view->from_year_sel = $from_year = $this->_request->from_year_sel;
+            $this->view->from_month_sel = $from_month = $this->_request->from_month_sel;
+        } else {
+            $from_year = date("Y");
+
+            $this->view->from_year_sel = $from_year;
+            $this->view->from_month_sel = $from_month = date("m", strtotime("-4 month"));
+        }
+        if (!empty($this->_request->month_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = $this->_request->month_sel;
+        } else {
+            $year = date("Y");
+
+            if (date('d') > 10) {
+                $month = date("m", strtotime("-2 month"));
+            } else {
+                $month = date("m", strtotime("-2 month"));
+            }
+            $this->view->year_sel = $year;
+            $this->view->month_sel = $month;
+        }
+
+
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->prov_sel = $province = $this->_request->province;
+        } else {
+            $this->view->prov_sel = $province = 2;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district_id = $district_id = $this->_request->district;
+        } else {
+            $this->view->district_id = $district_id = 30;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 4;
+        }
+
+        if ($this->_request->wh_type == 4) {
+            $locations->form_values['pk_id'] = $this->_request->district;
+            $this->view->loc_name = "District:" . ' ' . $locations->getLocationName();
+        } elseif ($this->_request->wh_type == 5) {
+            $locations->form_values['pk_id'] = $this->_request->tehsil;
+            $this->view->loc_name = "Tehsil:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->loc_name = "District:" . ' ' . 'Badin';
+        }
+        $locations->form_values['geo_level_id'] = '4';
+        $locations->form_values['province_id'] = $province;
+        $district = $locations->getLocationsByLevelByProvinceConsumption();
+        $this->view->district = $district;
+        $this->view->prov_sel = $province;
+
+        $distrctName = $locations->getLocationForReport();
+        $locations->form_values['dist_id'] = $district_id;
+        $locations->form_values['year'] = $year;
+        $res = $locations->getLocationsForConsumptionReport();
+        $this->view->result = $res;
+
+
+        //FOR Excel File Name
+        $reportingDate = $year . '-' . $month . '-01';
+        $fileName = 'PcvCoverageDetail_' . $distrctName . '_for_' . date('M-Y', strtotime($reportingDate));
+        $this->view->file_name = $fileName;
+    }
+
+    public function topvCoverageDetailAction() {
+        $this->_helper->layout->setLayout('reports');
+        $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_title = 'tOPV Vaccine Coverage Detail Report';
+        $this->view->actionpage = 'topv-coverage-detail';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $locations = new Model_Locations();
+
+
+        //FOR Pcv ITEM
+        $item_pack_sizes->form_values = 26;
+        $items = $item_pack_sizes->getItemForConsumptionReport();
+        $this->view->items = $items;
+
+        //For locations Combo
+        $lct = $locations->conusmptionReportLocations();
+        $this->view->location = $lct;
+
+        if (!empty($this->_request->from_year_sel) && !empty($this->_request->from_month_sel)) {
+            $this->view->from_year_sel = $from_year = $this->_request->from_year_sel;
+            $this->view->from_month_sel = $from_month = $this->_request->from_month_sel;
+        } else {
+            $from_year = date("Y");
+
+            $this->view->from_year_sel = $from_year;
+            $this->view->from_month_sel = $from_month = date("m", strtotime("-4 month"));
+        }
+
+        if (!empty($this->_request->month_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = $this->_request->month_sel;
+        } else {
+            $year = date("Y");
+
+            if (date('d') > 10) {
+
+
+                $month = date("m", strtotime("-2 month"));
+            } else {
+                $month = date("m", strtotime("-2 month"));
+            }
+            $this->view->year_sel = $year;
+            $this->view->month_sel = $month;
+        }
+
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->prov_sel = $prov_sel = $this->_request->province;
+        } else {
+            $this->view->prov_sel = $prov_sel = 2;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district_id = $district_id = $this->_request->district;
+        } else {
+            $this->view->district_id = $district_id = 30;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 4;
+        }
+        if ($this->_request->wh_type == 4) {
+            $locations->form_values['pk_id'] = $this->_request->district;
+            $this->view->loc_name = "District:" . ' ' . $locations->getLocationName();
+        } elseif ($this->_request->wh_type == 5) {
+            $locations->form_values['pk_id'] = $this->_request->tehsil;
+            $this->view->loc_name = "Tehsil:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->loc_name = "District:" . ' ' . 'Badin';
+        }
+        $locations->form_values['geo_level_id'] = '4';
+        $locations->form_values['province_id'] = $prov_sel;
+        $district = $locations->getLocationsByLevelByProvinceConsumption();
+        $this->view->district = $district;
+        $this->view->prov_sel = $prov_sel;
+        $distrctName = $locations->getLocationForReport();
+        $locations->form_values['dist_id'] = $district_id;
+        $locations->form_values['year'] = $year;
+        $res = $locations->getLocationsForConsumptionReport();
+        $this->view->result = $res;
+
+
+        //FOR Excel File Name
+        $reportingDate = $year . '-' . $month . '-01';
+        $fileName = 'PcvCoverageDetail_' . $distrctName . '_for_' . date('M-Y', strtotime($reportingDate));
+        $this->view->file_name = $fileName;
+    }
+
+    public function cbaCoverageDetailAction() {
+        $this->_helper->layout->setLayout('reports');
+        $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_title = 'CBA Vaccine Coverage Detail Report';
+        $this->view->actionpage = 'cba-coverage-detail';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $locations = new Model_Locations();
+
+
+        //FOR Pcv ITEM
+        $item_pack_sizes->form_values = 26;
+        $items = $item_pack_sizes->getItemForConsumptionReport();
+        $this->view->items = $items;
+
+        //For locations Combo
+        $lct = $locations->conusmptionReportLocations();
+        $this->view->location = $lct;
+
+
+        if (!empty($this->_request->from_year_sel) && !empty($this->_request->from_month_sel)) {
+            $this->view->from_year_sel = $from_year = $this->_request->from_year_sel;
+            $this->view->from_month_sel = $from_month = $this->_request->from_month_sel;
+        } else {
+            $from_year = date("Y");
+
+            $this->view->from_year_sel = $from_year;
+            $this->view->from_month_sel = $from_month = date("m", strtotime("-4 month"));
+        }
+
+
+
+        if (!empty($this->_request->year_sel) && !empty($this->_request->month_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = $this->_request->month_sel;
+        } else {
+            $year = date("Y");
+
+            if (date('d') > 10) {
+
+
+                $month = date("m", strtotime("-2 month"));
+            } else {
+                $month = date("m", strtotime("-2 month"));
+            }
+            $this->view->year_sel = $year;
+            $this->view->month_sel = $month;
+        }
+
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->prov_sel = $prov_sel = $this->_request->province;
+        } else {
+            $this->view->prov_sel = $prov_sel = 2;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district_id = $district_id = $this->_request->district;
+        } else {
+            $this->view->district_id = $district_id = 30;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 4;
+        }
+
+        if ($this->_request->wh_type == 4) {
+            $locations->form_values['pk_id'] = $this->_request->district;
+            $this->view->loc_name = "District:" . ' ' . $locations->getLocationName();
+        } elseif ($this->_request->wh_type == 5) {
+            $locations->form_values['pk_id'] = $this->_request->tehsil;
+            $this->view->loc_name = "Tehsil:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->loc_name = "District:" . ' ' . 'Badin';
+        }
+        $locations->form_values['geo_level_id'] = '4';
+        $locations->form_values['province_id'] = $prov_sel;
+        $district = $locations->getLocationsByLevelByProvinceConsumption();
+        $this->view->district = $district;
+        $this->view->prov_sel = $prov_sel;
+
+
+
+        $distrctName = $locations->getLocationForReport();
+        $locations->form_values['dist_id'] = $district_id;
+        $locations->form_values['year'] = $year;
+        $res = $locations->getLocationsForConsumptionReport();
+        $this->view->result = $res;
+
+
+        //FOR Excel File Name
+        $reportingDate = $year . '-' . $month . '-01';
+        $fileName = 'CBACoverageDetail_' . $distrctName . '_for_' . date('M-Y', strtotime($reportingDate));
+        $this->view->file_name = $fileName;
+    }
+
+    public function ajaxGetToMonthsAction() {
+        $this->_helper->layout->disableLayout();
+
+        if (isset($this->_request->from_month_id) && !empty($this->_request->from_month_id)) {
+            $this->view->to_year_id = $this->_request->to_year_id;
+            $this->view->from_year_id = $this->_request->from_year_id;
+            $this->view->from_month_id = $this->_request->from_month_id;
+        }
+    }
+
+    public function ajaxGetToYearAction() {
+        $this->_helper->layout->disableLayout();
+
+        if (isset($this->_request->from_year_id) && !empty($this->_request->from_year_id)) {
+
+            $this->view->from_year_id = $this->_request->from_year_id;
+        }
+    }
+
+    public function inventoryManagementReportingAction() {
+        $this->_helper->layout->setLayout('reports');
+        $this->view->report_id = 'SNONREPDIST';
+        $this->view->report_title = 'Inventory Management Reporting Report';
+        $this->view->actionpage = 'inventory-management-reporting';
+        $this->view->parameters = 'TS01IP';
+        $this->view->parameter_width = '100%';
+        $item_pack_sizes = new Model_ItemPackSizes();
+        $locations = new Model_Locations();
+
+
+        //FOR BCG ITEM
+        $item_pack_sizes->form_values = 6;
+        $items = $item_pack_sizes->getItemForConsumptionReport();
+        $this->view->items = $items;
+
+        //For locations Combo
+        $lct = $locations->conusmptionReportLocations();
+        $this->view->location = $lct;
+
+        if (!empty($this->_request->from_year_sel) && !empty($this->_request->from_month_sel)) {
+            $this->view->from_year_sel = $from_year = $this->_request->from_year_sel;
+            $this->view->from_month_sel = $from_month = $this->_request->from_month_sel;
+        } else {
+            $from_year = date("Y");
+
+            $this->view->from_year_sel = $from_year;
+            $this->view->from_month_sel = $from_month = date("m", strtotime("-4 month"));
+        }
+
+
+
+        if (!empty($this->_request->year_sel) && !empty($this->_request->month_sel)) {
+            $this->view->year_sel = $year = $this->_request->year_sel;
+            $this->view->month_sel = $month = $this->_request->month_sel;
+        } else {
+            $year = date("Y");
+
+            if (date('d') > 10) {
+
+
+                $month = date("m", strtotime("-2 month"));
+            } else {
+                $month = date("m", strtotime("-2 month"));
+            }
+            $this->view->year_sel = $year;
+            $this->view->month_sel = $month;
+        }
+
+        if (isset($this->_request->province) && !empty($this->_request->province)) {
+            $this->view->prov_sel = $province = $this->_request->province;
+        } else {
+            $this->view->prov_sel = $province = 2;
+        }
+        if (isset($this->_request->district) && !empty($this->_request->district)) {
+            $this->view->district_id = $district_id = $this->_request->district;
+        } else {
+            $this->view->district_id = $district_id = 30;
+        }
+        if (isset($this->_request->tehsil) && !empty($this->_request->tehsil)) {
+            $this->view->tehsil = $this->_request->tehsil;
+        } else {
+            $this->view->tehsil = 1;
+        }
+
+        if (isset($this->_request->wh_type) && !empty($this->_request->wh_type)) {
+            $this->view->wh_type = $wh_type = $this->_request->wh_type;
+        } else {
+            $this->view->wh_type = $wh_type = 4;
+        }
+
+        if ($this->_request->wh_type == 4) {
+            $locations->form_values['pk_id'] = $this->_request->district;
+            $this->view->loc_name = "District:" . ' ' . $locations->getLocationName();
+        } elseif ($this->_request->wh_type == 5) {
+            $locations->form_values['pk_id'] = $this->_request->tehsil;
+            $this->view->loc_name = "Tehsil:" . ' ' . $locations->getLocationName();
+        } else {
+            $this->view->loc_name = "District:" . ' ' . 'Badin';
+        }
+
+        $locations->form_values['geo_level_id'] = '4';
+        $locations->form_values['province_id'] = $province;
+        $district = $locations->getLocationsByLevelByProvinceConsumption();
+        $this->view->district = $district;
+        $this->view->prov_sel = $province;
+
+        $locations->form_values['dist_id'] = $district_id;
+        $locations->form_values['year'] = $year;
+        $distrctName = $locations->getLocationForReport();
+        $res = $locations->getLocationsForConsumptionReport();
+        $this->view->result = $res;
+
+        //FOR Excel File Name
+        $reportingDate = $year . '-' . $month . '-01';
+        $fileName = 'BCG-Vaccine-Coverage' . $distrctName . '_for_' . date('M-Y', strtotime($reportingDate));
+        $this->view->file_name = $fileName;
+    }
+
+    public function pipelineMosReportAction() {
+
+        //$base_url = Zend_Registry::get('baseurl');
+        //$this->view->inlineScript()->appendFile($base_url . '/js/all_level_combos.js');
+        $form = new Form_Product();
+        $this->view->role_id = $this->_identity->getRoleId();
+        $this->view->wh_id = $this->_identity->getWarehouseId();
+
+        if ($this->_request->isPost()) {
+            $product = $this->_request->getPost('product');
+            $today_date = new DateTime(date("Y-m-d"));
+            $last_year = $today_date->modify("+2 year");
+            $this->view->to_year = $last_year->format("Y");
+            $this->view->product = $product;
+            $this->view->headTitle("Pipeline MOS Report");
+            $this->view->is_post = true;
+            $form->product->setValue($product);
+        }
+
+        $this->view->form = $form;
     }
 
 }

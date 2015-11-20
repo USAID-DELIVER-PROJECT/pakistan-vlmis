@@ -96,7 +96,7 @@ $(function() {
         });
     });
 
-     $( document ).on( "click", "a.deactivate", function() {
+     $( document ).on( "click", "a.deactive", function() {
         var id = $(this).attr('id');
         $.ajax({
             type: "POST",

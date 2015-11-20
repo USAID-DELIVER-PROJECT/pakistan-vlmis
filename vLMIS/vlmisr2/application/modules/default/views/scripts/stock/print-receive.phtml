@@ -1,3 +1,6 @@
+<?php
+ob_start();
+?>
 <!-- Content -->
 <style>
     #content_print {
@@ -47,12 +50,15 @@ foreach ($this->result as $row) {
     <div class="col-md-12">
         <table style="width:100%;">
             <tr>
+                <td class="center" colspan="4"><b style="font-size: 16px;"><?php echo $this->print_title; ?></b></td>
+            </tr>
+            <tr>
                 <td class="right" colspan="4"><b style="font-size: 16px;">Receive Voucher # <span style="font-family: Verdana; "><?php echo $transaction_number; ?></span> </b></td>
             </tr>
             <tr>
                 <td><b>Received Date:</b> <?php echo date("d/m/Y", strtotime($transaction_date)); ?></td>
-                <?php if(!empty($purpose)) { ?>
-                <td><b>Purpose:</b> <?php echo $purpose; ?></td>
+                <?php if (!empty($purpose)) { ?>
+                    <td><b>Purpose:</b> <?php echo $purpose; ?></td>
                 <?php } ?>
                 <td><?php echo $this->reports()->getIssueNumberByReceiveNumber($detail_id); ?></td>
             </tr>
@@ -87,11 +93,11 @@ foreach ($this->result as $row) {
                             <td align="center"><?php echo $i; ?></td>
                             <td align="left" nowrap><?php echo $val['itemName']; ?></td>	    
                             <td align="left"><?php echo $val['number']; ?></td>
-                            <td align="center"><?php echo date("m/d/y", strtotime($val['expiryDate'])); ?></td>
+                            <td align="center"><?php echo date("d/m/Y", strtotime($val['expiryDate'])); ?></td>
                             <td align="right"><?php echo number_format($val['quantity']); ?></td>
                             <td align="center"><?php echo $val['description']; ?></td>
                             <td align="right"><?php echo number_format($val['quantity'] * $val['description']); ?></td>
-                            <td align="center"><?php echo '&nbsp;' . $val['vvmStage']; ?></td>
+                            <td align="center"><?php echo (!empty($val['vvmStage']) ? $val['vvmStage'] : 'NA'); ?></td>
                         </tr>
                         <?php
                     }
@@ -128,7 +134,8 @@ if (count($query) > 0) {
                 <!-- Table body -->
                 <tbody>
                     <!-- Table row -->
-                    <?php $a = 1;
+                    <?php
+                    $a = 1;
                     foreach ($query as $row) {
                         ?>
                         <tr class="gradeX">
@@ -140,7 +147,8 @@ if (count($query) > 0) {
                             <td align="right"><?php echo number_format(abs($row['quantity'])); ?></td>
                             <td align="left"><?php echo $row['transaction_type_name']; ?></td>
                         </tr>
-                        <?php $a++;
+                        <?php
+                        $a++;
                     }
                     ?>
                     <!-- // Table row END -->
@@ -173,18 +181,20 @@ if (count($query) > 0) {
             <!-- Table body -->
             <tbody>
                 <!-- Table row -->
-<?php $i = 1;
-foreach ($query2 as $row) {
-    ?>  
+                <?php
+                $i = 1;
+                foreach ($query2 as $row) {
+                    ?>  
                     <tr>
                         <td align="center"><?php echo $i; ?></td>
                         <td align="left"><?php echo $row['item_name']; ?></td>
                         <td align="right"><?php echo number_format($row['net_received']); ?></td>
                         <td align="right"><?php echo number_format($row['total_doses']); ?></td>
                     </tr>
-    <?php $i++;
-}
-?>
+                    <?php
+                    $i++;
+                }
+                ?>
                 <!-- // Table row END -->
             </tbody>
             <!-- // Table body END -->
@@ -245,16 +255,22 @@ foreach ($query2 as $row) {
 <div class="row" style="clear: both; padding-top: 50px;">
 </div>
 <div class="row" style="clear: both;">
+    <table width="100%">
+        <tr>
+            <td width="33%"><b>Prepared By:</b> <?php echo $this->getPreparedBy($this->result[0]['masterId']); ?></td>
+            <td width="33%"><b>Printed By:</b> <?php echo $this->username; ?></td>            
+            <td width="33%"><b>Print Serial Number:</b> <?php echo $this->print_serial; ?></td>
+        </tr>
+    </table>
     <div class="col-md-12 left">
-        Print By: ..................................<br>
-        Print Date: <?php echo date("d F, Y"); ?>
+        <b>Print Date:</b> <?php echo date("d/m/Y"); ?>
     </div>
 </div>
+<?php
+file_put_contents(PUBLIC_DIR . "\prints\print-receive\\" . $this->print_serial . ".html", ob_get_contents());
+?>
 <div class="col-md-12" class="widget">
     <div class="widget-body right">
         <button id="print" name="print" value="1" type="button" class="btn btn-primary" ><?php echo $this->translate("Print"); ?></button>
     </div>
-</div> 	  
-
-
-
+</div>

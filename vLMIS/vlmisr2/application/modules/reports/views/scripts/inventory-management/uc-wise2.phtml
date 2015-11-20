@@ -2,20 +2,20 @@
 
 
 <style>
-      .rotate_text
-        {
-            // text-align: center;
-            //  vertical-align: middle;
-            //   width: 20px;
-            margin: 0px;
-            padding: 0px;
-            padding-left: 3px;
-            padding-right: 3px;
-            padding-top: 0px;
-            //  white-space: nowrap;
-            -webkit-transform: rotate(-90deg); 
-            -moz-transform: rotate(-90deg);                 
-        }
+    .rotate_text
+    {
+        // text-align: center;
+        //  vertical-align: middle;
+        //   width: 20px;
+        margin: 0px;
+        padding: 0px;
+        padding-left: 3px;
+        padding-right: 3px;
+        padding-top: 0px;
+        //  white-space: nowrap;
+        -webkit-transform: rotate(-90deg); 
+        -moz-transform: rotate(-90deg);                 
+    }
 </style>
 <div class="page-content-wrapper">
     <div class="page-content">
@@ -42,22 +42,22 @@
                                     <table id="myTable" cellspacing="0" >
                                         <thead>
                                             <tr>
-                                                <th rowspan="2" class="not_rotate center">
+                                                <th style="background-color: #A4A977;" rowspan="2" class="not_rotate center">
                                                     #
                                                 </th>
-                                                <th rowspan="2"  class="not_rotate center">
+                                                <th style="background-color: #A4A977;" rowspan="2"  class="not_rotate center">
                                                     District
                                                 </th>
-                                                <th rowspan="2" class="not_rotate center">
+                                                <th style="background-color: #A4A977;" rowspan="2" class="not_rotate center">
                                                     Taluka
                                                 </th>
-                                                <th rowspan="2" class="not_rotate center">
+                                                <th style="background-color: #A4A977;" rowspan="2" class="not_rotate center">
                                                     Ucs
                                                 </th>
-                                                <th rowspan="2" class="not_rotate right">
+                                                <th style="background-color: #A4A977;" rowspan="2" class="not_rotate right">
                                                     Population
                                                 </th>
-                                                <th rowspan="2" class="not_rotate">
+                                                <th style="background-color: #CCFFFF;" rowspan="2" class="not_rotate">
                                                     Target Live Birth 12 Months
                                                 </th>
                                                 <?php
@@ -74,12 +74,12 @@
                                                         $col_span += 5;
                                                         ?>
 
-                                                        <th class="not_rotate" colspan="4"><?php echo $items['item_name']; ?><?php echo ($i == 1 && $i == $nod) ? '' : "(" . $i . ")"; ?></th>
+                                                        <th style="background-color: #99FF99;" class="not_rotate" colspan="4"><?php echo $items['item_name']; ?><?php echo ($i == 1 && $i == $nod) ? '' : "(" . $i . ")"; ?></th>
                                                     <?php } ?>
 
-                                                    <th rowspan="2"><div  class="rotate_text">Opening Balance Doses</div></th>
-                                            <th  rowspan="2"><div  class="rotate_text">Revised Doses</div></th>
-                                            <th  rowspan="2" ><div  class="rotate_text">Total Doses</div></th>                    
+                                                    <th   style="background-color: #F1D975;" rowspan="2"><div  class="rotate_text">Opening Balance Doses</div></th>
+                                            <th    style="background-color: #F1D975;" rowspan="2"><div  class="rotate_text">Revised Doses</div></th>
+                                            <th   style="background-color: #F1D975;" rowspan="2" ><div  class="rotate_text">Total Doses</div></th>                    
 
                                             <?php
                                             $count++;
@@ -102,10 +102,10 @@
                                         ?>  
 
 
-                                        <th><div class="rotate_text">Inside UC</div></th>
-                                    <th ><div class="rotate_text">Referral from Outside UC</div></th>
-                                    <th ><div class="rotate_text">Outside UC</div></th>                    
-                                    <th ><div class="rotate_text">Total</div></th>       
+                                      <th  style="background-color: #99FF99;"><div class="rotate_text">Inside UC</div></th>
+                                    <th  style="background-color: #99FF99;" ><div class="rotate_text">Referral from Outside UC</div></th>
+                                    <th   style="background-color: #99FF99;"><div class="rotate_text">Outside UC</div></th>                    
+                                    <th   style="background-color: #BABA00;"><div class="rotate_text">Total</div></th>       
                                     <?php
                                 }
                             }

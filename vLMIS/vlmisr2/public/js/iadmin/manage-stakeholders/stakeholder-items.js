@@ -11,11 +11,15 @@ $(function() {
 		$('#items').html('');
         if ($('#stakeholder').val() != '')
 		{
+                    $('#div-submit').hide();
+                    Metronic.startPageLoading('Please wait...');
 			$.ajax({
 			        url: appName + "/iadmin/manage-stakeholders/ajax-get-items",
 				data: 'stakeholder_id='+$('#stakeholder').val(),
 				type: 'POST',
 				success: function(data){
+                                      Metronic.stopPageLoading();
+                                      $('#div-submit').show();
                                         $('#items').html(data);
 					$('#submit').attr('disabled', false);
 				}

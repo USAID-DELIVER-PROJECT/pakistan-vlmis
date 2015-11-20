@@ -20,11 +20,6 @@ class Placements
     private $quantity;
 
     /**
-     * @var integer $vvmStage
-     */
-    private $vvmStage;
-
-    /**
      * @var boolean $isPlaced
      */
     private $isPlaced;
@@ -33,6 +28,11 @@ class Placements
      * @var datetime $createdDate
      */
     private $createdDate;
+
+    /**
+     * @var VvmStages
+     */
+    private $vvmStage;
 
     /**
      * @var Users
@@ -91,26 +91,6 @@ class Placements
     }
 
     /**
-     * Set vvmStage
-     *
-     * @param integer $vvmStage
-     */
-    public function setVvmStage($vvmStage)
-    {
-        $this->vvmStage = $vvmStage;
-    }
-
-    /**
-     * Get vvmStage
-     *
-     * @return integer 
-     */
-    public function getVvmStage()
-    {
-        return $this->vvmStage;
-    }
-
-    /**
      * Set isPlaced
      *
      * @param boolean $isPlaced
@@ -148,6 +128,26 @@ class Placements
     public function getCreatedDate()
     {
         return $this->createdDate;
+    }
+
+    /**
+     * Set vvmStage
+     *
+     * @param VvmStages $vvmStage
+     */
+    public function setVvmStage(\VvmStages $vvmStage)
+    {
+        $this->vvmStage = $vvmStage;
+    }
+
+    /**
+     * Get vvmStage
+     *
+     * @return VvmStages 
+     */
+    public function getVvmStage()
+    {
+        return $this->vvmStage;
     }
 
     /**

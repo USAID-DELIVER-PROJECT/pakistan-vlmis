@@ -140,15 +140,15 @@ class Model_StakeholderItemPackSizes extends Model_Base {
         $result = $str_sql->getQuery()->getResult();
         return $result;
     }
-    
+
     public function getStakeholderItemPackSizesByItem() {
-        
+
         $str_sql = $this->_em->createQueryBuilder()
                 ->select('sips')
                 ->from("StakeholderItemPackSizes", "sips")
                 ->join('sips.stakeholder', 's')
                 ->where("s.stakeholderType = 3")
-                ->andWhere("sips.itemPackSize = ".$this->form_values['item_id']);
+                ->andWhere("sips.itemPackSize = " . $this->form_values['item_id']);
         $result = $str_sql->getQuery()->getResult();
 
         if (count($result) > 0) {
@@ -232,14 +232,36 @@ class Model_StakeholderItemPackSizes extends Model_Base {
         return $result;
     }
 
+    public function getAllProductsByStakeholderTypeVaccines() {
+
+        if (empty($this->form_values['stakeholder_id'])) {
+            $this->form_values['stakeholder_id'] = '1';
+        }
+        $str_sql = $this->_em->createQueryBuilder()
+                ->select('DISTINCT ips.itemName as item_name,ips.description, ips.pkId as item_pack_size_id')
+                ->from("ItemSchedule", 'sips')
+                ->join("sips.itemPackSize", "ips")
+                ->join("ips.itemCategory", "ic")
+                ->where("sips.stakeholderActivity = '" . $this->form_values['stakeholder_id'] . "' ")
+                ->andWhere("ic.pkId=1")
+                ->orderBy("sips.pkId", 'ASC');
+
+       // echo $str_sql->getQuery()->getSql();
+        
+        //  $result = $str_sql->getQuery()->setMaxResults(6)->getResult();
+
+        $result = $str_sql->getQuery()->getResult();
+        return $result;
+    }
+
     public function getAllIssueProductsByStakeholder() {
         $arr_data = array();
         $str_sql = $this->_em->createQueryBuilder()
-                ->select('ips.pkId')
+                ->select('DISTINCT ips.pkId')
                 ->from('StockBatch', 'sb')
                 ->join("sb.itemPackSize", "ips")
                 ->where("sb.warehouse = " . $this->_identity->getWarehouseId())
-                ->andWhere("sb.status = '" . Model_StockBatch::RUNNING . "'")
+                ->andWhere("DATE_FORMAT(sb.expiryDate,'%Y-%m-%d') > '" . date("Y-m-d") . "'")
                 ->andWhere("sb.quantity > 0")
                 ->orderBy("ips.listRank", "ASC");
 
@@ -251,13 +273,10 @@ class Model_StakeholderItemPackSizes extends Model_Base {
 
             $str_sql = $this->_em->createQueryBuilder()
                     ->select('DISTINCT ips.itemName as item_name, ips.pkId as item_pack_size_id')
-                    ->from("StakeholderItemPackSizes", 'sips')
-                    ->join("sips.itemPackSize", "ips")
-                    ->join("sips.stakeholder", "s")
+                    ->from("ItemPackSizes", 'ips')
                     ->where("ips.pkId IN (" . implode(",", $item_ids) . ") ")
-                    ->andWhere("s.stakeholderActivity = '" . $this->form_values['stakeholder_id'] . "' ")
+                    ->andWhere("ips.stakeholderActivity IN( '" . $this->form_values['stakeholder_id'] . "',5)")
                     ->orderBy("ips.listRank", 'ASC');
-           
             $rows = $str_sql->getQuery()->getResult();
 
             return $rows;
@@ -298,7 +317,21 @@ class Model_StakeholderItemPackSizes extends Model_Base {
                 ->Andwhere("s.pkId= '" . $form_values['stakeholder_id'] . "' ")
                 ->Andwhere("pl.pkId= '" . $form_values['packaging_level'] . "' ")
                 ->Andwhere("sip.pkId <> '" . $form_values['barcode_type'] . "' ");
-        
+
+        $rows = $str_sql->getQuery()->getResult();
+        return $rows;
+    }
+
+    public function getProductByItemPurpose() {
+        $form_values = $this->form_values;
+
+        $str_sql = $this->_em->createQueryBuilder()
+                ->select("DISTINCT ips.itemName, ips.pkId")
+                ->from('StakeholderItemPackSizes', 'sip')
+                ->join('sip.itemPackSize', 'ips')
+                ->join('sip.stakeholder', 's')
+                ->where("ips.item = '" . $form_values['item_id'] . "'")
+                ->andWhere("s.stakeholderActivity = '" . $form_values['purpose'] . "' ");
         $rows = $str_sql->getQuery()->getResult();
         return $rows;
     }

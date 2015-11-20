@@ -541,7 +541,7 @@ class ColdChainController extends App_Controller_Base {
         $data = array();
         $cold_chain = new Model_ColdChain();
         $cold_chain->form_values['warehouse'] = $this->_request->warehouse;
-        $data_0 = $cold_chain->getAllColdChainAssetForTransfer();
+      //  $data_0 = $cold_chain->getAllColdChainAssetForTransfer();
         $data = $cold_chain->getQuantityColdChainAssetForTransfer();
         $this->view->arr_data = $data;
         $data1 = $cold_chain->getNonQuantityColdChainAssetForTransfer();
@@ -858,7 +858,12 @@ class ColdChainController extends App_Controller_Base {
             $ccm_status_histroy->form_values = $data;
 
             $ccm_status_histroy->updateColdChainStatus();
-            $this->redirect("/cold-chain/status-working-update?success=1");
+            $role_id = $this->_identity->getRoleId();
+            if ($role_id == 7) {
+                $this->redirect("/stock/monthly-consumption2");
+            } else {
+                $this->redirect("/cold-chain/status-working-update?success=1");
+            }
         }
     }
 

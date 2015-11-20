@@ -2,7 +2,7 @@
 <div class="page-content-wrapper">
     <div class="page-content">
         <h3 class="page-title">
-            Stock Balance Report (<?php echo $this->warehousename; ?>)
+            Stock Balance Report <?php if(!empty($this->warehousename)) { ?>(<?php echo $this->warehousename; ?>)<?php } ?>
         </h3>
         <div class="row">
             <div class="col-md-12">
@@ -17,6 +17,11 @@
                     </div>
                     <div class="portlet-body">
                         <form method="POST" name="ledger" action="" id="product_plac">
+                            <?php if($this->role_id != 24) { ?>
+                            <div class="row">
+                                <?php $this->allLevelCombo(); ?>
+                            </div>
+                            <?php } ?>
                             <div class="row">
                                 <div class="col-md-12">                                
                                     <!-- Row -->
@@ -39,7 +44,7 @@
                                             <div class="form-group">
                                                 <label class="control-label" for="year"><?php echo $this->translate("Year") ?></label>
                                                 <select class="form-control" name="year">
-                                                    <?php for ($y = date("Y"); $y >= date("Y") - 5; $y--) { ?>
+                                                    <?php for ($y = date("Y"); $y >= date("Y") - 1; $y--) { ?>
                                                         <option value="<?php echo $y; ?>" <?php if ($y == $this->year) { ?>selected="selected" <?php } ?>><?php echo $y; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -133,9 +138,17 @@
             <br>
             <div class="row">
                 <div class="col-md-12 right">
-                    <a class="btn btn-success" onclick="window.open('print-stock-report?month=<?php echo $this->month; ?>&year=<?php echo $this->year; ?>', '_blank', 'scrollbars=1,width=840,height=595');" href="javascript:void(0);">Print</a>
+                    <a class="btn btn-success" onclick="window.open('print-stock-report?month=<?php echo $this->month; ?>&year=<?php echo $this->year; ?>&warehouse=<?php echo $this->warehouse; ?>', '_blank', 'scrollbars=1,width=840,height=595');" href="javascript:void(0);">Print</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Last transactions date of <?php echo $this->warehousename; ?> is <?php echo $this->lastdate; ?></h4>
                 </div>
             </div>
         <?php } ?>
     </div>
 </div>
+<input id="cmbo1" type="hidden" value="<?php echo (!empty($this->params['office']) ? $this->params['office'] : 1); ?>" />
+<input id="cmbo2" type="hidden" value="<?php echo $this->params['combo1']; ?>" />
+<input id="cmbo3" type="hidden" value="<?php echo (!empty($this->params['warehouse']) ? $this->params['warehouse'] : 159); ?>" />

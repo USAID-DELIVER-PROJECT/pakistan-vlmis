@@ -2,10 +2,10 @@
 
 
 //remote
-	$strUserName ='vlmisr2user';
-	$strPassword='Q9f3GMeiP';
-	$strHost='localhost';
-	$strDatabase='vlmisr2';
+	$strUserName ='vlmis';
+	$strPassword='v123lmis';
+	$strHost='192.168.1.72';
+	$strDatabase='r2';
 
 	//local
 /*

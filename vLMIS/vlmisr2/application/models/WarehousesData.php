@@ -38,12 +38,25 @@ class Model_WarehousesData extends Model_Base {
                 $year = App_Controller_Functions::dateFormat($tdate, "first day of this month", "Y");
                 $wh_id = $this->_identity->getWarehouseId();
 
-                $this->form_values['report_month'] = $month;
-                $this->form_values['report_year'] = $year;
-                $this->form_values['item_id'] = $product;
-                $this->form_values['warehouse_id'] = $wh_id;
-                $this->form_values['created_by'] = $this->_user_id;
-                $this->adjustStockReport();
+                if ($month == date("m") && $year == date("Y")) {
+                    $item = new Model_ItemPackSizes();
+                    $items = $item->getAllItems();
+                    foreach ($items as $one) {
+                        $this->form_values['report_month'] = $month;
+                        $this->form_values['report_year'] = $year;
+                        $this->form_values['item_id'] = $one['pkId'];
+                        $this->form_values['warehouse_id'] = $wh_id;
+                        $this->form_values['created_by'] = $this->_user_id;
+                        $this->adjustStockReport();
+                    }
+                } else {
+                    $this->form_values['report_month'] = $month;
+                    $this->form_values['report_year'] = $year;
+                    $this->form_values['item_id'] = $product;
+                    $this->form_values['warehouse_id'] = $wh_id;
+                    $this->form_values['created_by'] = $this->_user_id;
+                    $this->adjustStockReport();
+                }
             }
         }
     }
@@ -240,8 +253,28 @@ class Model_WarehousesData extends Model_Base {
                                     $where
                                     GROUP BY
                                             UC.district_id
+                                        UNION
+                                        SELECT
+                                            UC.district_id,
+                                            ROUND(
+                                                    IFNULL((
+                                                                    sum(hf_data_master.wastages) / (SUM(hf_data_master.issue_balance) + sum(hf_data_master.wastages))) * 100,0),1) AS wastagePer,
+                                                                    COUNT(DISTINCT UC.pk_id) AS reported
+                                    FROM
+                                            locations AS UC
+                                    INNER JOIN warehouses ON UC.pk_id = warehouses.location_id
+                                    INNER JOIN hf_data_master ON warehouses.pk_id = hf_data_master.warehouse_id
+                                    WHERE
+                                            UC.geo_level_id = 6
+                                    AND warehouses.stakeholder_id = 1
+                                    AND warehouses.status = 1
+                                    AND hf_data_master.reporting_start_date = '" . $this->form_values['date'] . "-01'
+                                    AND hf_data_master.issue_balance IS NOT NULL
+                                    $where
+                                    GROUP BY
+                                            UC.district_id
                             ) AS A
-                    RIGHT JOIN (
+                            RIGHT JOIN (
                             SELECT
                                     COUNT(DISTINCT UC.pk_id) AS TotalWH,
                                     District.location_name,
@@ -324,6 +357,15 @@ class Model_WarehousesData extends Model_Base {
         $date = $this->form_values['date'];
         $distId = $this->form_values['loc_id'];
         $itemId = $this->form_values['item'];
+        $role_id = $this->_identity->getRoleId();
+
+        if ($role_id == 7) {
+            $distId = $this->_identity->getTehsilId();
+            $where = "AND locations.parent_id = $distId";
+        } else {
+            $where = "AND warehouses.district_id = $distId";
+        }
+
         $str_sql = "SELECT
 	B.district_id,
 	ROUND(
@@ -335,7 +377,7 @@ class Model_WarehousesData extends Model_Base {
 		) * 100
 	) AS nonReportedPer,
 	A.item_pack_size_id
-FROM
+        FROM
 	(
 		SELECT
 			COUNT(DISTINCT locations.pk_id) AS reportedUC,
@@ -354,7 +396,28 @@ FROM
 			'%Y-%m'
 		) = '$date'
 		AND warehouses.stakeholder_id = 1
-		AND warehouses.district_id = $distId
+		$where
+		AND stakeholders.geo_level_id = 6
+                UNION 
+                
+		SELECT
+			COUNT(DISTINCT locations.pk_id) AS reportedUC,
+			hf_data_master.item_pack_size_id,
+			warehouses.district_id
+		FROM
+			warehouses
+		INNER JOIN hf_data_master ON warehouses.pk_id = hf_data_master.warehouse_id
+		INNER JOIN stakeholders ON warehouses.stakeholder_office_id = stakeholders.pk_id
+		INNER JOIN locations ON warehouses.location_id = locations.pk_id
+		WHERE
+			warehouses.`status` = 1
+		AND hf_data_master.item_pack_size_id = $itemId
+		AND DATE_FORMAT(
+			hf_data_master.reporting_start_date,
+			'%Y-%m'
+		) = '$date'
+		AND warehouses.stakeholder_id = 1
+		$where
 		AND stakeholders.geo_level_id = 6
 	) A
 RIGHT JOIN (
@@ -369,7 +432,7 @@ RIGHT JOIN (
 	WHERE
 		warehouses.`status` = 1
 	AND warehouses.stakeholder_id = 1
-	AND warehouses.district_id = $distId
+	$where
 	AND stakeholders.geo_level_id = 6
 ) B ON A.district_id = B.district_id";
 
@@ -396,8 +459,44 @@ RIGHT JOIN (
         $date = $this->form_values['date'];
         $prov_id = $this->form_values['province'];
         $item_id = $this->form_values['item'];
-
-        $str_sql = "SELECT
+        if ($prov_id == 2 && $date >= '2015-05') {
+            $str_sql = "SELECT
+				B.province_id,
+				ROUND((A.reportedUC / B.totalUC) * 100) AS reportedPer,
+				ROUND(((B.totalUC - A.reportedUC) / B.totalUC) * 100) AS nonReportedPer,
+				A.item_pack_size_id
+			FROM
+				(
+                                       SELECT
+						COUNT(DISTINCT locations.pk_id) AS reportedUC,
+						locations.province_id,
+						hf_data_master.item_pack_size_id
+					FROM
+						locations
+					INNER JOIN warehouses ON locations.pk_id = warehouses.location_id
+					INNER JOIN hf_data_master ON warehouses.pk_id = hf_data_master.warehouse_id
+					WHERE
+						locations.province_id = $prov_id
+					AND locations.geo_level_id = 6
+                                        AND warehouses.status = 1
+					AND hf_data_master.item_pack_size_id = $item_id
+					AND DATE_FORMAT(
+						hf_data_master.reporting_start_date,
+						'%Y-%m'
+					) = '$date'
+				) A
+			RIGHT JOIN (
+				SELECT
+					COUNT(locations.pk_id) AS totalUC,
+					locations.province_id
+				FROM
+					locations
+				WHERE
+					locations.geo_level_id = 6
+				AND locations.province_id = $prov_id
+			) B ON A.province_id = B.province_id";
+        } else {
+            $str_sql = "SELECT
 				B.province_id,
 				ROUND((A.reportedUC / B.totalUC) * 100) AS reportedPer,
 				ROUND(((B.totalUC - A.reportedUC) / B.totalUC) * 100) AS nonReportedPer,
@@ -421,6 +520,7 @@ RIGHT JOIN (
 						warehouses_data.reporting_start_date,
 						'%Y-%m'
 					) = '$date'
+                                      
 				) A
 			RIGHT JOIN (
 				SELECT
@@ -432,6 +532,7 @@ RIGHT JOIN (
 					locations.geo_level_id = 6
 				AND locations.province_id = $prov_id
 			) B ON A.province_id = B.province_id";
+        }
         $row = $this->_em->getConnection()->prepare($str_sql);
         $row->execute();
         $result = $row->fetchAll();
@@ -519,32 +620,47 @@ RIGHT JOIN (
         $wh_id = $this->form_values['wh_id'];
         $item_id = $this->form_values['item'];
 
-        $str_sql = "SELECT DISTINCT
-            stock_detail.vvm_stage
-            FROM
-                    stock_batch
-            INNER JOIN stock_detail ON stock_detail.stock_batch_id = stock_batch.pk_id
-            INNER JOIN stock_master ON stock_detail.stock_master_id = stock_master.pk_id
-            WHERE
-            DATE_FORMAT(
-                    stock_master.transaction_date,
-                    '%Y-%m'
-            ) = '$date'
-            AND stock_batch.warehouse_id = $wh_id
-            AND stock_batch.item_pack_size_id = $item_id
-            GROUP BY
-                    stock_detail.vvm_stage";
+        $str_sql = "SELECT
+	A.vvm_stage,
+	COUNT(A.stock_batch_id) as cnt
+FROM
+	(
+		SELECT DISTINCT
+			stock_detail.quantity,
+			stock_detail.vvm_stage,
+			stock_detail.stock_batch_id
+		FROM
+			stock_batch
+		INNER JOIN stock_detail ON stock_detail.stock_batch_id = stock_batch.pk_id
+		INNER JOIN stock_master ON stock_detail.stock_master_id = stock_master.pk_id
+		WHERE
+			DATE_FORMAT(
+				stock_master.transaction_date,
+				'%Y-%m'
+			) = '$date'
+		AND stock_batch.warehouse_id = $wh_id
+		AND stock_batch.item_pack_size_id = $item_id
+		HAVING
+			stock_detail.quantity > 0
+	) A
+GROUP BY
+	A.vvm_stage";
+
         $row = $this->_em->getConnection()->prepare($str_sql);
         $row->execute();
         $result = $row->fetchAll();
 
-        $xmlstore = "<chart exportEnabled='1' exportAction='Download' caption='Vvm Stage Status' exportFileName='Vvm Stage Status " . date('Y-m-d H:i:s') . "' numberSuffix='' showValues='1' theme='fint'>";
+
+        $xmlstore = "<chart exportEnabled='1' exportAction='Download' caption='Vvm Stage Status' exportFileName='Vvm Stage Status " . date('Y-m-d H:i:s') . "' numberSuffix=''  showPercentValues='1'  theme='fint'>";
         foreach ($result as $row) {
             $vvm_stage = $row['vvm_stage'];
+            $count = $row['cnt'];
+
             $param = $wh_id . '|' . $item_id . '|' . $date . '|' . $vvm_stage;
-            $xmlstore .= "<set label='$vvm_stage' value='$vvm_stage' link=\"JavaScript:showData15('$param');\" />";
+            $xmlstore .= "<set label='$vvm_stage' value='$count' link=\"JavaScript:showData15('$param');\" />";
         }
         $xmlstore .= "</chart>";
+        // App_Controller_Functions::pr($xmlstore);
 
         return $xmlstore;
     }
@@ -553,9 +669,15 @@ RIGHT JOIN (
         $date = $this->form_values['date'];
         $wh_id = $this->form_values['wh_id'];
         $item_id = $this->form_values['item'];
+        $vvm_stage = $this->form_values['type'];
 
+        if (!empty($vvm_stage)) {
+            $where = " AND stock_detail.vvm_stage = $vvm_stage ";
+        } else {
+            $where = " AND stock_detail.vvm_stage = 1";
+        }
         $str_sql = "SELECT DISTINCT
-                Sum(ABS(stock_detail.quantity)) AS Qty,
+                Sum(stock_detail.quantity) AS Qty,
                 stock_detail.vvm_stage,
                 stock_batch.number
                 FROM
@@ -569,8 +691,11 @@ RIGHT JOIN (
                 ) = '$date'
                 AND stock_batch.warehouse_id = $wh_id
                 AND stock_batch.item_pack_size_id = $item_id
+                $where
                 GROUP BY
-                        stock_batch.pk_id";
+                        stock_batch.pk_id
+                HAVING Qty > 0";
+
         $row = $this->_em->getConnection()->prepare($str_sql);
         $row->execute();
         return $row->fetchAll();
@@ -580,6 +705,14 @@ RIGHT JOIN (
         $date = $this->form_values["date"];
         $item_id = $this->form_values["item"];
         $dist_id = $this->form_values["loc_id"];
+        $role_id = $this->_identity->getRoleId();
+
+        if ($role_id == 7) {
+            $dist_id = $this->_identity->getTehsilId();
+            $where = "locations.parent_id = $dist_id";
+        } else {
+            $where = "locations.district_id = $dist_id";
+        }
 
         $str_sql = "SELECT DISTINCT
 					locations.pk_id,
@@ -589,13 +722,32 @@ RIGHT JOIN (
 				INNER JOIN warehouses ON locations.pk_id = warehouses.location_id
 				INNER JOIN warehouses_data ON warehouses.pk_id = warehouses_data.warehouse_id
 				WHERE
-					locations.district_id = $dist_id
+					$where
 				AND locations.geo_level_id = 6
                                 AND warehouses.status = 1
                                 AND warehouses.stakeholder_id = 1
 				AND warehouses_data.item_pack_size_id = $item_id
 				AND DATE_FORMAT(
 					warehouses_data.reporting_start_date,
+					'%Y-%m'
+				) = '$date' AND
+                                warehouses.stakeholder_id = 1  
+                                UNION 
+                                SELECT DISTINCT
+					locations.pk_id,
+					locations.location_name
+				FROM
+					locations
+				INNER JOIN warehouses ON locations.pk_id = warehouses.location_id
+				INNER JOIN hf_data_master ON warehouses.pk_id = hf_data_master.warehouse_id
+				WHERE
+					$where
+				AND locations.geo_level_id = 6
+                                AND warehouses.status = 1
+                                AND warehouses.stakeholder_id = 1
+				AND hf_data_master.item_pack_size_id = $item_id
+				AND DATE_FORMAT(
+					hf_data_master.reporting_start_date,
 					'%Y-%m'
 				) = '$date' AND
                                 warehouses.stakeholder_id = 1";
@@ -609,20 +761,46 @@ RIGHT JOIN (
         $date = $this->form_values["date"];
         $item_id = $this->form_values["item"];
         $dist_id = $this->form_values["loc_id"];
+        $role_id = $this->_identity->getRoleId();
 
-        $str_sql = "SELECT DISTINCT
-					B.pk_id,
-					B.location_name
-				FROM
-					(
-						SELECT DISTINCT
+        if ($role_id == 7) {
+            $dist_id = $this->_identity->getTehsilId();
+            $where = "locations.parent_id = $dist_id";
+        } else {
+            $where = "locations.district_id = $dist_id";
+        }
+
+        $sub_sql = "Select locations.province_id from locations where $where";
+        $row_sub = $this->_em->getConnection()->prepare($sub_sql);
+        $row_sub->execute();
+        $rs = $row_sub->fetchAll();
+        $prov_id = $rs[0]['province_id'];
+        if ($prov_id == 2 && $date >= '2015-05') {
+            $qry = " SELECT DISTINCT
+					locations.pk_id
+					FROM
+					locations
+					INNER JOIN warehouses ON locations.pk_id = warehouses.location_id
+					INNER JOIN hf_data_master ON warehouses.pk_id = hf_data_master.warehouse_id
+					WHERE
+					$where
+					AND locations.geo_level_id = 6
+                                        AND warehouses.status = 1
+					AND hf_data_master.item_pack_size_id = $item_id
+					AND DATE_FORMAT(
+					hf_data_master.reporting_start_date,
+					'%Y-%m'
+					) = '$date' AND
+                                        warehouses.stakeholder_id = 1";
+        } else {
+            $qry = "SELECT DISTINCT
 							locations.pk_id
 						FROM
 							locations
 						INNER JOIN warehouses ON locations.pk_id = warehouses.location_id
 						INNER JOIN warehouses_data ON warehouses.pk_id = warehouses_data.warehouse_id
 						WHERE
-							locations.district_id = $dist_id
+							$where
 						AND locations.geo_level_id = 6
                                                 AND warehouses.status = 1
 						AND warehouses_data.item_pack_size_id = $item_id
@@ -631,6 +809,14 @@ RIGHT JOIN (
 							'%Y-%m'
 						) = '$date' AND
                                                 warehouses.stakeholder_id = 1
+                                                ";
+        }
+        $str_sql = "SELECT DISTINCT
+					B.pk_id,
+					B.location_name
+				FROM
+					(
+					$qry	
 					) A
 				RIGHT JOIN (
 					SELECT DISTINCT
@@ -641,13 +827,13 @@ RIGHT JOIN (
                                         INNER JOIN warehouses ON warehouses.location_id = locations.pk_id
                                         WHERE
                                         locations.geo_level_id = 6 AND
-                                        locations.district_id = $dist_id AND
+                                        $where AND
                                         warehouses.status = 1 AND
                                         warehouses.stakeholder_id = 1
 				) B ON A.pk_id = B.pk_id
 				WHERE
 					A.pk_id IS NULL";
-        //  echo $str_sql;
+
 
         $row = $this->_em->getConnection()->prepare($str_sql);
         $row->execute();
@@ -658,8 +844,62 @@ RIGHT JOIN (
         $date = $this->form_values["date"];
         $item_id = $this->form_values["item"];
         $province = $this->form_values["province"];
+        if ($province == 2 && $date >= '2015-05') {
+            $str_sql = "SELECT
+					B.districtId,
+					B.districtName,
+					ROUND(((COALESCE(A.reported,NULL,0) / B.totalWH) * 100)) AS perVal
+				FROM
+					(SELECT
+                                                    District.pk_id AS districtId,
+                                                    COUNT(DISTINCT UC.pk_id) AS reported
+                                            FROM
+                                                    locations AS District
+                                            INNER JOIN locations AS UC ON District.pk_id = UC.district_id
+                                            INNER JOIN warehouses ON UC.pk_id = warehouses.location_id
+                                            INNER JOIN hf_data_master ON warehouses.pk_id = hf_data_master.warehouse_id
+                                            INNER JOIN stakeholders ON warehouses.stakeholder_office_id = stakeholders.pk_id
+                                            INNER JOIN pilot_districts ON District.pk_id = pilot_districts.district_id
+                                            WHERE
+                                                    stakeholders.geo_level_id = 6
+                                            AND hf_data_master.item_pack_size_id = $item_id
+                                            AND warehouses. STATUS = 1
+                                            AND District.province_id = $province
+                                            AND DATE_FORMAT(
+                                                    hf_data_master.reporting_start_date,
+                                                    '%Y-%m'
+                                            ) = '$date'
+                                            AND hf_data_master.issue_balance IS NOT NULL
+                                            AND warehouses.stakeholder_id = 1
+                                            GROUP BY
+                                                    District.pk_id
+                                            ORDER BY
+                                                    districtId ASC
 
-        $str_sql = "SELECT
+					) A
+				RIGHT JOIN (
+					SELECT
+						District.pk_id AS districtId,
+						District.location_name AS districtName,
+						COUNT(DISTINCT UC.pk_id) AS totalWH
+					FROM
+						locations AS District
+					INNER JOIN locations AS UC ON District.pk_id = UC.district_id
+					INNER JOIN warehouses ON UC.pk_id = warehouses.location_id
+					INNER JOIN stakeholders ON warehouses.stakeholder_office_id = stakeholders.pk_id
+                                        INNER JOIN pilot_districts ON District.pk_id = pilot_districts.district_id
+					WHERE
+						stakeholders.geo_level_id = 6
+                                                AND warehouses.status = 1
+					AND District.province_id = $province AND
+                                        warehouses.stakeholder_id = 1
+					GROUP BY
+						District.pk_id
+					ORDER BY
+						districtId ASC
+				) B ON A.districtId = B.districtId";
+        } else {
+            $str_sql = "SELECT
 					B.districtId,
 					B.districtName,
 					ROUND(((COALESCE(A.reported,NULL,0) / B.totalWH) * 100)) AS perVal
@@ -682,13 +922,12 @@ RIGHT JOIN (
 						AND District.province_id = $province
 						AND DATE_FORMAT(warehouses_data.reporting_start_date,'%Y-%m') = '$date'
 						AND warehouses_data.issue_balance IS NOT NULL AND
-warehouses.stakeholder_id = 1
+                                                warehouses.stakeholder_id = 1
 						GROUP BY
 							District.pk_id
-						ORDER BY
-							districtId ASC
-					) A
-				RIGHT JOIN (
+						
+                                              ) A
+				       RIGHT JOIN (
 					SELECT
 						District.pk_id AS districtId,
 						District.location_name AS districtName,
@@ -703,12 +942,14 @@ warehouses.stakeholder_id = 1
 						stakeholders.geo_level_id = 6
                                                 AND warehouses.status = 1
 					AND District.province_id = $province AND
-warehouses.stakeholder_id = 1
+                                        warehouses.stakeholder_id = 1
 					GROUP BY
 						District.pk_id
 					ORDER BY
 						districtId ASC
 				) B ON A.districtId = B.districtId";
+        }
+
         $row = $this->_em->getConnection()->prepare($str_sql);
         $row->execute();
         return $row->fetchAll();
@@ -718,8 +959,8 @@ warehouses.stakeholder_id = 1
         $date = $this->form_values["date"];
         $item_id = $this->form_values["item"];
         $province = $this->form_values["province"];
-
-        $str_sql = "SELECT
+        if ($province == 2 && $date >= '2015-05') {
+            $str_sql = "SELECT
 					B.districtId,
 					B.districtName,
 						ROUND(
@@ -734,17 +975,17 @@ warehouses.stakeholder_id = 1
 							locations AS District
 						INNER JOIN locations AS UC ON District.pk_id = UC.district_id
 						INNER JOIN warehouses ON UC.pk_id = warehouses.location_id
-						INNER JOIN warehouses_data ON warehouses.pk_id = warehouses_data.warehouse_id
+						INNER JOIN hf_data_master ON warehouses.pk_id = hf_data_master.warehouse_id
 						INNER JOIN stakeholders ON warehouses.stakeholder_office_id = stakeholders.pk_id
                                                 INNER JOIN pilot_districts ON District.pk_id = pilot_districts.district_id
 						WHERE
 							stakeholders.geo_level_id = 6
                                                 AND warehouses.status = 1
-                                                AND warehouses_data.item_pack_size_id = $item_id
+                                                AND hf_data_master.item_pack_size_id = $item_id
 						AND District.province_id = $province
-						AND DATE_FORMAT(warehouses_data.reporting_start_date,'%Y-%m') = '$date'
-						AND warehouses_data.issue_balance IS NOT NULL AND
-warehouses.stakeholder_id = 1
+						AND DATE_FORMAT(hf_data_master.reporting_start_date,'%Y-%m') = '$date'
+						AND hf_data_master.issue_balance IS NOT NULL AND
+                                                warehouses.stakeholder_id = 1
 						GROUP BY
 							District.pk_id
 						ORDER BY
@@ -771,6 +1012,60 @@ warehouses.stakeholder_id = 1
 					ORDER BY
 						districtId ASC
 				) B ON A.districtId = B.districtId";
+        } else {
+            $str_sql = "SELECT
+					B.districtId,
+					B.districtName,
+						ROUND(
+		(((B.totalWH - COALESCE(A.reported, NULL, 0)) / B.totalWH) * 100)
+	) AS perVal
+				FROM
+					(
+						SELECT
+							District.pk_id AS districtId,
+							COUNT(DISTINCT UC.pk_id) AS reported
+						FROM
+							locations AS District
+						INNER JOIN locations AS UC ON District.pk_id = UC.district_id
+						INNER JOIN warehouses ON UC.pk_id = warehouses.location_id
+						INNER JOIN warehouses_data ON warehouses.pk_id = warehouses_data.warehouse_id
+						INNER JOIN stakeholders ON warehouses.stakeholder_office_id = stakeholders.pk_id
+                                                INNER JOIN pilot_districts ON District.pk_id = pilot_districts.district_id
+						WHERE
+							stakeholders.geo_level_id = 6
+                                                AND warehouses.status = 1
+                                                AND warehouses_data.item_pack_size_id = $item_id
+						AND District.province_id = $province
+						AND DATE_FORMAT(warehouses_data.reporting_start_date,'%Y-%m') = '$date'
+						AND warehouses_data.issue_balance IS NOT NULL AND
+                                               warehouses.stakeholder_id = 1
+						GROUP BY
+							District.pk_id
+						ORDER BY
+							districtId ASC
+					) A
+				RIGHT JOIN (
+					SELECT
+						District.pk_id AS districtId,
+						District.location_name AS districtName,
+						COUNT(DISTINCT UC.pk_id) AS totalWH
+					FROM
+						locations AS District
+					INNER JOIN locations AS UC ON District.pk_id = UC.district_id
+					INNER JOIN warehouses ON UC.pk_id = warehouses.location_id
+					INNER JOIN stakeholders ON warehouses.stakeholder_office_id = stakeholders.pk_id
+                                        INNER JOIN pilot_districts ON District.pk_id = pilot_districts.district_id
+					WHERE
+						stakeholders.geo_level_id = 6
+                                        AND warehouses.status = 1
+					AND District.province_id = $province AND
+                                        warehouses.stakeholder_id = 1
+					GROUP BY
+						District.pk_id
+					ORDER BY
+						districtId ASC
+				) B ON A.districtId = B.districtId";
+        }
         $row = $this->_em->getConnection()->prepare($str_sql);
         $row->execute();
         return $row->fetchAll();
@@ -1412,6 +1707,24 @@ LEFT JOIN (
 	AND warehouses.district_id = " . $this->form_values['dist_id'] . "
 	GROUP BY
 		warehouses.location_id
+        UNION
+        SELECT
+		warehouses.location_id,
+		COUNT(
+			DISTINCT hf_data_master.warehouse_id
+		) AS RptWH,
+		warehouses.province_id
+	FROM
+		warehouses
+	INNER JOIN hf_data_master ON hf_data_master.warehouse_id = warehouses.pk_id
+	WHERE
+
+        warehouses.status = 1 AND
+        hf_data_master.reporting_start_date = '" . $this->form_values['date'] . "-01'
+	AND warehouses.province_id = " . $this->form_values['prov_id'] . "
+	AND warehouses.district_id = " . $this->form_values['dist_id'] . "
+	GROUP BY
+		warehouses.location_id
 ) B ON A.location_id = B.location_id
 LIMIT 20";
         $row = $this->_em->getConnection()->prepare($str_sql);
@@ -1597,33 +1910,59 @@ subCaption = '$item  " . ("(" . date('M Y', strtotime($this->form_values['date']
         $str_sql = "SELECT * FROM (SELECT
 	locations.location_name,
 	COALESCE (A.wastagePer, NULL, 0) AS wastagePer
-FROM
+        FROM
 	(
 		SELECT
-			ROUND(
-				(
-					sum(warehouses_data.wastages) / (
-						sum(
-							warehouses_data.issue_balance
-						) + sum(warehouses_data.wastages)
-					)
-				) * 100,
-				1
-			) AS wastagePer,
-			warehouses.location_id
-		FROM
-			warehouses
-		INNER JOIN warehouses_data ON warehouses.pk_id = warehouses_data.warehouse_id
-		INNER JOIN stakeholders ON warehouses.stakeholder_office_id = stakeholders.pk_id
-		WHERE
-			warehouses.stakeholder_id = 1
-		AND warehouses_data.reporting_start_date = '" . $this->form_values['date'] . "-01'
-		AND warehouses_data.issue_balance IS NOT NULL
-		AND warehouses_data.item_pack_size_id = " . $this->form_values['item'] . "
-		AND stakeholders.pk_id = 6
-                AND warehouses.status = 1
-		GROUP BY
-			warehouses.location_id
+	ROUND(
+		(
+			sum(warehouses_data.wastages) / (
+				sum(
+					warehouses_data.issue_balance
+				) + sum(warehouses_data.wastages)
+			)
+		) * 100,
+		1
+	) AS wastagePer,
+	warehouses.location_id
+FROM
+	warehouses
+INNER JOIN warehouses_data ON warehouses.pk_id = warehouses_data.warehouse_id
+INNER JOIN stakeholders ON warehouses.stakeholder_office_id = stakeholders.pk_id
+WHERE
+	warehouses.stakeholder_id = 1
+AND warehouses_data.reporting_start_date = '" . $this->form_values[' date '] . "-01'
+AND warehouses_data.issue_balance IS NOT NULL
+AND warehouses_data.item_pack_size_id = " . $this->form_values['item'] . "
+AND stakeholders.pk_id = 6
+AND warehouses. STATUS = 1
+GROUP BY
+	warehouses.location_id
+UNION
+SELECT
+	ROUND(
+		(
+			sum(hf_data_master.wastages) / (
+				sum(
+					hf_data_master.issue_balance
+				) + sum(hf_data_master.wastages)
+			)
+		) * 100,
+		1
+	) AS wastagePer,
+	warehouses.location_id
+FROM
+	warehouses
+INNER JOIN hf_data_master ON warehouses.pk_id = hf_data_master.warehouse_id
+INNER JOIN stakeholders ON warehouses.stakeholder_office_id = stakeholders.pk_id
+WHERE
+	warehouses.stakeholder_id = 1
+AND hf_data_master.reporting_start_date = '" . $this->form_values[' date '] . "-01'
+AND hf_data_master.issue_balance IS NOT NULL
+AND hf_data_master.item_pack_size_id = " . $this->form_values['item'] . "
+AND stakeholders.pk_id = 6
+AND warehouses. STATUS = 1
+GROUP BY
+	warehouses.location_id
 	) A
 RIGHT JOIN locations ON locations.pk_id = A.location_id
 WHERE
@@ -1659,6 +1998,13 @@ WHERE A.wastagePer > $allowed";
         $allowed = $this->form_values['allowed'];
         $option = $this->form_values['option'];
 
+        $role_id = $this->_identity->getRoleId();
+        $iftehsil = "AND locations.district_id = " . $this->form_values['dist_id'];
+        if ($role_id == 7) {
+            $this->form_values['dist_id'] = $this->_identity->getTehsilId();
+            $iftehsil = "AND locations.parent_id = " . $this->form_values['dist_id'];
+        }
+
         if ($option == 'N') {
             $where = " A.wastagePer > $allowed";
         } else {
@@ -1666,18 +2012,19 @@ WHERE A.wastagePer > $allowed";
             $where = " A.wastagePer >= $start AND A.wastagePer <= $end";
         }
 
-        $str_sql = "SELECT * FROM (SELECT
+        $str_sql = "SELECT * FROM (
+        SELECT
 	locations.location_name,
 	COALESCE (A.wastagePer, NULL, 0) AS wastagePer
-FROM
+        FROM
 	(
-		SELECT
+	      SELECT
 			ROUND(
 				(
-					sum(warehouses_data.wastages) / (
+					sum(CASE WHEN warehouses_data.wastages > 0 THEN 1 ELSE 0 END) / (
 						sum(
 							warehouses_data.issue_balance
-						) + sum(warehouses_data.wastages)
+						) + sum(CASE WHEN warehouses_data.wastages > 0 THEN 1 ELSE 0 END)
 					)
 				) * 100,
 				1
@@ -1696,12 +2043,38 @@ FROM
                 AND warehouses.status = 1
 		GROUP BY
 			warehouses.location_id
+                UNION 
+                 SELECT
+			ROUND(
+				(
+					sum(CASE WHEN hf_data_master.wastages > 0 THEN hf_data_master.wastages ELSE 0 END) / (
+						sum(
+							hf_data_master.issue_balance
+						) + sum(CASE WHEN hf_data_master.wastages > 0 THEN hf_data_master.wastages ELSE 0 END)
+					)
+				) * 100,
+				1
+			) AS wastagePer,
+			warehouses.location_id
+		FROM
+			warehouses
+		INNER JOIN hf_data_master ON warehouses.pk_id = hf_data_master.warehouse_id
+		INNER JOIN stakeholders ON warehouses.stakeholder_office_id = stakeholders.pk_id
+		WHERE
+			warehouses.stakeholder_id = 1
+		AND hf_data_master.reporting_start_date = '" . $this->form_values['date'] . "-01'
+		AND hf_data_master.issue_balance IS NOT NULL
+		AND hf_data_master.item_pack_size_id = " . $this->form_values['item'] . "
+		AND stakeholders.pk_id = 6
+                AND warehouses.status = 1
+		GROUP BY
+			warehouses.location_id 
 	) A
 RIGHT JOIN locations ON locations.pk_id = A.location_id
 WHERE
 	locations.geo_level_id = 6
-AND locations.province_id = " . $this->form_values['prov_id'] . "
-AND locations.district_id = " . $this->form_values['dist_id'] . ") AS A
+AND locations.province_id = " . $this->form_values['prov_id'] . " 
+$iftehsil ) AS A
 WHERE $where ORDER BY wastagePer DESC";
 
         $row = $this->_em->getConnection()->prepare($str_sql);
@@ -1779,11 +2152,12 @@ subCaption = '$item  " . ("(" . date('M Y', strtotime($this->form_values['date']
                 locations.location_name
                 FROM
                 locations
-                WHERE locations.geo_level_id=2
-                ) A";
+                WHERE locations.geo_level_id=2) A";
+
         $row = $this->_em->getConnection()->prepare($str_sql);
         $row->execute();
         $result = $row->fetchAll();
+
         $item_pack_sizes = new Model_ItemPackSizes();
         $item_pack_sizes->form_values['pk_id'] = $this->form_values['item'];
         $item = $item_pack_sizes->getProductName();
@@ -1810,37 +2184,83 @@ subCaption = '$item  " . ("(" . date('M Y', strtotime($this->form_values['date']
             $prov_id = $this->_identity->getProvinceId();
         }
 
+        $role_id = $prov_id;
+
         $start = $this->form_values['start'];
         $end = $this->form_values['end'];
 
-        $str_sql = "SELECT * FROM (SELECT
-                            A.location_name AS districtName,
-                            ROUND(A.SOH / COALESCE (A.AvgCONS, NULL, 0),1) AS MOS
-                    FROM
-                            (
-                                    SELECT DISTINCT
-                                            REPgetConsumptionAVG ('D'," . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,locations.district_id,0) AS AvgCONS,
-                                            REPgetCB ('D'," . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,locations.district_id,0) AS SOH,
-                                            locations.province_id,
-                                            locations.location_name
-                                    FROM
-                                             locations where locations.geo_level_id=4 AND locations.province_id = $prov_id
-                            ) A
-                    WHERE ROUND(A.SOH / COALESCE (A.AvgCONS, NULL, 0),1) IS NOT NULL)A WHERE A.MOS >= '$start' AND A.MOS <= '$end'";
-        $row = $this->_em->getConnection()->prepare($str_sql);
-        $row->execute();
-        $result = $row->fetchAll();
+        $cache = Zend_Registry::get('cacheManager')->getCache('file');
+        $mosucdashlet = "MOSP_$yy$mm$prov_id" . $this->form_values['item'];
+
+        if (!$result = $cache->load($mosucdashlet)) {
+            $em = Zend_Registry::get('doctrine');
+            if ($role_id == 2) {
+                $str_sql_amc = "CALL REPgetAMCHF('P','" . $yy . "-" . $mm . "-01', $prov_id, '" . $this->form_values['item'] . "', 1);";
+            } else {
+                $str_sql_amc = "CALL REPgetAMC('P','" . $yy . "-" . $mm . "-01', $prov_id, '" . $this->form_values['item'] . "', 1);";
+            }
+            $row_amc = $em->getConnection()->prepare($str_sql_amc);
+            $row_amc->execute();
+            $result_amc = $row_amc->fetchAll();
+            $em->getConnection()->close();
+            if ($role_id == 2) {
+                $str_sql_cb = "CALL REPgetCBHF('P','" . $yy . "-" . $mm . "-01', $prov_id, '" . $this->form_values['item'] . "', 1);";
+            } else {
+                $str_sql_cb = "CALL REPgetCB('P','" . $yy . "-" . $mm . "-01', $prov_id, '" . $this->form_values['item'] . "', 1);";
+            }
+            $row_cb = $em->getConnection()->prepare($str_sql_cb);
+            $row_cb->execute();
+            $result_cb = $row_cb->fetchAll();
+            $em->getConnection()->close();
+
+            $result = array();
+            foreach ($result_amc as $row) {
+                $result[$row['location_name']]['amc'] = $row['AMC'];
+            }
+            foreach ($result_cb as $row) {
+                $result[$row['location_name']]['cb'] = $row['CB'];
+            }
+
+            $cache->save($result, $mosucdashlet);
+        }
+
+        /* $str_sql = "SELECT * FROM (SELECT
+          A.location_name AS districtName,
+          ROUND(A.SOH / COALESCE (A.AvgCONS, NULL, 0),1) AS MOS
+          FROM
+          (
+          SELECT DISTINCT
+          REPgetConsumptionAVG ('D'," . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,locations.district_id,0) AS AvgCONS,
+          REPgetCB ('D'," . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,locations.district_id,0) AS SOH,
+          locations.province_id,
+          locations.location_name
+          FROM
+          locations where locations.geo_level_id=4 AND locations.province_id = $prov_id
+          ) A
+          WHERE ROUND(A.SOH / COALESCE (A.AvgCONS, NULL, 0),1) IS NOT NULL)A WHERE A.MOS >= '$start' AND A.MOS <= '$end'";
+
+          $row = $this->_em->getConnection()->prepare($str_sql);
+          $row->execute();
+          $result = $row->fetchAll(); */
+
         $item_pack_sizes = new Model_ItemPackSizes();
         $item_pack_sizes->form_values['pk_id'] = $this->form_values['item'];
         $item = $item_pack_sizes->getProductName();
-
 
         $locations = new Model_Locations();
         $locations->form_values['pk_id'] = $prov_id;
         $province_name = $this->view->location_name = $locations->getLocationName();
         $xmlstore = "<chart exportEnabled='1' exportAction='Download' bgColor='white' caption='Months of Stock(MOS) status of $item(Months) in $province_name Stores  and EPI centers by the End of " . ("(" . date('M Y', strtotime($this->form_values['date'])) . ")" ) . "' exportFileName='Districts MOS " . date('Y-m-d H:i:s') . "' yAxisName='Months' showValues='1' formatNumberScale='0' theme='fint'>";
-        foreach ($result as $data) {
-            $xmlstore .= "<set label='$data[districtName]' value='$data[MOS]' />";
+        foreach ($result as $loc_name => $data) {
+            if ($data['amc'] == 0) {
+                $mos = 0;
+            } else {
+                $mos = round($data['cb'] / $data['amc'], 2);
+            }
+
+            if ($mos >= $start && $mos <= $end) {
+                $xmlstore .= "<set label='$loc_name' value='$mos' />";
+            }
         }
 
         $xmlstore .="<trendlines>
@@ -1862,27 +2282,66 @@ subCaption = '$item  " . ("(" . date('M Y', strtotime($this->form_values['date']
             $dist_id = $this->_identity->getDistrictId();
         }
 
+        $rows = $this->_em->getRepository('Warehouses')->findBy(array('district' => $dist_id));
+
+        $role_id = $rows[0]->getProvince()->getPkId();
+
         $start = $this->form_values['start'];
         $end = $this->form_values['end'];
 
-        $str_sql = "SELECT * FROM (SELECT
-                            A.location_name AS UcName,
-                            ROUND(A.SOH / COALESCE (A.AvgCONS, NULL, 0),1) AS MOS
-                    FROM
-                            (
-                                    SELECT DISTINCT
-                                            REPgetConsumptionAVG ('U'," . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,locations.pk_id,0) AS AvgCONS,
-                                            REPgetCB ('U'," . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,locations.pk_id,0) AS SOH,
-                                            locations.province_id,
-                                            locations.location_name
-                                    FROM
-                                             locations where locations.geo_level_id=6 AND locations.district_id = $dist_id
-                            ) A
-                    WHERE ROUND(A.SOH / COALESCE (A.AvgCONS, NULL, 0),1) IS NOT NULL)A WHERE A.MOS >= '$start' AND A.MOS <= '$end' ORDER BY A.MOS DESC";
+        $cache = Zend_Registry::get('cacheManager')->getCache('file');
+        $mosucdashlet = "MOSD_$yy$mm$dist_id" . $this->form_values['item'];
 
-        $row = $this->_em->getConnection()->prepare($str_sql);
-        $row->execute();
-        $result = $row->fetchAll();
+        if (!$result = $cache->load($mosucdashlet)) {
+            $em = Zend_Registry::get('doctrine');
+            if ($role_id == 2) {
+                $str_sql_amc = "CALL REPgetAMCHF('D','" . $yy . "-" . $mm . "-01', $dist_id, '" . $this->form_values['item'] . "', 1);";
+            } else {
+                $str_sql_amc = "CALL REPgetAMC('D','" . $yy . "-" . $mm . "-01', $dist_id, '" . $this->form_values['item'] . "', 1);";
+            }
+            $row_amc = $em->getConnection()->prepare($str_sql_amc);
+            $row_amc->execute();
+            $result_amc = $row_amc->fetchAll();
+            $em->getConnection()->close();
+            if ($role_id == 2) {
+                $str_sql_cb = "CALL REPgetCBHF('D','" . $yy . "-" . $mm . "-01', $dist_id, '" . $this->form_values['item'] . "', 1);";
+            } else {
+                $str_sql_cb = "CALL REPgetCB('D','" . $yy . "-" . $mm . "-01', $dist_id, '" . $this->form_values['item'] . "', 1);";
+            }
+            $row_cb = $em->getConnection()->prepare($str_sql_cb);
+            $row_cb->execute();
+            $result_cb = $row_cb->fetchAll();
+            $em->getConnection()->close();
+
+            $result = array();
+            foreach ($result_amc as $row) {
+                $result[$row['location_name']]['amc'] = $row['AMC'];
+            }
+            foreach ($result_cb as $row) {
+                $result[$row['location_name']]['cb'] = $row['CB'];
+            }
+
+            $cache->save($result, $mosucdashlet);
+        }
+
+        /* $str_sql = "SELECT * FROM (SELECT
+          A.location_name AS UcName,
+          ROUND(A.SOH / COALESCE (A.AvgCONS, NULL, 0),1) AS MOS
+          FROM
+          (
+          SELECT DISTINCT
+          REPgetConsumptionAVG ('U'," . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,locations.pk_id,0) AS AvgCONS,
+          REPgetCB ('U'," . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,locations.pk_id,0) AS SOH,
+          locations.province_id,
+          locations.location_name
+          FROM
+          locations where locations.geo_level_id=6 $where
+          ) A
+          WHERE ROUND(A.SOH / COALESCE (A.AvgCONS, NULL, 0),1) IS NOT NULL)A WHERE A.MOS >= '$start' AND A.MOS <= '$end' ORDER BY A.MOS DESC";
+         */
+        //echo $str_sql;
+        //exit;
+
         $item_pack_sizes = new Model_ItemPackSizes();
         $item_pack_sizes->form_values['pk_id'] = $this->form_values['item'];
         $item = $item_pack_sizes->getProductName();
@@ -1891,8 +2350,15 @@ subCaption = '$item  " . ("(" . date('M Y', strtotime($this->form_values['date']
         $locations->form_values['pk_id'] = $dist_id;
         $province_name = $this->view->location_name = $locations->getLocationName();
         $xmlstore = "<chart exportEnabled='1' exportAction='Download' color='black' caption='Months of Stock(MOS) status of $item(Months) in $province_name UCs by the End of " . ("(" . date('M Y', strtotime($this->form_values['date'])) . ")" ) . "'  exportFileName='Districts MOS " . date('Y-m-d H:i:s') . "' yAxisName='Months' showValues='1' formatNumberScale='0.0' theme='fint'>";
-        foreach ($result as $data) {
-            $xmlstore .= "<set label='$data[UcName]' value='$data[MOS]' />";
+        foreach ($result as $loc_name => $data) {
+            if ($data['amc'] == 0) {
+                $mos = 0;
+            } else {
+                $mos = round($data['cb'] / $data['amc'], 2);
+            }
+            if ($mos >= $start && $mos <= $end) {
+                $xmlstore .= "<set label='$loc_name' value='$mos' />";
+            }
         }
         $xmlstore .="<trendlines>
                 <line startvalue='$start' color='EE2000' displayvalue='$start' valueonright='1' showontop='1' />
@@ -2001,44 +2467,75 @@ subCaption = '$item  " . ("(" . date('M Y', strtotime($this->form_values['date']
 
     public function illegalWastages() {
         $date = $this->form_values['date'] . "-01";
+        $date_in = str_replace("-","",$this->form_values['date']);
         $item = $this->form_values['item'];
         $allowed = $this->form_values['allowed'];
         $province = $this->form_values['province'];
 
-        $str_sql = "SELECT
-                                    GetIllegalWastageofDistrict (
-                                            $item,
-                                            '$date',
-                                            locations.district_id,
-                                            $allowed,
-                                            1
-                                    ) AS percentIllegalWastageRateUCs,
-                            locations.location_name,
-                            locations.district_id
-                    FROM
-                    locations
-                    INNER JOIN pilot_districts ON locations.pk_id = pilot_districts.district_id
-                    WHERE
-                    locations.geo_level_id = 4 AND
-                    locations.province_id = $province
-                    GROUP BY locations.district_id ORDER BY
-                    SUBSTRING_INDEX(
-                    percentIllegalWastageRateUCs,
-                   '|',1
-                   ) * 1  DESC ";
+        $role_id = $province;
+        // $start = $this->form_values['start'];
+        // $end = $this->form_values['end'];
 
-        $row = $this->_em->getConnection()->prepare($str_sql);
-        $row->execute();
-        $result = $row->fetchAll();
+        $cache = Zend_Registry::get('cacheManager')->getCache('file');
+        $mosucdashlet = "ILLWAS_$date_in$province$item";
+
+        if (!$result = $cache->load($mosucdashlet)) {
+            $em = Zend_Registry::get('doctrine');
+            if ($role_id == 2) {
+                $str_sql_wastage = "CALL GetIllegalWastageofDistrictHF('$item','$date', $province, '" . $item . "', 1);";
+            } else {
+                $str_sql_wastage = "CALL GetIllegalWastageofDistrict('$item','$date', $province, '" . $item . "', 1);";
+              
+            }
+            $row_wastage = $em->getConnection()->prepare($str_sql_wastage);
+            $row_wastage->execute();
+            $result_wastage = $row_wastage->fetchAll();
+            $em->getConnection()->close();
+            $result = array();
+            foreach ($result_wastage as $row) {
+                $result[$row['location_name']]['location_name'] = $row['location_name'];
+                $result[$row['location_name']]['wastage_ucs'] = $row['wastage_uc'];
+                $result[$row['location_name']]['total_ucs'] = $row['totalUcs'];
+            }
+
+
+            $cache->save($result, $mosucdashlet);
+        }
+
+
+//        $str_sql = "SELECT
+//                                    GetIllegalWastageofDistrict (
+//                                            $item,
+//                                            '$date',
+//                                            locations.district_id,
+//                                            $allowed,
+//                                            1
+//                                    ) AS percentIllegalWastageRateUCs,
+//                            locations.location_name,
+//                            locations.district_id
+//                    FROM
+//                    locations
+//                    INNER JOIN pilot_districts ON locations.pk_id = pilot_districts.district_id
+//                    
+//
+//                    locations.geo_level_id = 4 AND
+//                    locations.province_id = $province
+//                    GROUP BY locations.district_id ORDER BY
+//                    SUBSTRING_INDEX(
+//                    percentIllegalWastageRateUCs,
+//                   '|',1
+//                   ) * 1  DESC ";
+
+
         $item_pack_sizes = new Model_ItemPackSizes();
         $item_pack_sizes->form_values['pk_id'] = $this->form_values['item'];
-        $item = $item_pack_sizes->getProductName();
+        $item_name = $item_pack_sizes->getProductName();
         $xmlstore = "<chart exportEnabled='1' exportAction='Download' bgColor='white' caption='District wise number of UCs having wastage > $allowed% '
-        subCaption = '$item  " . ("(" . date('M Y', strtotime($this->form_values['date'])) . ")" ) . "' exportFileName='District wise percentage of UCs having wastage > 50% " . date('Y-m-d H:i:s') . "' yAxisName='Number of UCs' showValues='1' formatNumberScale='0' theme='fint' numberSuffix=''>";
+        subCaption = '$item_name  " . ("(" . date('M Y', strtotime($this->form_values['date'])) . ")" ) . "' exportFileName='District wise percentage of UCs having wastage > 50% " . date('Y-m-d H:i:s') . "' yAxisName='Number of UCs' showValues='1' formatNumberScale='0' theme='fint' numberSuffix=''>";
         foreach ($result as $data) {
-            list($wastage_ucs, $total_ucs, $wastage_percent) = explode("|", $data['percentIllegalWastageRateUCs']);
+            //    list($wastage_ucs, $total_ucs, $wastage_percent) = explode("|", $data['percentIllegalWastageRateUCs']);
 
-            $xmlstore .= "<set label='$data[location_name]($total_ucs)' value='" . $wastage_ucs . "' />";
+            $xmlstore .= "<set label='$data[location_name]($data[total_ucs])' value='" . $data['wastage_ucs'] . "' />";
         }
         $xmlstore .="</chart>";
 
@@ -2079,49 +2576,77 @@ subCaption = '$item  " . ("(" . date('M Y', strtotime($this->form_values['date']
             $prov_id = $this->_identity->getProvinceId();
         }
 
-        $str_sql = "SELECT
-	A.CONS,
-	A.districtName,
-	ROUND(
-		(
-			(
-				(
-					(A.population / 100) * B.population_percent_increase_per_year
-				) / 100 * B.child_surviving_percent_per_year
-			) * B.doses_per_year
-		) / 12
-	) AS target
-FROM
-	(
-		SELECT DISTINCT
-			REPgetConsumption (" . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,'D',locations.district_id) AS CONS,
-			locations.location_name AS districtName,
-			location_populations.population
-		FROM
-			locations
-		INNER JOIN pilot_districts ON locations.pk_id = pilot_districts.district_id
-		INNER JOIN location_populations ON locations.district_id = location_populations.location_id
-		WHERE
-			locations.geo_level_id = 4
-		AND locations.province_id = $prov_id
-		AND DATE_FORMAT(
-			location_populations.estimation_date,
-			'%Y'
-		) = '$yy'
-	) A,
-	(
-		SELECT
-			item_pack_sizes.item_name,
-			items.population_percent_increase_per_year,
-			items.child_surviving_percent_per_year,
-			items.doses_per_year
-		FROM
-			item_pack_sizes
-		INNER JOIN items ON item_pack_sizes.item_id = items.pk_id
-		WHERE
-			item_pack_sizes.pk_id = " . $this->form_values['item'] . "
-	) B";
+        $role_id = $prov_id;
+        // $start = $this->form_values['start'];
+        // $end = $this->form_values['end'];
 
+        $cache = Zend_Registry::get('cacheManager')->getCache('file');
+        $mosucdashlet = "CONSP_$yy$mm$prov_id" . $this->form_values['item'];
+
+        if (!$result = $cache->load($mosucdashlet)) {
+            $em = Zend_Registry::get('doctrine');
+            if ($role_id == 2) {
+                $str_sql_con = "CALL REPgetConsumptionHF('P','" . $yy . "-" . $mm . "-01', $prov_id, '" . $this->form_values['item'] . "', 1);";
+            } else {
+                $str_sql_con = "CALL REPgetConsumption('P','" . $yy . "-" . $mm . "-01', $prov_id, '" . $this->form_values['item'] . "', 1);";
+            }
+            $row_consumption = $em->getConnection()->prepare($str_sql_con);
+            $row_consumption->execute();
+            $result_consumption = $row_consumption->fetchAll();
+            $em->getConnection()->close();
+            $result = array();
+            foreach ($result_consumption as $row) {
+                $result[$row['location_name']]['districtName'] = $row['location_name'];
+                $result[$row['location_name']]['CONS'] = $row['consumption'];
+                $result[$row['location_name']]['target'] = $row['target'];
+            }
+
+
+            $cache->save($result, $mosucdashlet);
+        }
+
+//        $str_sql = "SELECT
+//	A.CONS,
+//	A.districtName,
+//	ROUND(
+//		(
+//			(
+//				(
+//					(A.population / 100) * B.population_percent_increase_per_year
+//				) / 100 * B.child_surviving_percent_per_year
+//			) * B.doses_per_year
+//		) / 12
+//	) AS target
+//FROM
+//	(
+//		SELECT DISTINCT
+//			REPgetConsumption (" . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,'D',locations.district_id) AS CONS,
+//			locations.location_name AS districtName,
+//			location_populations.population
+//		FROM
+//			locations
+//		INNER JOIN pilot_districts ON locations.pk_id = pilot_districts.district_id
+//		INNER JOIN location_populations ON locations.district_id = location_populations.location_id
+//		WHERE
+//			locations.geo_level_id = 4
+//		AND locations.province_id = $prov_id
+//		AND DATE_FORMAT(
+//			location_populations.estimation_date,
+//			'%Y'
+//		) = '$yy'
+//	) A,
+//	(
+//		SELECT
+//			item_pack_sizes.item_name,
+//			items.population_percent_increase_per_year,
+//			items.child_surviving_percent_per_year,
+//			items.doses_per_year
+//		FROM
+//			item_pack_sizes
+//		INNER JOIN items ON item_pack_sizes.item_id = items.pk_id
+//		WHERE
+//			item_pack_sizes.pk_id = " . $this->form_values['item'] . "
+//	) B";
 //echo $str_sql;
         /* $str_sql = "SELECT DISTINCT
           REPgetConsumption (" . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,'D',locations.district_id) AS CONS,
@@ -2129,9 +2654,8 @@ FROM
           FROM
           locations INNER JOIN pilot_districts ON locations.pk_id = pilot_districts.district_id where locations.geo_level_id=4 AND locations.province_id = $prov_id";
          */
-        $row = $this->_em->getConnection()->prepare($str_sql);
-        $row->execute();
-        $result = $row->fetchAll();
+
+        //  App_Controller_Functions::pr($result);
         $item_pack_sizes = new Model_ItemPackSizes();
         $item_pack_sizes->form_values['pk_id'] = $this->form_values['item'];
         $item = $item_pack_sizes->getProductName();
@@ -2170,40 +2694,77 @@ FROM
         if (empty($dist_id)) {
             $dist_id = $this->_identity->getDistrictId();
         }
+        $rows = $this->_em->getRepository('Warehouses')->findBy(array('district' => $dist_id));
+
+        $role_id = $rows[0]->getProvince()->getPkId();
 
         $teh_id = $this->form_values['teh_id'];
 
-        $str_sql = "SELECT IFNULL(A.CONS,0) as CONS,
-                    A.ucName,
-                    ROUND(((((A.population / 100) * B.population_percent_increase_per_year) / 100 * B.child_surviving_percent_per_year)* B.doses_per_year) / 12) AS target
-            FROM (
-            SELECT DISTINCT
-                    IFNULL(REPgetConsumption (" . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,'U',locations.pk_id),0) AS CONS,
-                    locations.location_name AS ucName,
-                    IFNULL(location_populations.population,0) as population
-            FROM
-                    pilot_districts
-            INNER JOIN locations ON pilot_districts.district_id = locations.district_id
-            LEFT JOIN location_populations ON location_populations.location_id = locations.pk_id
-            WHERE
-                    locations.geo_level_id = 6
-            AND locations.parent_id = $teh_id AND DATE_FORMAT(location_populations.estimation_date,'%Y') = '$yy') A,
-            (
-                            SELECT
-                                    item_pack_sizes.item_name,
-                                    items.population_percent_increase_per_year,
-                                    items.child_surviving_percent_per_year,
-                                    items.doses_per_year
-                            FROM
-                                    item_pack_sizes
-                            INNER JOIN items ON item_pack_sizes.item_id = items.pk_id
-                            WHERE
-                                    item_pack_sizes.pk_id = 6
-                    ) B";
+        $cache = Zend_Registry::get('cacheManager')->getCache('file');
+        $mosucdashlet = "CONSD_$yy$mm$dist_id$teh_id" . $this->form_values['item'];
 
-        $row = $this->_em->getConnection()->prepare($str_sql);
-        $row->execute();
-        $result = $row->fetchAll();
+        if (!$result = $cache->load($mosucdashlet)) {
+            $em = Zend_Registry::get('doctrine');
+            if ($role_id == 2) {
+                $str_sql_con = "CALL REPgetConsumptionHF('D','" . $yy . "-" . $mm . "-01', $teh_id, '" . $this->form_values['item'] . "', 1);";
+            } else {
+                $str_sql_con = "CALL REPgetConsumption('D','" . $yy . "-" . $mm . "-01', $teh_id, '" . $this->form_values['item'] . "', 1);";
+            }
+            $row_consumption = $em->getConnection()->prepare($str_sql_con);
+            $row_consumption->execute();
+            $result_consumption = $row_consumption->fetchAll();
+            $em->getConnection()->close();
+            $result = array();
+            foreach ($result_consumption as $row) {
+                $result[$row['location_name']]['ucName'] = $row['location_name'];
+                $result[$row['location_name']]['CONS'] = $row['consumption'];
+                $result[$row['location_name']]['target'] = $row['target'];
+            }
+            $cache->save($result, $mosucdashlet);
+        }
+
+
+//        $str_sql = "SELECT IFNULL(A.CONS,0) as CONS,
+//                    A.ucName,
+//                    ROUND(((((A.population / 100) * B.population_percent_increase_per_year) / 100 * B.child_surviving_percent_per_year)* B.doses_per_year) / 12) AS target
+//            FROM (
+//            SELECT DISTINCT
+//                    IFNULL(REPgetConsumption (" . $mm . "," . $yy . "," . $this->form_values['item'] . ",1,'U',locations.pk_id),0) AS CONS,
+//                    locations.location_name AS ucName,
+//                    (SELECT
+//					IFNULL(location_populations.population,0)
+//				FROM
+//					location_populations
+//				WHERE
+//					location_populations.location_id = locations.pk_id
+//				
+//				AND DATE_FORMAT(
+//					location_populations.estimation_date,
+//					'%Y'
+//				) = '$yy'
+//			) AS population
+//            FROM
+//                    pilot_districts
+//            INNER JOIN locations ON pilot_districts.district_id = locations.district_id
+//            
+//            WHERE
+//            locations.geo_level_id = 6
+//            AND locations.parent_id = $teh_id ) A,
+//            (
+//                            SELECT
+//                                    item_pack_sizes.item_name,
+//                                    items.population_percent_increase_per_year,
+//                                    items.child_surviving_percent_per_year,
+//                                    items.doses_per_year
+//                            FROM
+//                                    item_pack_sizes
+//                            INNER JOIN items ON item_pack_sizes.item_id = items.pk_id
+//                            WHERE
+//                                    item_pack_sizes.pk_id = 6
+//                    ) B";
+        //$row = $this->_em->getConnection()->prepare($str_sql);
+        //$row->execute();
+        //$result = $row->fetchAll();
         $item_pack_sizes = new Model_ItemPackSizes();
         $item_pack_sizes->form_values['pk_id'] = $this->form_values['item'];
         $item = $item_pack_sizes->getProductName();
@@ -2212,7 +2773,7 @@ FROM
         $locations->form_values['pk_id'] = $teh_id;
         $tehsil_name = $this->view->location_name = $locations->getLocationName();
         $xmlstore = "<chart labelDisplay='rotate' exportEnabled='1' exportAction='Download' bgColor='white' caption='Consumption status of $item(Doses) in $tehsil_name Stores  and EPI centers  during " . ("(" . date('M Y', strtotime($this->form_values['date'])) . ")" ) . "'
- exportFileName='Districts Consumption " . date('Y-m-d H:i:s') . "' yAxisName='Doses' showValues='1' formatNumberScale='0' theme='fint'>";
+        exportFileName='Districts Consumption " . date('Y-m-d H:i:s') . "' yAxisName='Doses' showValues='1' formatNumberScale='0' theme='fint'>";
         $xmlstore .= '<categories>';
         foreach ($result as $data) {
             $coverage = ROUND(($data['CONS'] / $data['target']) * 100, 1);
@@ -2427,11 +2988,75 @@ FROM
       } */
 
     public function getMonthYearByWarehouseId() {
+        $warehouse_id = $this->form_values['warehouse_id'];
+        $querypro = "SELECT * from (SELECT DISTINCT
+	  MONTH (warehouses_data.reporting_start_date) as report_month,
+	  YEAR (warehouses_data.reporting_start_date) as report_year,
+	  locations.pk_id  as location_id,
+          warehouses_data.reporting_start_date as reporting_start_date
+          FROM
+             warehouses_data 
+            INNER JOIN warehouses  ON warehouses_data.warehouse_id = warehouses.pk_id
+            INNER JOIN locations  ON warehouses.location_id = locations.pk_id
+            WHERE
+                    warehouses_data.warehouse_id = '$warehouse_id'
+            AND warehouses.STATUS = 1
+
+            UNION
+            SELECT DISTINCT
+              MONTH (hf_data_master.reporting_start_date) as report_month,
+              YEAR (hf_data_master.reporting_start_date) as report_year,
+              locations.pk_id  as location_id,
+              hf_data_master.reporting_start_date as reporting_start_date
+            FROM
+                    hf_data_master 
+            INNER JOIN warehouses  ON hf_data_master.warehouse_id = warehouses.pk_id
+            INNER JOIN locations  ON warehouses.location_id = locations.pk_id
+            WHERE
+                    hf_data_master.warehouse_id = '$warehouse_id'
+            AND warehouses.STATUS = 1) A
+            ORDER BY reporting_start_date DESC";
+        //echo $querypro;
+        /* stock_master.from_warehouse_id = '$wh_id' AND
+          AND stock_batch.number IN ('" . $batchNums . "') */
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($querypro);
+
+        $row->execute();
+        $rs = $row->fetchAll();
+        if (!empty($rs) && count($rs) > 0) {
+            return $rs;
+        } else {
+            return 0;
+        }
+
+//        $str_sql = $this->_em->createQueryBuilder()
+//                ->select('DISTINCT MONTH(wd.reportingStartDate) as report_month,'
+//                        . 'YEAR(wd.reportingStartDate) as report_year,'
+//                        . 'l.pkId as location_id')
+//                ->from("WarehousesData", "wd")
+//                ->join("wd.warehouse", "w")
+//                ->join("w.location", "l")
+//                ->where("wd.warehouse = " . $this->form_values['warehouse_id'])
+//                ->andWhere("w.status=1")
+//                ->orderBy("wd.reportingStartDate", "DESC");
+//  // echo $str_sql->getQuery()->getSql();
+//  // exit;
+//        $rs = $str_sql->getQuery()->getResult();
+//        if (!empty($rs) && count($rs) > 0) {
+//            return $rs;
+//        } else {
+//            return 0;
+//        }
+    }
+
+    public function getMonthYearByWarehouseId2() {
         $str_sql = $this->_em->createQueryBuilder()
                 ->select('DISTINCT MONTH(wd.reportingStartDate) as report_month,'
                         . 'YEAR(wd.reportingStartDate) as report_year,'
                         . 'l.pkId as location_id')
-                ->from("WarehousesData", "wd")
+                ->from("HfDataMaster", "wd")
                 ->join("wd.warehouse", "w")
                 ->join("w.location", "l")
                 ->where("wd.warehouse = " . $this->form_values['warehouse_id'])
@@ -2446,17 +3071,17 @@ FROM
         }
     }
 
-    public function getMonthYearByWarehouseId2() {
+    public function getMonthYearByWarehouseIdLogBook() {
         $str_sql = $this->_em->createQueryBuilder()
-                ->select('DISTINCT MONTH(wd.reportingStartDate) as report_month,'
-                        . 'YEAR(wd.reportingStartDate) as report_year,'
+                ->select('DISTINCT MONTH(wd.vaccinationDate) as report_month,'
+                        . 'YEAR(wd.vaccinationDate) as report_year,'
                         . 'l.pkId as location_id')
-                ->from("HfDataMaster", "wd")
+                ->from("LogBook", "wd")
                 ->join("wd.warehouse", "w")
                 ->join("w.location", "l")
                 ->where("wd.warehouse = " . $this->form_values['warehouse_id'])
                 ->andWhere("w.status=1")
-                ->orderBy("wd.reportingStartDate", "DESC");
+                ->orderBy("wd.vaccinationDate", "DESC");
 
         $rs = $str_sql->getQuery()->getResult();
         if (!empty($rs) && count($rs) > 0) {
@@ -2769,81 +3394,61 @@ FROM
     public function addMonthlyConsumption2Draft() {
 
         $data = $this->form_values;
-
+        $date = date("Y-m-d h:i:s");
         /* -----------------Delete Before Insert -------------- */
         $rows = $this->_em->getRepository('HfDataMasterDraft')->findBy(array('warehouse' => $data['wh_id'], 'reportingStartDate' => $data['rpt_date']));
         foreach ($rows as $row) {
             $this->_em->remove($row);
         }
         $this->_em->flush();
-
-        $posted_array = $data['flitm_id'];
-        $opening_array = $data['opening_balance'];
-        $received_array = $data['received'];
-        $dispensed_array = $data['dispensed'];
-        // $vials_used_array = $data['vials_used'];
-        $unusable_vials_array = $data['unusable_vials'];
-        $closing_balance_array = $data['closing_balance'];
-        // $nearest_expiry_array = $data['nearest_expiry'];
-        $doses_per_unit_array = $data['doses_per_unit'];
-
-        foreach ($closing_balance_array as $key => $val) {
-            if ($val != '' && $val >= 0) {
-                // $vials_used = $vials_used_array[$key];
-                // $wh_id = $data['wh_id'];
-                $vials_used = ($opening_array[$key] + $received_array[$key] - $closing_balance_array[$key] ) - $unusable_vials_array[$key];
-                $year_month = $data['yearmonth'];
-                $doses = $doses_per_unit_array[$key];
-                $issue = $dispensed_array[$key];
-                $itemid = $posted_array[$key];
-                $wh_adj = $unusable_vials_array[$key] * $doses;
-                $wastages = (( $vials_used) - $issue ) + abs($wh_adj);
-                $date = date("Y-m-d h:i:s");
-
-                $hf_data_master = new HfDataMasterDraft();
-                $item = $this->_em->getRepository('ItemPackSizes')->find($posted_array[$key]);
-                $warehouse = $this->_em->getRepository('Warehouses')->find($data['wh_id']);
-                $hf_data_master->setItemPackSize($item);
-                $hf_data_master->setWarehouse($warehouse);
-                $user_id = $this->_em->getRepository('Users')->find($this->_user_id);
-                $hf_data_master->setCreatedBy($user_id);
-                $hf_data_master->setOpeningBalance($opening_array[$key]);
-                $hf_data_master->setReceivedBalance($received_array[$key]);
-                $hf_data_master->setIssueBalance($issue);
-                $hf_data_master->setClosingBalance($val);
-                $hf_data_master->setVialsUsed($vials_used);
-                $hf_data_master->setAdjustments($unusable_vials_array[$key]);
-                $hf_data_master->setReportingStartDate(new \DateTime(App_Controller_Functions::dateToDbFormat($data['rpt_date'])));
-
-                $hf_data_master->setWastages($wastages);
-                $hf_data_master->setCreatedDate(new \DateTime(App_Controller_Functions::dateToDbFormat($date)));
-                $hf_data_master->setModifiedDate(new \DateTime(App_Controller_Functions::dateToDbFormat(date("Y-m-d"))));
-
-
-                $this->_em->persist($hf_data_master);
-                $this->_em->flush();
-            }
-        }
-    }
-
-    public function addMonthlyConsumption2() {
-
-        $data = $this->form_values;
-        //  App_Controller_Functions::pr($data);
-
-        $date = date("Y-m-d h:i:s");
-
-//        /* -----------------Delete Before Insert -------------- */
-        if ($data['is_new_report'] == 0) {
-            $rows = $this->_em->getRepository('HfDataMaster')->findBy(array('warehouse' => $data['wh_id'], 'reportingStartDate' => $data['rpt_date']));
-            if (count($rows) > 0) {
-                $date = $rows[0]->getCreatedDate()->format("Y-m-d h:i:s");
-                foreach ($rows as $row) {
-                    $this->_em->remove($row);
-                }
-                $this->_em->flush();
-            }
-        }
+//
+//        $posted_array = $data['flitm_id'];
+//        $opening_array = $data['opening_balance'];
+//        $received_array = $data['received'];
+//        $dispensed_array = $data['dispensed'];
+//        // $vials_used_array = $data['vials_used'];
+//        $unusable_vials_array = $data['unusable_vials'];
+//        $closing_balance_array = $data['closing_balance'];
+//        // $nearest_expiry_array = $data['nearest_expiry'];
+//        $doses_per_unit_array = $data['doses_per_unit'];
+//
+//        foreach ($closing_balance_array as $key => $val) {
+//            if ($val != '' && $val >= 0) {
+//                // $vials_used = $vials_used_array[$key];
+//                // $wh_id = $data['wh_id'];
+//                $vials_used = ($opening_array[$key] + $received_array[$key] - $closing_balance_array[$key] ) - $unusable_vials_array[$key];
+//                $year_month = $data['yearmonth'];
+//                $doses = $doses_per_unit_array[$key];
+//                $issue = $dispensed_array[$key];
+//                $itemid = $posted_array[$key];
+//                $wh_adj = $unusable_vials_array[$key] * $doses;
+//                $wastages = (( $vials_used) - $issue ) + abs($wh_adj);
+//                $date = date("Y-m-d h:i:s");
+//
+//                $hf_data_master = new HfDataMasterDraft();
+//                $item = $this->_em->getRepository('ItemPackSizes')->find($posted_array[$key]);
+//                $warehouse = $this->_em->getRepository('Warehouses')->find($data['wh_id']);
+//                $hf_data_master->setItemPackSize($item);
+//                $hf_data_master->setWarehouse($warehouse);
+//                $user_id = $this->_em->getRepository('Users')->find($this->_user_id);
+//                $hf_data_master->setCreatedBy($user_id);
+//                $hf_data_master->setOpeningBalance($opening_array[$key]);
+//                $hf_data_master->setReceivedBalance($received_array[$key]);
+//                $hf_data_master->setIssueBalance($issue);
+//                $hf_data_master->setClosingBalance($val);
+//                $hf_data_master->setVialsUsed($vials_used);
+//                $hf_data_master->setAdjustments($unusable_vials_array[$key]);
+//                $hf_data_master->setReportingStartDate(new \DateTime(App_Controller_Functions::dateToDbFormat($data['rpt_date'])));
+//
+//                $hf_data_master->setWastages($wastages);
+//                $hf_data_master->setCreatedDate(new \DateTime(App_Controller_Functions::dateToDbFormat($date)));
+//                $hf_data_master->setModifiedDate(new \DateTime(App_Controller_Functions::dateToDbFormat(date("Y-m-d"))));
+//
+//
+//                $this->_em->persist($hf_data_master);
+//                $this->_em->flush();
+//            }
+//        }
 
         $posted_array = $data['flitm_id'];
         $vaccine_schedule_id = $data['vaccine_schedule_id'];
@@ -2853,7 +3458,7 @@ FROM
         $pregenant_women = $data['pregenant_women'];
         $non_pregenant_women = $data['non_pregenant_women'];
         $pregnant_women = $data['pregnant_women1'];
-
+        $cba = $data['cba'];
 
         $pregenant_women_total = $data['pregenant_women_total'];
         $non_pregenant_women_total = $data['non_pregenant_women_total'];
@@ -2900,9 +3505,10 @@ FROM
                             $nod += 1;
                         }
 
-                        $vacine_schedule = ($i == 1 && $i == $nod) ? '' : $i;
+                        //$vacine_schedule = ($i == 1 && $i == $nod) ? '' : $i;
 
-                        if (empty($vacine_schedule)) {
+                        $vacine_schedule = ($i == 1 && $i == $nod) ? '' : $i;
+                        if (strlen($vacine_schedule) == 0) {
                             $vacine_schedule = 1;
                         }
 
@@ -2942,7 +3548,7 @@ FROM
                     $wastages = ($vials_used - $issue);
                 }
 
-                $hf_data_master = new HfDataMaster();
+                $hf_data_master = new HfDataMasterDraft();
                 $item = $this->_em->getRepository('ItemPackSizes')->find($posted_array[$key]);
                 $warehouse = $this->_em->getRepository('Warehouses')->find($data['wh_id']);
                 $hf_data_master->setItemPackSize($item);
@@ -2962,19 +3568,21 @@ FROM
                 $hf_data_master->setWastages($wastages);
                 $hf_data_master->setCreatedDate(new \DateTime(App_Controller_Functions::dateToDbFormat($date)));
                 $hf_data_master->setModifiedDate(new \DateTime(App_Controller_Functions::dateToDbFormat(date("Y-m-d"))));
-                $hf_data_master->setChildrenLiveBirth($children_live_birth);
-                $hf_data_master->setSurvivingChildren011($surviving_children_0_11_M);
-                $hf_data_master->setChildrenAged1223($children_aged_12_23_M);
-                $hf_data_master->setPregnantWomen($pregnant_women);
-
-
-
-
-
+//echo $this->monthlyConsumtion2Targets($wh_id, App_Controller_Functions::dateToDbFormat($data['rpt_date']));
+                if ($data['is_new_report'] == 1) {
+                    $hf_data_master->setChildrenLiveBirth($children_live_birth);
+                    $hf_data_master->setSurvivingChildren011($surviving_children_0_11_M);
+                    $hf_data_master->setChildrenAged1223($children_aged_12_23_M);
+                    $hf_data_master->setPregnantWomen($pregnant_women);
+                    $hf_data_master->setCbas($cba);
+                } else if ($data['is_new_report'] == 0) {
+                    $this->updateYearlyTargets($wh_id, App_Controller_Functions::dateToDbFormat($data['rpt_date']), $children_live_birth, $surviving_children_0_11_M, $children_aged_12_23_M, $pregnant_women);
+                }
                 $this->_em->persist($hf_data_master);
                 $this->_em->flush();
 
                 $hf_data_master_id = $hf_data_master->getPkId();
+
                 if ($item_category[$key] == 1) {
 
                     $nod = $no_of_doses[$key];
@@ -2984,7 +3592,7 @@ FROM
                         }
 
                         $vacine_schedule = ($i == 1 && $i == $nod) ? '' : $i;
-                        if (empty($vacine_schedule)) {
+                        if (strlen($vacine_schedule) == 0) {
                             $vacine_schedule = 1;
                         }
                         $fix_inuc_m_11 = $data['fix_inuc_m_11_' . $posted_array[$key] . '_' . $vacine_schedule];
@@ -3006,7 +3614,7 @@ FROM
                         $outreach_m_23 = $data['outreach_m_23_' . $posted_array[$key] . '_' . $vacine_schedule];
                         $outreach_f_23 = $data['outreach_f_23_' . $posted_array[$key] . '_' . $vacine_schedule];
 
-                        $hf_data_detail = new HfDataDetail();
+                        $hf_data_detail = new HfDataDetailDraft();
                         $ageGroup = $this->_em->getRepository('ListDetail')->find(Model_ListDetail::AGE_0_11);
                         $hf_data_detail->setAgeGroup($ageGroup);
 
@@ -3019,11 +3627,11 @@ FROM
                         $hf_data_detail->setOutreachFemale($outreach_f_11);
                         $hf_data_detail->setOutreachMale($outreach_m_11);
                         $hf_data_detail->setVaccineScheduleId($vaccine_schedule);
-                        $hf_data_master_i = $this->_em->getRepository('HfDataMaster')->find($hf_data_master_id);
+                        $hf_data_master_i = $this->_em->getRepository('HfDataMasterDraft')->find($hf_data_master_id);
                         $hf_data_detail->setHfDataMaster($hf_data_master_i);
                         $this->_em->persist($hf_data_detail);
                         $this->_em->flush();
-                        $hf_data_detail1 = new HfDataDetail();
+                        $hf_data_detail1 = new HfDataDetailDraft();
                         $ageGroup1 = $this->_em->getRepository('ListDetail')->find(Model_ListDetail::AGE_12_23);
                         $hf_data_detail1->setAgeGroup($ageGroup1);
 
@@ -3037,6 +3645,341 @@ FROM
                         $hf_data_detail1->setOutreachMale($outreach_m_23);
 
                         $hf_data_detail1->setVaccineScheduleId($vaccine_schedule);
+                        $hf_data_master_i1 = $this->_em->getRepository('HfDataMasterDraft')->find($hf_data_master_id);
+                        $hf_data_detail1->setHfDataMaster($hf_data_master_i1);
+                        $this->_em->persist($hf_data_detail1);
+                        $this->_em->flush();
+                    }
+                }
+
+                if ($item_category[$key] == 2) {
+
+                    foreach ($pregenant_women as $key => $val) {
+                        $hf_data_detail = new HfDataDetailDraft();
+                        $hf_data_detail->setPregnantWomen($val);
+                        $hf_data_detail->setNonPregnantWomen($non_pregenant_women[$key]);
+                        $hf_data_detail->setVaccineScheduleId($vaccine_schedule_id[$key]);
+                        $hf_data_master_i = $this->_em->getRepository('HfDataMasterDraft')->find($hf_data_master_id);
+                        $hf_data_detail->setHfDataMaster($hf_data_master_i);
+                        $this->_em->persist($hf_data_detail);
+                        $this->_em->flush();
+                    }
+                }
+            }
+        }
+    }
+
+    public function addMonthlyConsumption2Validation() {
+
+        $error_array = array();
+
+        $data = $this->form_values;
+        // App_Controller_Functions::pr($data);
+        $date = date("Y-m-d h:i:s");
+
+
+        $posted_array = $data['flitm_id'];
+        $vaccine_schedule_id = $data['vaccine_schedule_id'];
+        $opening_array = $data['opening_balance'];
+        $received_array = $data['received'];
+        $dispensed_array = $data['dispensed'];
+        $pregenant_women = $data['pregenant_women'];
+        $non_pregenant_women = $data['non_pregenant_women'];
+        $pregnant_women = $data['pregnant_women1'];
+
+
+        $pregenant_women_total = $data['pregenant_women_total'];
+        $non_pregenant_women_total = $data['non_pregenant_women_total'];
+        $item_category = $data['item_category'];
+
+
+        // $vials_used_array = $data['vials_used'];
+        $unusable_vials_array = $data['unusable_vials'];
+        $closing_balance_array = $data['closing_balance'];
+        // $nearest_expiry_array = $data['nearest_expiry'];
+        $doses_per_unit_array = $data['doses_per_unit'];
+
+        // vaccine schedule
+        $strat_no = $data['start_no'];
+        $no_of_doses = $data['no_of_doses'];
+
+        $children_live_birth = $data['children_live_birth'];
+        $surviving_children_0_11_M = $data['surviving_children_0_11_M'];
+        $children_aged_12_23_M = $data['children_aged_12_23_M'];
+        $cba = $data['cba'];
+
+
+        foreach ($closing_balance_array as $key => $val) {
+            if ($val != '' && $val >= 0) {
+                if ($item_category[$key] == 1 || $item_category[$key] == 2) {
+                    $vials_used = ($opening_array[$key] + $received_array[$key] - $closing_balance_array[$key] ) - $unusable_vials_array[$key];
+                } else {
+                    $vials_used = ($opening_array[$key] + $received_array[$key] - $closing_balance_array[$key] );
+                }
+
+                $year_month = $data['yearmonth'];
+                $doses = $doses_per_unit_array[$key];
+                $wh_id = $data['wh_id'];
+                if ($item_category[$key] == 1) {
+
+                    $nod = $no_of_doses[$key];
+                    $issue = 0;
+                    for ($i = $strat_no[$key]; $i <= $no_of_doses[$key]; $i++) {
+                        if ($i == 0) {
+                            $nod += 1;
+                        }
+
+                        $vacine_schedule = ($i == 1 && $i == $nod) ? '' : $i;
+
+                        if (strlen($vacine_schedule) == 0) {
+                            $vacine_schedule = 1;
+                        }
+
+                        $fix_inuc_m_11 = $data['fix_inuc_m_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+
+                        $fix_inuc_f_11 = $data['fix_inuc_f_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_outuc_m_11 = $data['fix_outuc_m_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_outuc_f_11 = $data['fix_outuc_f_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $outreach_m_11 = $data['outreach_m_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $outreach_f_11 = $data['outreach_f_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+
+                        $fix_inuc_m_23 = $data['fix_inuc_m_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_inuc_f_23 = $data['fix_inuc_f_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_outuc_m_23 = $data['fix_outuc_m_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_outuc_f_23 = $data['fix_outuc_f_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $outreach_m_23 = $data['outreach_m_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $outreach_f_23 = $data['outreach_f_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+
+                        $issue += $fix_inuc_m_11 + $fix_inuc_f_11 + $fix_outuc_m_11 + $fix_outuc_f_11 + $outreach_m_11 + $outreach_f_11 + $fix_inuc_m_23 + $fix_inuc_f_23 + $fix_outuc_m_23 + $fix_outuc_f_23 + $outreach_m_23 + $outreach_f_23;
+                    }
+                } else if ($item_category[$key] == 2) {
+                    $issue = $pregenant_women_total + $non_pregenant_women_total;
+                } else if ($item_category[$key] == 3) {
+
+                    $issue = $dispensed_array[$key];
+                }
+
+                $itemid = $posted_array[$key];
+                $wh_adj = $unusable_vials_array[$key];
+                if ($item_category[$key] == 1 || $item_category[$key] == 2) {
+                    $wastages = ($vials_used - $issue) + abs($wh_adj);
+                } else {
+                    $wastages = ($vials_used - $issue);
+                }
+                // echo $itemid . "+" . $wastages . "<br>";
+                if ($wastages >= 0) {
+                    
+                } else {
+
+                    $error_array[] = $itemid;
+                }
+            }
+        }
+        if (empty($error_array)) {
+
+            $this->addMonthlyConsumption2($data);
+        } else {
+            return $error_array;
+        }
+    }
+
+    public function addMonthlyConsumption2() {
+
+        $error_array = array();
+
+        $data = $this->form_values;
+        // App_Controller_Functions::pr($data);
+        $date = date("Y-m-d h:i:s");
+
+//        /* -----------------Delete Before Insert -------------- */
+        if ($data['is_new_report'] == 0) {
+            $rows = $this->_em->getRepository('HfDataMaster')->findBy(array('warehouse' => $data['wh_id'], 'reportingStartDate' => $data['rpt_date']));
+            if (count($rows) > 0) {
+                $date = $rows[0]->getCreatedDate()->format("Y-m-d h:i:s");
+                foreach ($rows as $row) {
+                    $this->_em->remove($row);
+                }
+                $this->_em->flush();
+            }
+        }
+
+        $posted_array = $data['flitm_id'];
+        $vaccine_schedule_id = $data['vaccine_schedule_id'];
+        $opening_array = $data['opening_balance'];
+        $received_array = $data['received'];
+        $dispensed_array = $data['dispensed'];
+        $pregenant_women = $data['pregenant_women'];
+        $non_pregenant_women = $data['non_pregenant_women'];
+        $pregnant_women = $data['pregnant_women1'];
+
+
+        $pregenant_women_total = $data['pregenant_women_total'];
+        $non_pregenant_women_total = $data['non_pregenant_women_total'];
+        $item_category = $data['item_category'];
+
+
+        // $vials_used_array = $data['vials_used'];
+        $unusable_vials_array = $data['unusable_vials'];
+        $closing_balance_array = $data['closing_balance'];
+        // $nearest_expiry_array = $data['nearest_expiry'];
+        $doses_per_unit_array = $data['doses_per_unit'];
+
+        // vaccine schedule
+        $strat_no = $data['start_no'];
+        $no_of_doses = $data['no_of_doses'];
+
+        $children_live_birth = $data['children_live_birth'];
+        $surviving_children_0_11_M = $data['surviving_children_0_11_M'];
+        $children_aged_12_23_M = $data['children_aged_12_23_M'];
+        $cba = $data['cba'];
+
+
+        foreach ($closing_balance_array as $key => $val) {
+            if ($val != '' && $val >= 0) {
+                if ($item_category[$key] == 1 || $item_category[$key] == 2) {
+                    $vials_used = ($opening_array[$key] + $received_array[$key] - $closing_balance_array[$key] ) - $unusable_vials_array[$key];
+                } else {
+                    $vials_used = ($opening_array[$key] + $received_array[$key] - $closing_balance_array[$key] );
+                }
+
+                $year_month = $data['yearmonth'];
+                $doses = $doses_per_unit_array[$key];
+                $wh_id = $data['wh_id'];
+                if ($item_category[$key] == 1) {
+
+                    $nod = $no_of_doses[$key];
+                    $issue = 0;
+                    for ($i = $strat_no[$key]; $i <= $no_of_doses[$key]; $i++) {
+                        if ($i == 0) {
+                            $nod += 1;
+                        }
+
+                        $vacine_schedule = ($i == 1 && $i == $nod) ? '' : $i;
+
+                        if (strlen($vacine_schedule) == 0) {
+                            $vacine_schedule = 1;
+                        }
+
+                        $fix_inuc_m_11 = $data['fix_inuc_m_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+
+                        $fix_inuc_f_11 = $data['fix_inuc_f_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_outuc_m_11 = $data['fix_outuc_m_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_outuc_f_11 = $data['fix_outuc_f_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $outreach_m_11 = $data['outreach_m_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $outreach_f_11 = $data['outreach_f_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+
+                        $fix_inuc_m_23 = $data['fix_inuc_m_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_inuc_f_23 = $data['fix_inuc_f_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_outuc_m_23 = $data['fix_outuc_m_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_outuc_f_23 = $data['fix_outuc_f_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $outreach_m_23 = $data['outreach_m_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $outreach_f_23 = $data['outreach_f_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+
+                        $issue += $fix_inuc_m_11 + $fix_inuc_f_11 + $fix_outuc_m_11 + $fix_outuc_f_11 + $outreach_m_11 + $outreach_f_11 + $fix_inuc_m_23 + $fix_inuc_f_23 + $fix_outuc_m_23 + $fix_outuc_f_23 + $outreach_m_23 + $outreach_f_23;
+                    }
+                } else if ($item_category[$key] == 2) {
+                    $issue = $pregenant_women_total + $non_pregenant_women_total;
+                } else if ($item_category[$key] == 3) {
+
+                    $issue = $dispensed_array[$key];
+                }
+
+                $itemid = $posted_array[$key];
+                $wh_adj = $unusable_vials_array[$key];
+                if ($item_category[$key] == 1 || $item_category[$key] == 2) {
+                    $wastages = ($vials_used - $issue) + abs($wh_adj);
+                } else {
+                    $wastages = ($vials_used - $issue);
+                }
+                // echo $itemid . "+" . $wastages . "<br>";
+                $hf_data_master = new HfDataMaster();
+                $item = $this->_em->getRepository('ItemPackSizes')->find($posted_array[$key]);
+                $warehouse = $this->_em->getRepository('Warehouses')->find($data['wh_id']);
+                $hf_data_master->setItemPackSize($item);
+                $hf_data_master->setWarehouse($warehouse);
+                $user_id = $this->_em->getRepository('Users')->find($this->_user_id);
+                $hf_data_master->setCreatedBy($user_id);
+                $hf_data_master->setOpeningBalance($opening_array[$key]);
+                $hf_data_master->setReceivedBalance($received_array[$key]);
+                $hf_data_master->setIssueBalance($issue);
+                $hf_data_master->setClosingBalance($val);
+                $hf_data_master->setVialsUsed($vials_used);
+                if ($item_category[$key] == 1 || $item_category[$key] == 2) {
+                    $hf_data_master->setAdjustments($unusable_vials_array[$key]);
+                }
+                $hf_data_master->setReportingStartDate(new \DateTime(App_Controller_Functions::dateToDbFormat($data['rpt_date'])));
+
+                $hf_data_master->setWastages($wastages);
+                $hf_data_master->setCreatedDate(new \DateTime(App_Controller_Functions::dateToDbFormat($date)));
+                $hf_data_master->setModifiedDate(new \DateTime(App_Controller_Functions::dateToDbFormat(date("Y-m-d"))));
+
+                if ($data['is_new_report'] == 1) {
+                    $hf_data_master->setChildrenLiveBirth($children_live_birth);
+                    $hf_data_master->setSurvivingChildren011($surviving_children_0_11_M);
+                    $hf_data_master->setChildrenAged1223($children_aged_12_23_M);
+                    $hf_data_master->setPregnantWomen($pregnant_women);
+                    $hf_data_master->setCbas($cba);
+                } else if ($data['is_new_report'] == 0) {
+                    $this->updateYearlyTargets($wh_id, App_Controller_Functions::dateToDbFormat($data['rpt_date']), $children_live_birth, $surviving_children_0_11_M, $children_aged_12_23_M, $pregnant_women, $cba);
+                }
+                $this->_em->persist($hf_data_master);
+                $this->_em->flush();
+
+                $hf_data_master_id = $hf_data_master->getPkId();
+                if ($item_category[$key] == 1) {
+
+                    $nod = $no_of_doses[$key];
+                    for ($i = $strat_no[$key]; $i <= $no_of_doses[$key]; $i++) {
+                        if ($i == 0) {
+                            $nod += 1;
+                        }
+
+                        $vacine_schedule = ($i == 1 && $i == $nod) ? '' : $i;
+                        if (strlen($vacine_schedule) == 0) {
+                            $vacine_schedule = 1;
+                        }
+                        $fix_inuc_m_11 = $data['fix_inuc_m_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+
+                        $fix_inuc_f_11 = $data['fix_inuc_f_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_outuc_m_11 = $data['fix_outuc_m_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_outuc_f_11 = $data['fix_outuc_f_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $outreach_m_11 = $data['outreach_m_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $outreach_f_11 = $data['outreach_f_11_' . $posted_array[$key] . '_' . $vacine_schedule];
+
+                        $fix_inuc_m_23 = $data['fix_inuc_m_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_inuc_f_23 = $data['fix_inuc_f_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_outuc_m_23 = $data['fix_outuc_m_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $fix_outuc_f_23 = $data['fix_outuc_f_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $outreach_m_23 = $data['outreach_m_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+                        $outreach_f_23 = $data['outreach_f_23_' . $posted_array[$key] . '_' . $vacine_schedule];
+
+                        $hf_data_detail = new HfDataDetail();
+                        $ageGroup = $this->_em->getRepository('ListDetail')->find(Model_ListDetail::AGE_0_11);
+                        $hf_data_detail->setAgeGroup($ageGroup);
+
+                        $hf_data_detail->setFixedInsideUcFemale($fix_inuc_f_11);
+                        $hf_data_detail->setFixedInsideUcMale($fix_inuc_m_11);
+                        $hf_data_detail->setFixedOutsideUcFemale($fix_outuc_f_11);
+                        $hf_data_detail->setFixedOutsideUcMale($fix_outuc_m_11);
+                        $hf_data_detail->setOutreachFemale($outreach_f_11);
+                        $hf_data_detail->setOutreachMale($outreach_m_11);
+                        $hf_data_detail->setVaccineScheduleId($vacine_schedule);
+                        $hf_data_master_i = $this->_em->getRepository('HfDataMaster')->find($hf_data_master_id);
+                        $hf_data_detail->setHfDataMaster($hf_data_master_i);
+                        $this->_em->persist($hf_data_detail);
+                        $this->_em->flush();
+                        $hf_data_detail1 = new HfDataDetail();
+                        $ageGroup1 = $this->_em->getRepository('ListDetail')->find(Model_ListDetail::AGE_12_23);
+                        $hf_data_detail1->setAgeGroup($ageGroup1);
+
+                        $hf_data_detail1->setFixedInsideUcFemale($fix_inuc_f_23);
+                        $hf_data_detail1->setFixedInsideUcMale($fix_inuc_m_23);
+                        $hf_data_detail1->setFixedOutsideUcFemale($fix_outuc_f_23);
+                        $hf_data_detail1->setFixedOutsideUcMale($fix_outuc_m_23);
+                        $hf_data_detail1->setOutreachFemale($outreach_f_23);
+                        $hf_data_detail1->setOutreachMale($outreach_m_23);
+
+                        $hf_data_detail1->setVaccineScheduleId($vacine_schedule);
                         $hf_data_master_i1 = $this->_em->getRepository('HfDataMaster')->find($hf_data_master_id);
                         $hf_data_detail1->setHfDataMaster($hf_data_master_i1);
                         $this->_em->persist($hf_data_detail1);
@@ -3048,8 +3991,6 @@ FROM
 
                     foreach ($pregenant_women as $key => $val) {
                         $hf_data_detail = new HfDataDetail();
-
-
                         $hf_data_detail->setPregnantWomen($val);
                         $hf_data_detail->setNonPregnantWomen($non_pregenant_women[$key]);
                         $hf_data_detail->setVaccineScheduleId($vaccine_schedule_id[$key]);
@@ -3068,6 +4009,8 @@ FROM
                     }
                     $this->_em->flush();
                 }
+
+
 
                 // If previous month is edited then it should carried to the last data entry month
                 /* ----------------- Start ----------------- */
@@ -3109,6 +4052,7 @@ FROM
                 /* ----------------- End ----------------- */
             }
         }
+
         //return true;
         // Track history
 
@@ -3454,9 +4398,42 @@ FROM
 
     public function addLog() {
 
-
         $data = $this->form_values;
-        //  App_Controller_Functions::pr($data);
+
+        // App_Controller_Functions::pr($data);
+
+
+        $temp = $this->form_values['temp'];
+        $temp = base64_decode(substr($temp, 1, strlen($temp) - 1));
+
+        $temp = explode("|", $temp);
+
+
+        $warehouse_id = $temp[0];
+//$loc_id = $temp[1];
+        $rpt_date = $temp[1];
+
+        $is_new_rpt = $temp[2];
+        $tt = explode("-", $rpt_date);
+        $yy = $tt[0];
+        $mm = $tt[1];
+        $dd = $tt[2];
+
+        $year_month = $yy . "-" . $mm;
+        if ($is_new_rpt == 0) {
+            $str_qry = "DELETE log_book.*,log_book_item_doses.*
+                        FROM
+                       log_book_item_doses,log_book 
+                       where
+                       log_book.pk_id = log_book_item_doses.log_book_id
+                        and log_book.warehouse_id='$warehouse_id'
+                      and DATE_FORMAT(log_book.vaccination_date, '%Y-%m') = '$year_month'";
+
+            $this->_em = Zend_Registry::get('doctrine');
+            $row = $row = $this->_em->getConnection()->prepare($str_qry);
+            $row->execute();
+        }
+
         $name = $data['name'];
         $father_name = $data['father_name'];
         $age = $data['age'];
@@ -3466,17 +4443,19 @@ FROM
         $uc = $data['uc'];
         $serial_number = $data['serial_number'];
 
-        $vaccination_date = $data['vaccination_date'];
+        $vaccination_day = $data['day'];
+
+
         $reffers_to = $data['reffers_to'];
         $remarks = $data['remarks'];
         $user_id = $this->_user_id;
-        $warehouse_id = $this->_identity->getWarehouseId();
+        // $warehouse_id = $this->_identity->getWarehouseId();
         $date = date("Y-m-d h:i:s");
         $count = 0;
         foreach ($district as $key => $val) {
             if ($val != '' && $val >= 0 && $uc[$key] != '' && $uc[$key] >= 0) {
 
-                // App_Controller_Functions::pr($data);
+                $vaccination_date = $vaccination_day[$key] . "-" . $mm . "-" . $yy;
                 $log_book = new LogBook();
                 $log_book->setName($name[$key]);
                 $log_book->setFatherName($father_name[$key]);
@@ -3502,18 +4481,21 @@ FROM
                 $this->_em->flush();
 
                 $log_book_id = $log_book->getPkId();
+
                 $item_id = $data[$serial_number[$key] . "_" . 'item_id'];
                 $dose_no = $data[$serial_number[$key] . "_" . 'dose_no'];
-                foreach ($item_id as $val) {
-                    if ($dose_no[$key] == '') {
+                foreach ($item_id as $key => $val) {
+
+                    if ($dose_no[$key] == "") {
                         $dose_no[$key] = 0;
                     } else {
                         $dose_no[$key] = $dose_no[$key];
                     }
+
                     $log_book_item_doses = new LogBookItemDoses();
                     $logBook = $this->_em->getRepository('LogBook')->find($log_book_id);
                     $log_book_item_doses->setLogBook($logBook);
-                    $itemPack = $this->_em->getRepository('ItemPackSizes')->find($item_id[$key]);
+                    $itemPack = $this->_em->getRepository('ItemPackSizes')->find($val);
                     $log_book_item_doses->setItemPackSize($itemPack);
                     $log_book_item_doses->setDoses($dose_no[$key]);
                     $this->_em->persist($log_book_item_doses);
@@ -3523,6 +4505,7 @@ FROM
             }
         }
 
+
         if ($count > 0) {
             return true;
         } else {
@@ -3530,55 +4513,360 @@ FROM
         }
     }
 
-    public function getLogBook() {
+    // for new logbook entry form
+    public function addLogBook() {
 
-        $warehouse_id = $this->_identity->getWarehouseId();
-        if (!empty($this->form_values['district'])) {
-            $where[] = "and log_book.district_id = '" . $this->form_values['district'] . "'";
-        }
-        if (!empty($this->form_values['vaccination_date_from']) && !empty($this->form_values['vaccination_date_to'])) {
-            $where[] = "and DATE_FORMAT(log_book.vaccination_date,'%Y-%m-%d') BETWEEN '" . App_Controller_Functions::dateToDbFormat($this->form_values['vaccination_date_from']) . "' AND  '" . App_Controller_Functions::dateToDbFormat($this->form_values['vaccination_date_to']) . "' ";
-        } else {
-            $date_from = date('Y-m' . '-01');
-            $date_to = date('Y-m-d');
-            $where[] = "and DATE_FORMAT(log_book.vaccination_date,'%Y-%m-%d') BETWEEN '" . $date_from . "' AND '" . $date_to . "'";
-        }
+        $data = $this->form_values;
+
+        $dose_no = $this->form_values['dose_no_of'];
+
+        $temp = $this->form_values['temp'];
+        $temp = base64_decode(substr($temp, 1, strlen($temp) - 1));
+
+        $temp = explode("|", $temp);
 
 
-        if (is_array($where)) {
-            $where_s = implode("", $where);
+        $warehouse_id = $temp[0];
+//$loc_id = $temp[1];
+        $rpt_date = $temp[1];
+
+        $is_new_rpt = $temp[2];
+        $tt = explode("-", $rpt_date);
+        $yy = $tt[0];
+        $mm = $tt[1];
+        $dd = $tt[2];
+
+        $date = date("Y-m-d h:i:s");
+
+        $year_month = $yy . "-" . $mm;
+
+        $vaccination_date = $yy . "-" . $mm . "-" . $this->form_values['day'];
+        $user_id = $this->_user_id;
+
+        $log_book = new LogBook();
+        $log_book->setName($this->form_values['name']);
+        $log_book->setFatherName($this->form_values['father_name']);
+        $log_book->setAge($this->form_values['age']);
+        $log_book->setGender($this->form_values['gender']);
+        $log_book->setContact($this->form_values['contact']);
+        $log_book->setAddress($this->form_values['address']);
+        //$refer_to_warehouseId = $this->_em->getRepository('Warehouses')->find($this->form_values['refer_to']);
+        //$log_book->setReferToWarehouse($refer_to_warehouseId);
+        $districtId = $this->_em->getRepository('Locations')->find($this->form_values['district']);
+        $log_book->setDistrict($districtId);
+        if (!empty($this->form_values['uc'])) {
+            $ucId = $this->_em->getRepository('Locations')->find($this->form_values['uc']);
+            $log_book->setUnionCouncil($ucId);
         }
+        $log_book->setVaccinationDate(new \DateTime($vaccination_date));
+        //$log_book->setRefferTo(); //warehouseid from session
+        $log_book->setRemarks($this->form_values['remarks']);
+
+        $warehouse = $this->_em->getRepository('Warehouses')->find($warehouse_id);
+        $log_book->setWarehouse($warehouse);
+        $log_book->setCreatedDate(new \DateTime(App_Controller_Functions::dateToDbFormat($date)));
+        $userId = $this->_em->getRepository('Users')->find($user_id);
+        $log_book->setCreatedBy($userId);
+
+        $this->_em->persist($log_book);
+        $this->_em->flush();
+
+        $log_book_id = $log_book->getPkId();
+
+        foreach ($dose_no as $prodId => $value) {
+
+            if ($value == "") {
+                $value = NULL;
+            }
+
+            $log_book_item_doses = new LogBookItemDoses();
+            $logBook = $this->_em->getRepository('LogBook')->find($log_book_id);
+            $log_book_item_doses->setLogBook($logBook);
+            $itemPack = $this->_em->getRepository('ItemPackSizes')->find($prodId);
+            $log_book_item_doses->setItemPackSize($itemPack);
+            $log_book_item_doses->setDoses($value);
+            $this->_em->persist($log_book_item_doses);
+            $this->_em->flush();
+        }
+    }
+
+    public function getLogBookByMonth() {
+        $month = $this->form_values['month'];
+        $year = $this->form_values['year'];
+        $warehouse_id = $this->form_values['warehouse_id'];
 
         $str_qry = "SELECT
-                log_book.pk_id,
-                log_book.name,
-                log_book.father_name,
-                log_book.age,
-                log_book.contact,
-                log_book.address,
-                log_book.district_id,
-                log_book.union_council_id,
-                log_book.vaccination_date,
-                log_book.reffer_to,
-                log_book.remarks,
-                log_book.warehouse_id,
-                log_book.created_by,
-                log_book.created_date,
-                log_book.modified_date,
-                UC.location_name AS uc,
-                tehsil.location_name AS district
-                FROM
-                log_book
-                INNER JOIN locations AS UC ON log_book.union_council_id = UC.pk_id
-                INNER JOIN locations AS tehsil ON log_book.district_id = tehsil.pk_id
-                where log_book.district_id <> 0 
-                and log_book.warehouse_id = $warehouse_id
-                $where_s ";
+                            log_book.pk_id,
+                            log_book.`name`,
+                            log_book.father_name,
+                            log_book.age,
+                            log_book.gender,
+                            log_book.contact,
+                            log_book.address,
+                            log_book.district_id,
+                            log_book.union_council_id,
+                            log_book.vaccination_date,
+                            log_book.refer_to_warehouse_id,
+                            log_book.remarks,
+                            log_book.warehouse_id,
+                            log_book.created_by,
+                            log_book.created_date,
+                            log_book.modified_date,
+                            UC.location_name AS uc,
+                            District.location_name AS district,
+                            Tehsil.location_name AS tehsil
+                        FROM
+                            log_book
+                            LEFT JOIN locations AS UC ON log_book.union_council_id = UC.pk_id
+                            INNER JOIN locations AS District ON log_book.district_id = District.pk_id
+                            LEFT JOIN locations AS Tehsil ON Tehsil.pk_id = UC.parent_id
+                        WHERE log_book.district_id <> 0 
+                        and log_book.warehouse_id = $warehouse_id 
+                        and DATE_FORMAT(log_book.vaccination_date, '%Y-%m') =" . "'" . $year . "-" . "$month" . "'";
 
         $this->_em = Zend_Registry::get('doctrine');
         $row = $row = $this->_em->getConnection()->prepare($str_qry);
         $row->execute();
         return $row->fetchAll();
+    }
+
+    public function getLogBook() {
+
+        if (!empty($this->form_values['entry_type'])) {
+
+            if ($this->form_values['entry_type'] == "1") { // My Entries
+                $where[] = "log_book.created_by = '" . $this->_user_id . "'";
+            }
+            if ($this->form_values['entry_type'] == "2") { // Referrals
+                $where[] = "log_book.created_by <> '" . $this->_user_id . "'";
+            }
+        } else { // Default is My Entries
+            $where[] = "log_book.created_by = '" . $this->_user_id . "'";
+        }
+
+        if (!empty($this->form_values['district'])) {
+            $where[] = "log_book.district_id = '" . $this->form_values['district'] . "'";
+        } else {
+            $where[] = "log_book.district_id = 0";
+        }
+
+        if (!empty($this->form_values['tehsil'])) {
+            $where[] = "Uc.parent_id = '" . $this->form_values['tehsil'] . "'";
+        }
+
+        if (!empty($this->form_values['uc'])) {
+            $where[] = "log_book.union_council_id = '" . $this->form_values['uc'] . "'";
+        }
+
+
+        if (!empty($this->form_values['vaccination_date_from']) && !empty($this->form_values['vaccination_date_to'])) {
+            $where[] = "DATE_FORMAT(log_book.vaccination_date,'%Y-%m-%d') BETWEEN '" . App_Controller_Functions::dateToDbFormat($this->form_values['vaccination_date_from']) . "' AND  '" . App_Controller_Functions::dateToDbFormat($this->form_values['vaccination_date_to']) . "' ";
+        } else {
+            $date_from = date('Y-m' . '-01');
+            $date_to = date('Y-m-d');
+            $where[] = "DATE_FORMAT(log_book.vaccination_date,'%Y-%m-%d') BETWEEN '" . $date_from . "' AND '" . $date_to . "'";
+        }
+
+        if (is_array($where)) {
+            $where_s = implode(" AND ", $where);
+        }
+
+        $str_qry = "SELECT
+                        log_book.union_council_id,
+                        Uc.location_name AS Uc,
+                        log_book.pk_id,
+                        log_book.`name`,
+                        log_book.father_name,
+                        log_book.gender,
+                        log_book.age,
+                        log_book.contact,
+                        log_book.address,
+                        log_book.district_id,
+                        log_book.vaccination_date,
+                        log_book.refer_to_warehouse_id,
+                        log_book.remarks,
+                        log_book.warehouse_id,
+                        log_book.created_by,
+                        log_book.created_date,
+                        log_book.modified_date,
+                        log_book.reporting_start_date,
+                        District.location_name AS District,
+                        Tehsil.location_name AS Tehsil,
+                        warehouses.warehouse_name AS RefFromEPI,
+                        ref_from_uc.location_name AS RefFromUc,
+                        ref_from_dist.location_name AS RefFromDist
+                    FROM
+                        log_book
+                        LEFT JOIN locations AS Uc ON Uc.pk_id = log_book.union_council_id
+                        INNER JOIN locations AS District ON log_book.district_id = District.pk_id
+                        INNER JOIN locations AS Tehsil ON Uc.parent_id = Tehsil.pk_id
+                        INNER JOIN warehouses ON log_book.warehouse_id = warehouses.pk_id
+                        INNER JOIN locations AS ref_from_uc ON ref_from_uc.pk_id = warehouses.location_id
+                        INNER JOIN locations AS ref_from_dist ON ref_from_dist.pk_id = warehouses.district_id WHERE 
+                        "
+                . "$where_s";
+
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $row = $this->_em->getConnection()->prepare($str_qry);
+        $row->execute();
+        return $row->fetchAll();
+    }
+
+    public function monthlyConsumtion2Targets($wh_id, $prev_month_date) {
+
+        $pov = explode('-', $prev_month_date);
+
+        $this->_em = Zend_Registry::get('doctrine');
+
+        $querypro = " SELECT w0_.pk_id AS pkId,
+                        w0_.children_live_birth,
+                        w0_.surviving_children_0_11,
+                        w0_.children_aged_12_23,
+                        w0_.pregnant_women
+                        FROM
+                        hf_data_master AS w0_
+                        WHERE
+                        w0_.warehouse_id = '$wh_id'
+                        AND 
+                        DATE_FORMAT(w0_.reporting_start_date,'%Y') = '$pov[0]' LIMIT 1";
+
+
+        $row = $this->_em->getConnection()->prepare($querypro);
+        $rs = $row->execute();
+        $result = $row->fetchAll();
+
+        return $result[0];
+    }
+
+    public function updateYearlyTargets($wh_id, $report_date, $children_live_birth, $surviving_children_0_11_M, $children_aged_12_23_M, $pregnant_women, $cba) {
+        $rep_date = explode('-', $report_date);
+        $querypro = " Update hf_data_master 
+              SET hf_data_master.children_live_birth = '$children_live_birth',
+                  hf_data_master.surviving_children_0_11 = '$surviving_children_0_11_M',
+                  hf_data_master.children_aged_12_23 = '$children_aged_12_23_M' ,
+                  hf_data_master.pregnant_women = '$pregnant_women',
+                  hf_data_master.cbas = '$cba'    
+                  WHERE
+                  hf_data_master.warehouse_id = '$wh_id'
+                  AND 
+                  DATE_FORMAT(hf_data_master.reporting_start_date,'%Y') = '$rep_date[0]'";
+
+
+        $row = $this->_em->getConnection()->prepare($querypro);
+        $row->execute();
+    }
+
+    public function getProvinceId() {
+        $warehouse_id = $this->warehouse_id;
+        $this->_em = Zend_Registry::get('doctrine');
+
+        $querypro = "SELECT
+                warehouses.province_id
+                FROM
+                warehouses
+                WHERE
+                warehouses.pk_id = $warehouse_id";
+
+
+        $row = $this->_em->getConnection()->prepare($querypro);
+        $rs = $row->execute();
+        $result = $row->fetchAll();
+
+        return $result[0]['province_id'];
+    }
+
+    public function vaccineCoverage() {
+        $form_values = $this->form_values;
+        //  App_Controller_Functions::pr($form_values); 
+        $district = $form_values['district'];
+
+
+        $this->_em = Zend_Registry::get('doctrine');
+
+        $querypro = "SELECT
+        B.item_name,
+	A.district,
+	ROUND(((
+			(
+					(A.population / 100) * B.population_percent_increase_per_year
+				) / 100 * B.child_surviving_percent_per_year
+			) * B.doses_per_year
+		) 
+	) AS AnnualyTarget,
+	ROUND(
+		(
+			(
+				(
+					(A.population / 100) * B.population_percent_increase_per_year
+				) / 100 * B.child_surviving_percent_per_year
+			) * B.doses_per_year
+		) / 12
+	) AS MonthlyTarget
+      FROM
+	(SELECT DISTINCT
+			
+			locations.location_name AS district,
+			(
+				SELECT
+					IFNULL(
+						location_populations.population,
+						0
+					)
+				FROM
+					location_populations
+				WHERE
+					location_populations.location_id = locations.pk_id
+				AND DATE_FORMAT(
+					location_populations.estimation_date,
+					'%Y'
+				) = '2015'
+			) AS population
+		FROM
+			pilot_districts
+		INNER JOIN locations ON pilot_districts.district_id = locations.district_id
+		WHERE
+			locations.geo_level_id = 4
+		AND locations.district_id = $district
+	) A,
+	(
+		SELECT
+			item_pack_sizes.item_name,
+			items.population_percent_increase_per_year,
+			items.child_surviving_percent_per_year,
+			items.doses_per_year
+		FROM
+			item_pack_sizes
+		INNER JOIN items ON item_pack_sizes.item_id = items.pk_id
+                where items.item_category_id = 1
+		
+	) B";
+
+        $row = $this->_em->getConnection()->prepare($querypro);
+        $rs = $row->execute();
+        $result = $row->fetchAll();
+
+        return $result;
+    }
+
+    public function provincialCaccineCoverage() {
+        $form_values = $this->form_values;
+        //   App_Controller_Functions::pr($form_values);
+        $this->_em = Zend_Registry::get('doctrine');
+
+        $querypro = "SELECT
+                warehouses.province_id
+                FROM
+                warehouses
+                WHERE
+                warehouses.pk_id = $warehouse_id";
+
+
+        $row = $this->_em->getConnection()->prepare($querypro);
+        $rs = $row->execute();
+        $result = $row->fetchAll();
+
+        return $result;
     }
 
 }

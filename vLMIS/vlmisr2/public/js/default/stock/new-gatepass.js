@@ -5,7 +5,7 @@ $(function() {
     startDateTextBox.datepicker({
         minDate: "-10Y",
         maxDate: 0,
-        dateFormat: 'yy-mm-dd',
+        dateFormat: 'dd-mm-yy',
         changeMonth: true,
         changeYear: true,
         onClose: function(dateText, inst) {
@@ -25,7 +25,7 @@ $(function() {
     });
     endDateTextBox.datepicker({
         maxDate: 0,
-        dateFormat: 'yy-mm-dd',
+        dateFormat: 'dd-mm-yy',
         changeMonth: true,
         changeYear: true,
         onClose: function(dateText, inst) {

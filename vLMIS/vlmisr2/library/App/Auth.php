@@ -58,7 +58,7 @@ class App_Auth extends Zend_Auth {
         //  return true;
         //} else {
         $adapter = $this->_authAdapterFactory('doctrine');
-        $adapter->addConditions(array("loginId" => $login, "password" => $password));
+        $adapter->addConditions(array("loginId" => $login, "password" => $password,"status" => 1));
         $result = $auth->authenticate($adapter);
 
         if (!$result->isValid()) {
@@ -109,7 +109,7 @@ class App_Auth extends Zend_Auth {
         }
         $qty = $user->getFailedQuantity();
 
-        $user->setFailedQuantity(++$qty);
+        $user->setFailedQuantity( ++$qty);
         $em->persist($user);
         $em->flush();
     }
@@ -224,7 +224,7 @@ class App_Auth extends Zend_Auth {
             return false;
         }
     }
-    
+
     public function getUserDepartment() {
         $auth = Zend_Auth::getInstance();
         $userId = $auth->getIdentity();
@@ -435,7 +435,7 @@ class App_Auth extends Zend_Auth {
                 ->join("wu.warehouse", "w")
                 ->join("w.district", "d")
                 ->where("wu.user = $user_id");
-        
+
 
         try {
             $row = $db->getQuery()->getResult();
@@ -461,8 +461,8 @@ class App_Auth extends Zend_Auth {
                 ->from("WarehouseUsers", "wu")
                 ->join("wu.warehouse", "w")
                 ->join("w.location", "l")
-                ->where("wu.user = $user_id");
-
+                ->where("wu.user = $user_id")
+                ->andWhere("w.stakeholderOffice = 5");
 
         try {
             $row = $db->getQuery()->getResult();

@@ -1,4 +1,5 @@
 <!-- Content -->
+<?php //var_dump($this->result)?>
 <div class="page-content-wrapper">
     <div class="page-content">
         <h3 class="page-title"><?php echo $this->translate("Search Adjustment") ?> </h3>
@@ -118,6 +119,7 @@
                                             <th><?php echo $this->translate("Quantity") ?></th>
                                             <th class="col-md-2"><?php echo $this->translate("Adjustment Type") ?></th>
                                             <th><?php echo $this->translate("Comments") ?></th>
+                                            <th><?php echo $this->translate("Action") ?></th>
                                         </tr>
                                     </thead>
                                     <!-- // Table heading END -->
@@ -130,7 +132,7 @@
                                             foreach ($this->result as $row):
                                                 ?>
                                                 <tr class="gradeX">
-                                                    <td><?php echo date("m/d/Y", strtotime($row['transactionDate'])); ?></td>
+                                                    <td><?php echo date("d/m/Y", strtotime($row['transactionDate'])); ?></td>
                                                     <td><?php echo $row['transactionNumber']; ?></td>
                                                     <td><?php echo $row['transactionReference']; ?></td>
                                                     <td><?php echo $row['itemName']; ?></td>
@@ -138,6 +140,11 @@
                                                     <td class="right"><?php echo abs($row['quantity']); ?></td>
                                                     <td><?php echo $row['transactionTypeName']; ?></td>
                                                     <td><?php echo $row['comments']; ?></td>
+                                                    <td>
+                                                        <?php if($this->isAdjDelete($row['pkId']) || $this->role == 2) { ?>
+                                                        <span data-toggle="notyfy" data-id="<?php echo $row['pkId']; ?>" data-type="confirm" data-layout="top" class="fa fa-times cursor-hand"></span>
+                                                        <?php } ?>
+                                                    </td>
                                                 </tr>
                                                 <!-- // Table row END --><?php
                                                 $i++;

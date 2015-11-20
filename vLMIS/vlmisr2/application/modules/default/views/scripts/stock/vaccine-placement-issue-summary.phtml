@@ -42,7 +42,7 @@ endif;
 ?>
 <table style="width:100%;">
     <tr>
-        <td class="center" colspan="3"><b style="font-size: 16px;">Issue/Dispatch Summary from <?php echo $_GET['date_from']; ?> to <?php echo $_GET['date_to']; ?> </b></td>
+        <td class="center" colspan="3"><b style="font-size: 16px;"><?php echo $this->print_title?> from <?php echo $_GET['date_from']; ?> to <?php echo $_GET['date_to']; ?> </b></td>
     </tr>
 </table>
 <?php
@@ -78,7 +78,7 @@ if ($this->result && count($this->result) > 0 && $this->val == 'prod') {
 
                     <tr>
                         <td style="text-align:right;"><?php echo $i; ?></td>
-                        <td style="text-align:center;"><?php echo date("d/m/y", strtotime($val['transactionDate'])); ?></td>
+                        <td style="text-align:center;"><?php echo date("d/m/Y", strtotime($val['transactionDate'])); ?></td>
                         <td style="text-align:left;"><?php echo $val['warehouseName']; ?> </td>
 
                         <td style="text-align:right;"><?php echo number_format($val['quantity']); ?></td>
@@ -129,7 +129,7 @@ if ($this->result && count($this->result) > 0 && $this->val == 'loc') {
                     ?>
                     <tr>
                         <td style="text-align:right;"><?php echo $i; ?></td>
-                        <td style="text-align:center;"><?php echo date("d/m/y", strtotime($val['transactionDate'])); ?></td>
+                        <td style="text-align:center;"><?php echo date("d/m/Y", strtotime($val['transactionDate'])); ?></td>
                         <td><?php echo $val['itemName']; ?></td>
                         <td style="text-align:right;"><?php echo number_format($val['quantity']); ?></td>
                         <td style="text-align:right;"><?php echo $val['description'] ?></td>
@@ -152,7 +152,7 @@ if ($this->result && count($this->result) > 0 && $this->val == 'loc') {
 ?>
 <div style="float:left;">
 
-    <b>Print Date:</b> <?php echo date('d/m/y') . ' <b>by</b> ' . $this->username; ?>
+    <b>Print Date:</b> <?php echo date('d/m/Y') . ' <b>by</b> ' . $this->username; ?>
 </div>  
 <div class="col-md-12" class="widget">
 

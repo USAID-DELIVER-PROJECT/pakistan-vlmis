@@ -146,7 +146,7 @@ $("#search").validate({
     },
     messages: {
         'warehouse': {
-            required: "Please select warehouse"
+            required: "Please select store"
         }
     }
 });

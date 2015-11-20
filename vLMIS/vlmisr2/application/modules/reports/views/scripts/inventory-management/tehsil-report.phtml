@@ -73,7 +73,7 @@ if (!empty($sel_month)) {
                     mygrid.selMultiRows = true;
                     mygrid.setImagePath("<?php echo $this->baseUrl(); ?>/common/reports/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
                     mygrid.setHeader("<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'>Tehsil Report For Province = " + $('#location_name').val() + " And Product = " + $('#item_name').val() + "(" + $('#sel_month').val() + " " + $('#sel_year').val() + ")</div>,#cspan,#cspan,#cspan,#cspan,#cspan");
-                    mygrid.attachHeader("<span title='Tehsil Name'>Tehsil</span>,<span title='Product Consumption'>Consumption (Doses)</span>,<span title='Average Monthly Consumption'>AMC (Doses)</span>,<span title='Product On Hand'>On Hand (Doses)</span>,<span title='Months of Scale'>Months of Scale (MOS)</span>,#cspan");
+                    mygrid.attachHeader("<span title='Tehsil Name'>Tehsil</span>,<span title='Product Consumption'>Consumption (Doses)</span>,<span title='Average Monthly Consumption'>AMC (Doses)</span>,<span title='Product On Hand'>Product On Hand (Doses)</span>,<span title='Months of Scale'>Months of Scale (MOS)</span>,#cspan");
                     mygrid.setInitWidths("150,*,*,*,40,100");
                     mygrid.setColAlign("left,right,right,right,center,center");
                     //mygrid.setColSorting("str,int");

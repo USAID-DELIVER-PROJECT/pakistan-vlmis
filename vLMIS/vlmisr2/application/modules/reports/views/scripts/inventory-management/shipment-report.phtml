@@ -5,6 +5,7 @@ $counter = 1;
 
 $sel_stk = $this->in_stk;
 $sel_prov = $this->province;
+$sel_div = $this->division;
 $sel_dist = $this->district;
 $sel_tehsil = $this->tehsil;
 $wh_type = $this->wh_type;
@@ -20,6 +21,7 @@ $period = $this->period;
 $str_indicator = $this->str_indicator;
 
 $provFilter = (!empty($sel_prov) && $sel_prov != 'all') ? " AND warehouses.province_id = $sel_prov" : '';
+$divFilter = (!empty($sel_div) && $sel_div != 'all') ? " AND locations.pk_id = $sel_div" : '';
 $distFilter = (!empty($sel_dist) && $sel_dist != 'all') ? " AND warehouses.district_id = $sel_dist" : '';
 $tehsilFilter = (!empty($sel_tehsil) && $sel_tehsil != 'all') ? " AND locations.pk_id = $sel_tehsil" : '';
 
@@ -33,6 +35,11 @@ if ($wh_type == 1) {
 else if ($wh_type == 2) {
     $qry = $this->reports()->getShipmentProvincial($provFilter);
     $report_title = 'Provincial ' . $report_title;
+}
+// Division
+else if ($wh_type == 3) {
+    $qry = $this->reports()->getShipmentDivision($provFilter, $divFilter);
+    $report_title = 'Division ' . $report_title;
 }
 // District
 else if ($wh_type == 4) {
@@ -84,6 +91,8 @@ foreach ($period as $date) {
         $qry1 = $this->reports()->getShipmentCentral1($str_date);
     } else if ($wh_type == 2) {
         $qry1 = $this->reports()->getShipmentProvincial1($provFilter, $str_date);
+    } else if ($wh_type == 3) {
+        $qry1 = $this->reports()->getShipmentDivision1($provFilter, $divFilter, $str_date);
     } else if ($wh_type == 4) {
         $qry1 = $this->reports()->getShipmentDistrict1($provFilter, $distFilter, $str_date);
     } else if ($wh_type == 5) {
@@ -117,7 +126,7 @@ foreach ($data_arr as $dis_id => $sub_arr) {
         $sum_arr[$key] += $value;
         $accpLimit = '';
         if ($key > 0) {
-            
+
             $param = base64_encode($dis_id . '|' . $sub_arr[0] . '|' . $monthArr[$key - 1]);
             if ($value > 0) {
                 // $xml_store .= "<cell>$value</cell>";
@@ -130,7 +139,8 @@ foreach ($data_arr as $dis_id => $sub_arr) {
     $xml_store .="</row>";
 }
 $xml_store .="</rows>";
-
+//print_r($xml_store);
+//exit;
 /* $in_type = 'N';
   $in_stk = 1;
   $in_year = $sel_year;
@@ -205,6 +215,7 @@ if (!empty($sel_month)) {
 
     var whType = <?php echo $wh_type; ?>;
     var province = <?php echo $sel_prov; ?>;
+    var division = <?php echo $sel_div; ?>;
     var district = <?php echo $sel_dist; ?>;
     var tehsil = <?php echo $sel_tehsil; ?>;
 

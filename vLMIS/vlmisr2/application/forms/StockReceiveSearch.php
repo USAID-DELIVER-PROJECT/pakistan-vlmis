@@ -1,4 +1,5 @@
 <?php
+
 class Form_StockReceiveSearch extends Zend_Form {
 
     private $_fields = array(
@@ -27,23 +28,22 @@ class Form_StockReceiveSearch extends Zend_Form {
         $result2 = $item_pack_sizes->getAllItems();
         $this->_list["product"][''] = "Select";
         foreach ($result2 as $item) {
-         //   App_Controller_Functions::pr($item);
-        $this->_list["product"][$item['pkId']] = $item['itemName'];
+            $this->_list["product"][$item['pkId']] = $item['itemName'];
         }
-        
+
 
         $warehouses = new Model_Warehouses();
 
         $result3 = $warehouses->getUserReceiveFromWarehouse();
         foreach ($result3 as $whs) {
-         
+
             $this->_list["warehouses"][''] = "Select";
             $this->_list["warehouses"][$whs['pkId']] = $whs['warehouseName'];
         }
-        
+
         $date_from = date('01/m/Y');
         $date_to = date('d/m/Y');
-        
+
         foreach ($this->_fields as $col => $name) {
 
             switch ($col) {
@@ -92,15 +92,16 @@ class Form_StockReceiveSearch extends Zend_Form {
                 $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
             }
             //Generate Purpose(activity_id) combo 
-        $stk_activities = new Model_StakeholderActivities();
-        $result4 = $stk_activities->getAllStakeholderActivitiesIssues();
-        if ($result4) {
-            $stakeholder_id = $result4[0]['pkId'];
-            foreach ($result4 as $stk_activity) {
-                $this->_list["activity_id"][''] = "Select";
-                $this->_list["activity_id"][$stk_activity['pkId']] = $stk_activity['activity'];
+            $stk_activities = new Model_StakeholderActivities();
+            $result4 = $stk_activities->getAllStakeholderActivitiesIssues();
+            if ($result4) {
+                $stakeholder_id = $result4[0]['pkId'];
+                foreach ($result4 as $stk_activity) {
+                    $this->_list["activity_id"][''] = "Select";
+                    $this->_list["activity_id"][$stk_activity['pkId']] = $stk_activity['activity'];
+                }
             }
         }
-        }
     }
+
 }

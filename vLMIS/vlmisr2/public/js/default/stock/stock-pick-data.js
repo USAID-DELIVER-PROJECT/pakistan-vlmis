@@ -1,5 +1,23 @@
-$(function() {
-    $("#btn-loading").click(function() {
+$(function () {
+
+    $(".qty").keydown(function (e) {
+        if (e.shiftKey || e.ctrlKey || e.altKey) { // if shift, ctrl or alt keys held down
+            e.preventDefault();         // Prevent character input
+        } else {
+            var n = e.keyCode;
+            if (!((n == 8)              // backspace
+                    || (n == 9)                // Tab
+                    || (n == 46)                // delete
+                    || (n >= 35 && n <= 40)     // arrow keys/home/end
+                    || (n >= 48 && n <= 57)     // numbers on keyboard
+                    || (n >= 96 && n <= 105))   // number on keypad
+                    ) {
+                e.preventDefault();     // Prevent character input
+            }
+        }
+    });
+
+    $("#btn-loading").click(function () {
         var sum = 0;
         var q = 0;
         var inp = $('.qty');
@@ -7,6 +25,13 @@ $(function() {
             if (inp[i].value != '') {
                 sum += parseInt(inp[i].value);
                 q++;
+                if (isNaN(inp[i].value)) {
+                    alert('Quantity should be a number.');
+                    inp[i].value = '';
+                    inp[i].focus();
+                    valid = false;
+                    return false;
+                }
                 if (parseInt(inp[i].value) > parseInt(inp[i].getAttribute('max'))) {
                     alert('Quantity can not be greater than ' + inp[i].getAttribute('max'));
                     inp[i].focus();
@@ -30,7 +55,7 @@ $(function() {
                 url: appName + "/stock/pick-stock-quantity?" + varform,
                 data: {},
                 dataType: 'html',
-                success: function(data) {
+                success: function (data) {
                     window.location.href = appName + '/stock/pick-stock?success=1';
                 }
             });

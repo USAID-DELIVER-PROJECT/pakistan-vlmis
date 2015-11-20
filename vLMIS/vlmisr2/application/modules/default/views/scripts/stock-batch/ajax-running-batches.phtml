@@ -5,7 +5,7 @@ if ($this->all_running_batches != false) {
     <?php
     foreach ($this->all_running_batches as $row) {
         ?>
-    <option value="<?php echo $row['pkId']; ?>"><?php echo $row['number']; ?> | <?php echo number_format($row['quantity']); ?></option>
+    <option value="<?php echo $row['pkId']; if(!empty($this->page) && $this->page == 'issue' && !empty($row['priority'])){ echo "|".$row['priority']; } ?>"><?php echo $row['number']; ?> | <?php echo number_format($row['quantity']); if(isset($row['priority'])) { ?> | <?php echo $row['priority']; } ?></option>
         <?php
     }
 }

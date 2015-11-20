@@ -25,19 +25,19 @@ class StockDetail
     private $temporary;
 
     /**
-     * @var string $vvmStage
-     */
-    private $vvmStage;
-
-    /**
      * @var integer $isReceived
      */
     private $isReceived;
 
     /**
-     * @var boolean $adjustmentType
+     * @var integer $adjustmentType
      */
     private $adjustmentType;
+
+    /**
+     * @var VvmStages
+     */
+    private $vvmStage;
 
     /**
      * @var ItemUnits
@@ -106,26 +106,6 @@ class StockDetail
     }
 
     /**
-     * Set vvmStage
-     *
-     * @param string $vvmStage
-     */
-    public function setVvmStage($vvmStage)
-    {
-        $this->vvmStage = $vvmStage;
-    }
-
-    /**
-     * Get vvmStage
-     *
-     * @return string 
-     */
-    public function getVvmStage()
-    {
-        return $this->vvmStage;
-    }
-
-    /**
      * Set isReceived
      *
      * @param integer $isReceived
@@ -148,7 +128,7 @@ class StockDetail
     /**
      * Set adjustmentType
      *
-     * @param boolean $adjustmentType
+     * @param integer $adjustmentType
      */
     public function setAdjustmentType($adjustmentType)
     {
@@ -158,11 +138,31 @@ class StockDetail
     /**
      * Get adjustmentType
      *
-     * @return boolean 
+     * @return integer 
      */
     public function getAdjustmentType()
     {
         return $this->adjustmentType;
+    }
+
+    /**
+     * Set vvmStage
+     *
+     * @param VvmStages $vvmStage
+     */
+    public function setVvmStage(\VvmStages $vvmStage)
+    {
+        $this->vvmStage = $vvmStage;
+    }
+
+    /**
+     * Get vvmStage
+     *
+     * @return VvmStages 
+     */
+    public function getVvmStage()
+    {
+        return $this->vvmStage;
     }
 
     /**

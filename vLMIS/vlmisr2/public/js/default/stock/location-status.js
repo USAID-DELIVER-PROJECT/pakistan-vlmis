@@ -10,10 +10,10 @@ $(function() {
         },
         messages: {
             area: {
-                required: "Please select area."
+                required: "Please select store."
             },
             level: {
-                required: "Please select level."
+                required: "Please select row."
             }
         }
     });

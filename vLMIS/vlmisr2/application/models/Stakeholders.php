@@ -111,15 +111,19 @@ class Model_Stakeholders extends Model_Base {
         }
     }
 
-    public function getUnaccociatedManufacturer() {
+    public function getUnaccociatedManufacturer($associated_array) {
         $str_sql = $this->_em->createQueryBuilder()
                 ->select("si.pkId,s.stakeholderName")
                 ->from('StakeholderItemPackSizes', 'si')
                 ->join('si.stakeholder', 's')
                 ->where('s.stakeholderType = ' . Model_Stakeholders::TYPE_MANUFACTURER)
                 ->andWhere('si.packagingLevel = 140')
-                ->andWhere('si.itemPackSize != ' . $this->form_values['item_id'])
-                ->orderBy("s.listRank", "ASC")
+                ->andWhere('si.itemPackSize != ' . $this->form_values['item_id']);
+        if (is_array($associated_array)) {
+            $in_sips = "'".implode("','", $associated_array)."'";
+            $str_sql->andWhere("s.stakeholderName NOT IN ($in_sips)");
+        }
+        $str_sql->orderBy("s.listRank", "ASC")
                 ->groupBy("s.stakeholderName");
         //echo $str_sql->getQuery()->getSql();
         //exit;

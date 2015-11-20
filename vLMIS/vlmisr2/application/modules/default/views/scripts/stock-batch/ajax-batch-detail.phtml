@@ -1,68 +1,61 @@
 <?php
-$result = $this->result[0];
+$result = $this->result;
 $data = $this->data;
 
 if (!empty($result)) {
     ?>
-<div class="row">
-    <div class="col-md-12">
-        <div class="portlet box green">
-            <div class="portlet-title">
-                <div class="caption">
-                    <span id="name"><?php echo $result['itemName']; ?></span>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="portlet box green">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <span id="name">Product Summary: <?php echo $result[0]['itemName']; ?></span>
+                    </div>
+                    <div class="tools">
+                        <a href="javascript:;" class="collapse">
+                        </a>
+                    </div>
                 </div>
-                <div class="tools">
-                    <a href="javascript:;" class="collapse">
-                    </a>
-                </div>
-            </div>
-            <div class="portlet-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="col-md-3">
-                            <h5><b><?php echo $this->translate("Batch Status"); ?></b></h5>
-                            <p><?php echo $this->translate("Running"); ?></p>
-                            <p><?php echo $this->translate("Stacked"); ?></p>
-                           
-                            <h5><b><?php echo $this->translate("Total"); ?></b></h5>
+                <div class="portlet-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="batchManagement table table-striped table-bordered table-hover table-full-width">
+                                <tr>
+                                    <th style="background-color: #D6D6D6;">Priority</th>
+                                    <th style="background-color: #D6D6D6;" class="center">No. of Batches</th>
+                                    <th style="background-color: #D6D6D6;" class="center">Quantity <?php echo "(".$result[0]['itemUnitName'].")"; ?></th>
+                                    <th style="background-color: #D6D6D6;" class="center"></th>
+                                    <th style="background-color: #D6D6D6;" class="center">Total</th>
+                                </tr>
+                                <?php $total_no_batch = 0; 
+                                $total_vials = 0;
+                                $total_doses = 0; 
+                                
+                                foreach ($result as $row) {
+                                    $total_no_batch = $total_no_batch + $row['cnt'];
+                                    $total_vials = $total_vials + $row['BatchQty'];
+                                    $total_doses = $total_doses + ($row['BatchQty']*$row['description']);
+                                    ?>
+                                    <tr>
+                                        <td><b><?php echo $row['status']; ?></b></td>
+                                        <td class="center"><?php echo $row['cnt']; ?></td>
+                                        <td class="right"><?php echo number_format($row['BatchQty']); ?></td>
+                                        <td class="right"><?php echo $row['description']; ?></td>
+                                        <td class="right"><?php echo number_format($row['BatchQty'] * $row['description']); ?></td>
+                                    </tr>
+                                <?php } ?>
+                                <tr>
+                                    <th style="background-color: #D6D6D6;">Total</th>
+                                    <th style="background-color: #D6D6D6;" class="center"><?php echo $total_no_batch; ?></th>
+                                    <th style="background-color: #D6D6D6;" class="right"><?php echo number_format($total_vials); ?></th>
+                                    <th style="background-color: #D6D6D6;" class="right"></th>
+                                    <th style="background-color: #D6D6D6;" class="right"><?php echo number_format($total_doses); ?></th>
+                                </tr>
+                            </table>
                         </div>
-                        <div class="col-md-3 center">
-                            <h5><b><?php echo $this->translate("No of Batches"); ?></b></h5>
-                            <p id="running"><?php echo (!empty($result['running']) ? $result['running'] : 0 ); ?></p>
-                            <p id="stacked"><?php echo (!empty($result['stacked']) ? $result['stacked'] : 0 ); ?></p>
-                          
-
-                            <h5 id="total"><b><?php echo ($result['running'] + $result['stacked'] ); ?></b></h5>
-                        </div>
-                        <div class="col-md-3 center">
-                            <h5><b><?php echo $this->translate("Qty"); ?>
-                                <?php
-                                if ($result['itemUnitId'] == 2) {
-                                    echo $this->translate("in Doses");
-                                } else if ($result['itemUnitId'] == 3) {
-                                    echo $this->translate("in Pcs");
-                                }
-                                ?></b>
-                            </h5>
-                            <p><?php echo number_format($data['running_doses']); ?></p>
-                            <p><?php echo number_format($data['stacked_doses']); ?></p>
-<!--                            <p><?php //echo number_format($data['finished_doses']); ?></p>-->
-                            <h5><b><?php echo number_format($data['total']); ?></b></h5>
-                        </div>
-                        <?php if ($result['itemUnitId'] == 2) { ?>
-                        <div class="col-md-3 center">
-                            <h5><b><?php echo $this->translate("Qty in Vials"); ?></b></h5>
-                            <p><?php echo number_format($result['RunningQty']); ?></p>
-                            <p><?php echo number_format($result['StackedQty']); ?></p>
-<!--                            <p><?php //echo number_format($result['FinishedQty']); ?></p>-->
-                            <h5><b><?php echo number_format($result['RunningQty'] + $result['StackedQty'] + $result['FinishedQty']); ?></b></h5>
-                        </div>
-                        <?php } ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
 <?php } ?>

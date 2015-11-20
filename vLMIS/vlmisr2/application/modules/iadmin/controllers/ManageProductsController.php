@@ -368,8 +368,7 @@ class Iadmin_ManageProductsController extends App_Controller_Base {
         $form->description->setValue($item->getDescription());
         $form->item->setValue($item->getItem()->getPkId());
         $form->item_id->setValue($item->getPkId());
-        if ($item->getItemCategory()->getPkId() == 1) {
-
+        if ($item->getItemCategory()->getPkId() == 1 || $item->getItemCategory()->getPkId() == 4) {
             $form->number_of_doses->setValue($item->getNumberOfDoses());
         }
         $base_url = Zend_Registry::get('baseurl');

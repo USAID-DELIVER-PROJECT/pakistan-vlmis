@@ -25,6 +25,11 @@ class ItemSchedule
     private $startingNo;
 
     /**
+     * @var StakeholderActivities
+     */
+    private $stakeholderActivity;
+
+    /**
      * @var ItemPackSizes
      */
     private $itemPackSize;
@@ -78,6 +83,26 @@ class ItemSchedule
     public function getStartingNo()
     {
         return $this->startingNo;
+    }
+
+    /**
+     * Set stakeholderActivity
+     *
+     * @param StakeholderActivities $stakeholderActivity
+     */
+    public function setStakeholderActivity(\StakeholderActivities $stakeholderActivity)
+    {
+        $this->stakeholderActivity = $stakeholderActivity;
+    }
+
+    /**
+     * Get stakeholderActivity
+     *
+     * @return StakeholderActivities 
+     */
+    public function getStakeholderActivity()
+    {
+        return $this->stakeholderActivity;
     }
 
     /**

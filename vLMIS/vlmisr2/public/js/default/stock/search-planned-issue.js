@@ -65,31 +65,49 @@ $('.future_arrival_details').click(function () {
             });
 
             $('#issued').click(function () {
-                $.notyfy.closeAll();
-                notyfy({
-                    text: notification["confirm"],
-                    type: "confirm",
-                    dismissQueue: true,
-                    layout: "top",
-                    buttons: ("confirm" != 'confirm') ? false : [
-                        {
-                            addClass: 'btn btn-success btn-small btn-icon glyphicons ok_2',
-                            text: '<i></i> Ok',
-                            onClick: function ($notyfy) {
-                                $notyfy.close();
-                                $("#pipeline-form").submit();
-                            }
-                        },
-                        {
-                            addClass: 'btn btn-danger btn-small btn-icon glyphicons remove_2',
-                            text: '<i></i> Cancel',
-                            onClick: function ($notyfy) {
-                                $notyfy.close();
-                            }
-                        }
-                    ]
+                // Checking Picked Quantity 
+                var valid = false;
+                $("input[id$='-received']").each(function () {
+                    if (isNaN($(this).val()))
+                    {
+                        alert('Quantity should be a number');
+                        $(this).val("");
+                        $(this).focus();
+                        valid = false;
+                    }
+                    else {
+                        valid = true;
+                    }
                 });
-                return false;
+
+                if (valid)
+                {
+                    $.notyfy.closeAll();
+                    notyfy({
+                        text: notification["confirm"],
+                        type: "confirm",
+                        dismissQueue: true,
+                        layout: "top",
+                        buttons: ("confirm" != 'confirm') ? false : [
+                            {
+                                addClass: 'btn btn-success btn-small btn-icon glyphicons ok_2',
+                                text: '<i></i> Ok',
+                                onClick: function ($notyfy) {
+                                    $notyfy.close();
+                                    $("#pipeline-form").submit();
+                                }
+                            },
+                            {
+                                addClass: 'btn btn-danger btn-small btn-icon glyphicons remove_2',
+                                text: '<i></i> Cancel',
+                                onClick: function ($notyfy) {
+                                    $notyfy.close();
+                                }
+                            }
+                        ]
+                    });
+                    return false;
+                }
             });
 
             var notification = [];

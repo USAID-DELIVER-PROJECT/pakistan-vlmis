@@ -240,8 +240,8 @@ class Reports_DashletController extends App_Controller_Base {
         $wh_data = new Model_WarehousesData();
         $params["date"] = $date;
         $params["item"] = $item;
-        $params["loc_id"] = $district;
 
+        $params["loc_id"] = $district;
         $wh_data->form_values = $params;
         $xmlstore = $wh_data->reportedNonReported();
         $data = $wh_data->getReportedLocation();
@@ -342,6 +342,7 @@ class Reports_DashletController extends App_Controller_Base {
         $params["date"] = $date;
         $params["item"] = $item;
         $params["wh_id"] = $wh_id;
+        $params["type"] = 1;
 
         $wh_data->form_values = $params;
         $xmlstore = $wh_data->vvmStageStatus();
@@ -565,6 +566,7 @@ class Reports_DashletController extends App_Controller_Base {
         $wh_data = new Model_WarehousesData();
         $params["date"] = $this->_request->getParam("date");
         $params["item"] = $this->_request->getParam("item");
+         $params["province"] = $this->_request->getParam("province");
         $level = $this->_request->getParam("level");
         $province = $this->_request->getParam("province");
         $district = $this->_request->getParam("district");
@@ -625,6 +627,7 @@ class Reports_DashletController extends App_Controller_Base {
         $wh_data = new Model_WarehousesData();
         $params["date"] = $this->_request->getParam("date");
         $params["item"] = $this->_request->getParam("item");
+        $params["province"] = $this->_request->getParam("province");
         $level = $this->_request->getParam("level");
         $province = $this->_request->getParam("province");
         $district = $this->_request->getParam("district");
@@ -636,7 +639,14 @@ class Reports_DashletController extends App_Controller_Base {
         );
         $combo = $locations->getLocationsByLevelByTehsil();
 
-        $params["teh_id"] = $combo[0]['key'];
+        $role_id = $this->_identity->getRoleId();
+
+        if ($role_id == 7) {
+            $params["teh_id"] = $this->_identity->getTehsilId();
+        } else {
+            $params["teh_id"] = $combo[0]['key'];
+        }
+
         $wh_data->form_values = $params;
 
         switch ($level) {
@@ -1241,11 +1251,11 @@ class Reports_DashletController extends App_Controller_Base {
         }
         $graphs->form_values['to_date'] = $to_date;
         $this->view->to_date = $to_date;
-        $xmlstore1 = $graphs->coldChainCapacity(15);
+        $xmlstore1 = $graphs->coldChainCapacity(1);
         $this->view->xmlstore1 = $xmlstore1;
-        $xmlstore2 = $graphs->coldChainCapacity(16);
+        $xmlstore2 = $graphs->coldChainCapacity(3);
         $this->view->xmlstore2 = $xmlstore2;
-        $this->view->data = $graphs->coldChainCapacity(17);
+        $this->view->data = $graphs->coldChainCapacity(2);
         $this->view->warehousename = $this->_identity->getWarehouseName();
     }
 
@@ -1257,10 +1267,10 @@ class Reports_DashletController extends App_Controller_Base {
             $to_date = $this->_request->getParam('to_date', date("d/m/Y"));
         }
         $graphs->form_values['to_date'] = $to_date;
-        $this->view->data = $graphs->coldChainCapacity(17);
+        $this->view->data = $graphs->coldChainCapacity(2);
         $this->view->warehousename = $this->_identity->getWarehouseName();
     }
-    
+
     public function coldChainCapacityProductAction() {
         $this->_helper->layout->setLayout("layout");
         $graphs = new Model_Graphs();
@@ -1270,14 +1280,14 @@ class Reports_DashletController extends App_Controller_Base {
         }
         $graphs->form_values['to_date'] = $to_date;
         $this->view->to_date = $to_date;
-        $xmlstore1 = $graphs->coldChainCapacityProduct(15);
+        $xmlstore1 = $graphs->coldChainCapacityProduct(1);
         $this->view->xmlstore1 = $xmlstore1;
         //$xmlstoresummary = $graphs->coldChainCapacityProductSummary(16);
         //$this->view->xmlstoresummary = $xmlstoresummary;
-        $xmlstore2 = $graphs->coldChainCapacityProduct(16);
+        $xmlstore2 = $graphs->coldChainCapacityProduct(3);
         $this->view->xmlstore2 = $xmlstore2;
         $this->view->warehousename = $this->_identity->getWarehouseName();
-        $this->view->data = $graphs->coldChainCapacityProduct(17);
+        $this->view->data = $graphs->coldChainCapacityProduct(2);
 
         $base_url = Zend_Registry::get("baseurl");
         $this->view->inlineScript()->appendFile($base_url . '/js/reports/dashlet/cold-chain-capacity.js');
@@ -1292,12 +1302,12 @@ class Reports_DashletController extends App_Controller_Base {
         }
         $graphs->form_values['to_date'] = $to_date;
         $this->view->to_date = $to_date;
-        $xmlstore1 = $graphs->coldChainCapacityVvm(15);
+        $xmlstore1 = $graphs->coldChainCapacityVvm(1);
         $this->view->xmlstore1 = $xmlstore1;
-        $xmlstore2 = $graphs->coldChainCapacityVvm(16);
+        $xmlstore2 = $graphs->coldChainCapacityVvm(3);
         $this->view->xmlstore2 = $xmlstore2;
         $this->view->warehousename = $this->_identity->getWarehouseName();
-        $this->view->data = $graphs->coldChainCapacityVvm(17);
+        $this->view->data = $graphs->coldChainCapacityVvm(2);
 
         $base_url = Zend_Registry::get("baseurl");
         $this->view->inlineScript()->appendFile($base_url . '/js/reports/dashlet/cold-chain-capacity.js');

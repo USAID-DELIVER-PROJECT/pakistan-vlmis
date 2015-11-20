@@ -1,4 +1,5 @@
 $(function() {
+    
     $('#records').change(function() {
         var counter = $(this).val();
 
@@ -322,15 +323,16 @@ $(function() {
                     text: '<i></i> Ok',
                     onClick: function($notyfy) {
                         $notyfy.close();
+                        
                         $.ajax({
                             type: "POST",
                             url: appName + "/iadmin/manage-stores/delete",
-                            data: {warehouse_id: self.data('bind')},
+                            data: {warehouse_id: self.data('bind'), status: self.data('status')},
                             dataType: 'html',
                             success: function(data) {
                                 notyfy({
                                     force: true,
-                                    text: 'Store has been deleted!',
+                                    text: data,
                                     type: 'success',
                                     layout: self.data('layout')
                                 });

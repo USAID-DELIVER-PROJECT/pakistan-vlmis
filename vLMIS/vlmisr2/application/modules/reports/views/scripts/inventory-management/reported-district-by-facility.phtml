@@ -4,8 +4,10 @@ $sel_year = $this->year_sel;
 $counter = 1;
 
 $sel_stk = $this->in_stk;
-$sel_prov = $this->prov_sel;
-$sel_dist = $this->in_dist;
+$sel_prov = $this->province;
+$sel_dist = $this->district;
+$sel_tehsil = $this->tehsil;
+$wh_type = $this->wh_type;
 $sel_indicator = $this->sel_indicator;
 $in_col = $this->in_col;
 $in_rg = $this->in_rg;
@@ -19,7 +21,12 @@ $str_indicator = $this->str_indicator;
 
 $data_arr = array();
 // Headers of the Grid
-$header = 'District Id,District,Health Facilities';
+if ($wh_type == 2) {
+    $header = 'District Id,District,Total Facilities';
+} else {
+    $header = 'Tehsil Id,Tehsil/Town,Total Facilities';
+}
+
 $header1 = '#rspan,#rspan,#rspan';
 $cspan = '';
 $width = '50,*,60';
@@ -34,7 +41,7 @@ foreach ($period as $date) {
     $header1 .= ',<span>Reported HFs</span>,#cspan';
 }
 
-$query = $this->reports()->getReportedDistrictsByFacility($sel_prov);
+$query = $this->reports()->getReportedDistrictsByFacility($wh_type, $sel_prov, $sel_dist);
 
 foreach ($query as $row) {
     $data_arr[$row['districtId']][] = $row['districtName'];
@@ -49,7 +56,7 @@ foreach ($query as $row) {
 $count = 2;
 foreach ($period as $date) {
     $date_in = $startDate = $endDate = $date->format("Y-m");
-    $query2 = $this->reports()->getReportedDistrictsByFacility1($sel_prov, $date_in);
+    $query2 = $this->reports()->getReportedDistrictsByFacility1($wh_type, $sel_prov, $sel_dist, $date_in);
 
     foreach ($query2 as $row) {
         $data_arr[$row['districtId']][$count] = $row['reported'];
@@ -68,7 +75,7 @@ foreach ($data_arr as $dis_id => $sub_arr) {
 
     $xml_store .= "<row>";
 
-    $param1 = base64_encode($sub_arr[0] . '|' . $s_date . '|' . $e_date . '|' . $dis_id . '|' . $sub_arr[1] . '|' . '3');
+    $param1 = base64_encode($wh_type . '|' . $sub_arr[0] . '|' . $s_date . '|' . $e_date . '|' . $dis_id . '|' . $sub_arr[1] . '|' . '3');
 
     $xml_store .= "<cell>$dis_id</cell>";
     $xml_store .= "<cell><![CDATA[<a href=javascript:showGraph('$param1')>$sub_arr[0]</a>]]>^_self</cell>";
@@ -81,7 +88,7 @@ foreach ($data_arr as $dis_id => $sub_arr) {
         $sum_arr[$key] += $value;
 
         if ($key > 1) {
-            $param = base64_encode($dis_id . '-' . $monthArr[$key - 2]);
+            $param = base64_encode($wh_type . '-' . $dis_id . '-' . $monthArr[$key - 2]);
             $xml_store .= "<cell style=\"text-align:right\"><![CDATA[<a href=javascript:functionCall('$param')>$value</a>]]>^_self</cell>";
             $xml_store .= "<cell style=\"text-align:right\">" . @round(($value / $sub_arr[1]) * 100) . " %</cell>";
         }
@@ -200,5 +207,9 @@ if (!empty($sel_month)) {
     function showGraph(param) {
         window.open('<?php echo $this->baseUrl(); ?>/reports/graphs/reported-districts?param=' + param, '_blank', 'scrollbars=1,width=950,height=600');
     }
+    var whType = <?php echo $wh_type; ?>;
+    var province = <?php echo $sel_prov; ?>;
+    var district = <?php echo $sel_dist; ?>;
+    var tehsil = <?php echo $sel_tehsil; ?>;
 </script>
 

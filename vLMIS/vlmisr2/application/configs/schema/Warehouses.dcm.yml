@@ -35,7 +35,11 @@ Warehouses:
       column: from_edit
     status:
       type: boolean
-      nullable: true  
+      nullable: true
+    isPlacementEnable:
+      type: boolean
+      nullable: true
+      column: is_placement_enable
   oneToOne:
     warehouseType:
       targetEntity: WarehouseTypes

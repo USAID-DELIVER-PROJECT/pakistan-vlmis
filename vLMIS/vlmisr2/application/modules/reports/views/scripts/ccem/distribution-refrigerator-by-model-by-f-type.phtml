@@ -17,7 +17,7 @@
                     <div class="portlet-body">
                         <div class="row">
                             <div class="col-md-12">
-                                <form method="POST" name="search" action="" >
+                                <!--<form method="POST" name="search" action="" >
                                     <div class="row">
                                         <?php $this->allLevelAreaCombo(array("level" => $this->form_values['office'], "province" => $this->form_values['combo1'], "district" => $this->form_values['combo2'], "facility_type" => '')); ?>
                                         <div class="col-md-3">
@@ -27,7 +27,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </form>
+                                </form>-->
                                 <table width="99%" cellpadding="0" cellspacing="0">
                                     <tr>
                                         <td style="padding-top: 10px;">
@@ -68,7 +68,7 @@
         mygrid.selMultiRows = true;
         mygrid.enableMultiline(true);
         mygrid.setImagePath("<?php echo $this->baseUrl(); ?>'/common/reports/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
-        mygrid.setHeader("<div style='text-align:left; padding-left:300px; font-size:14px; font-weight:bold; font-family:Helvetica'><?php echo $this->report_title ?></div>,<?php echo substr($this->cspan, 7) ?>");
+        mygrid.setHeader("<div style='text-align:center;font-size:14px; font-weight:bold;'><?php echo $this->report_title ?></div>,<?php echo substr($this->cspan, 7) ?>");
         mygrid.attachHeader("<?php echo $this->headers; ?>");
         mygrid.setInitWidths("<?php echo $this->width; ?>");
         mygrid.setColAlign("<?php echo $this->align; ?>");

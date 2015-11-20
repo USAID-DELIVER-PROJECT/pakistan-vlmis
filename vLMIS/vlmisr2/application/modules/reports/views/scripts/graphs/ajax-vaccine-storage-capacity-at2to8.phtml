@@ -45,7 +45,8 @@
 
                 foreach ($this->data as $currRow) {
                     $totalsurplus30 = $totalsurplus30 + $currRow['surplus30'];
-                    $totalmatch10 = $totalmatch10 + $currRow['match10'];
+                    $match30 = ($currRow['match10'] + $currRow['surplus1030'] + $currRow['shortage1030']);
+                    $totalmatch10 = $totalmatch10 + $match30;
                     $totalshortage30 = $totalshortage30 + $currRow['shortage30'];
                     $totalUnknown = $totalUnknown + $currRow['Unknown'];
                     ?>
@@ -57,7 +58,7 @@
                             <?php echo $currRow['surplus30']; ?>
                         </td>
                         <td>
-                            <?php echo $currRow['match10']; ?>
+                            <?php echo $match30; ?>
                         </td>                        
                         <td>
                             <?php echo $currRow['shortage30']; ?>

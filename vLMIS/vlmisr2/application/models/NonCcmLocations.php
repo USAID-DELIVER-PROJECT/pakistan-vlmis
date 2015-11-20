@@ -190,37 +190,66 @@ class Model_NonCcmLocations extends Model_Base {
 //        if (!empty($lvl)) {
 //            $str_sql1 .= " AND non_ccm_locations.row=" . $lvl;
 //        }
-        $str_sql1 = "SELECT
-	non_ccm_locations.location_name,
-	placement_locations.pk_id AS placement_locationsid,
-	placement_locations.location_type,
-	placement_locations.pk_id,
-	non_ccm_locations.pk_id,
-  rows.rank AS myrow,
-  rows.list_value AS myrowvalue,
-	Pallets.list_value AS mypallet,
-	racks.list_value AS myrack
-FROM
-	non_ccm_locations
-INNER JOIN placement_locations ON placement_locations.location_id = non_ccm_locations.pk_id
-INNER JOIN list_detail AS rows ON non_ccm_locations.`row` = rows.pk_id
-INNER JOIN list_detail AS racks ON non_ccm_locations.rack = racks.pk_id
-INNER JOIN list_detail AS Pallets ON non_ccm_locations.pallet = Pallets.pk_id
-WHERE
-	placement_locations.location_type =" . Model_ListDetail::Non_CCM . "
-AND non_ccm_locations.area = " . $area . "
-AND non_ccm_locations.`level` = " . $lvl . "
-AND non_ccm_locations.warehouse_id = " . $warehouse_id . "
-ORDER BY
-	myrow,
-	myrack,
-	mypallet";
-        // echo $str_sql1;exit;
+       $str_sql1 = "SELECT
+                        non_ccm_locations.location_name,
+                        placement_locations.pk_id AS placement_locationsid,
+                        placement_locations.location_type,
+                        placement_locations.pk_id,
+                        non_ccm_locations.pk_id,
+                        rows.rank AS myrow,
+                        rows.list_value AS myrowvalue,
+                        Pallets.list_value AS mypallet,
+                        racks.list_value AS myrack
+                    FROM
+                        non_ccm_locations
+                    INNER JOIN placement_locations ON placement_locations.location_id = non_ccm_locations.pk_id
+                    INNER JOIN list_detail AS rows ON non_ccm_locations.`level` = rows.pk_id
+                    INNER JOIN list_detail AS racks ON non_ccm_locations.rack = racks.pk_id
+                    INNER JOIN list_detail AS Pallets ON non_ccm_locations.pallet = Pallets.pk_id
+                    WHERE
+                        placement_locations.location_type =" . Model_ListDetail::Non_CCM . "
+                    AND non_ccm_locations.area = " . $area . "
+                    AND non_ccm_locations.`row` = " . $lvl . "
+                    AND non_ccm_locations.warehouse_id = " . $warehouse_id . "
+                    ORDER BY
+                        myrow,
+                        myrack,
+                        mypallet";
+        //echo $str_sql1;exit;
         $rec = $this->_em->getConnection()->prepare($str_sql1);
 
         $rec->execute();
         $result = $rec->fetchAll();
         //return $result;
+        if (count($result) > 0) {
+            return $result;
+        } else {
+            return false;
+        }
+    }
+    
+    public function getAllDryStores() {
+        $warehouse_id = $this->_identity->getWarehouseId();
+
+       $str_sql1 = "SELECT
+                        non_ccm_locations.location_name as asset_id,
+                        placement_locations.pk_id AS placement_location_id,
+                        0 vvm_stage
+                    FROM
+                        non_ccm_locations
+                    INNER JOIN placement_locations ON placement_locations.location_id = non_ccm_locations.pk_id
+                    INNER JOIN list_detail AS rows ON non_ccm_locations.`level` = rows.pk_id
+                    INNER JOIN list_detail AS racks ON non_ccm_locations.rack = racks.pk_id
+                    INNER JOIN list_detail AS Pallets ON non_ccm_locations.pallet = Pallets.pk_id
+                    WHERE
+                        placement_locations.location_type =" . Model_ListDetail::Non_CCM . "
+                    AND non_ccm_locations.warehouse_id = " . $warehouse_id;
+       
+        $rec = $this->_em->getConnection()->prepare($str_sql1);
+
+        $rec->execute();
+        $result = $rec->fetchAll();
+
         if (count($result) > 0) {
             return $result;
         } else {
@@ -281,15 +310,40 @@ list_detail.list_master_id =" . Model_ListMaster::ROW);
         }
     }
 
+    public function getMaxShelf($area, $lvl = "") {
+        $warehouse_id = $this->_identity->getWarehouseId();
+
+        $sql = "SELECT IFNULL(COUNT(DISTINCT rack.list_value),0) AS shelf
+                                FROM
+                                non_ccm_locations
+                                INNER JOIN list_detail AS rack ON non_ccm_locations.`level` = rack.pk_id
+				WHERE
+					area=" . $area . " AND `row` = " . $lvl . " AND warehouse_id =" . $warehouse_id . "
+				GROUP BY
+					non_ccm_locations.warehouse_id";
+
+
+        $str_sql1 = $this->_em->getConnection()->prepare($sql);
+
+        $str_sql1->execute();
+        $result = $str_sql1->fetchAll();
+        if (count($result) > 0) {
+            //return $result;
+            return $result[0]['shelf'];
+        } else {
+            return false;
+        }
+    }
+
     public function getMaxRack($area, $lvl = "") {
         $warehouse_id = $this->_identity->getWarehouseId();
 
-        $sql = "SELECT ifnull(count(rack.list_value),0) AS racks
+        $sql = "SELECT IFNULL(COUNT(DISTINCT rack.list_value),0) AS racks
                                 FROM
                                 non_ccm_locations
                                 INNER JOIN list_detail AS rack ON non_ccm_locations.`rack` = rack.pk_id
 				WHERE
-					area=" . $area . " AND level=" . $lvl . " AND warehouse_id =" . $warehouse_id . "
+					area=" . $area . " AND `row` = " . $lvl . " AND warehouse_id =" . $warehouse_id . "
 				GROUP BY
 					non_ccm_locations.warehouse_id";
 

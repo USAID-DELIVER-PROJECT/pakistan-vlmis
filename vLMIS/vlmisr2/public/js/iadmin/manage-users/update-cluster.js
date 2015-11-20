@@ -36,13 +36,17 @@ $(function() {
 		$('#wh').html('');
         if ($('#user').val() != '')
 		{
+                    Metronic.startPageLoading('Please wait...');
+                    
 			$.ajax({
 			        url: appName + "/iadmin/manage-users/ajax-get-warehouses",
 				data: 'userId='+$('#user').val()+'&district='+$('#district').val(),
 				type: 'POST',
 				success: function(data){
                                         $('#wh').html(data);
-					$('#submit').attr('disabled', false);
+					
+                                         Metronic.stopPageLoading();
+                                         $("#submit").css("display","block");
 				}
 			})
 		}

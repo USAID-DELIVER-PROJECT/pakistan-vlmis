@@ -1,12 +1,14 @@
-$(function () {
+$(function() {
     var level = $("#clevel").html();
     var prov = $("#cprov").html();
     var dist = $("#cdist").html();
     var wh_id = $("#cwh").html();
 
-    $('#office').change(function () {
+    $('#office').change(function() {
+
         $('#div_combo1').hide();
         $('#div_combo2').hide();
+         $('#div_combo3').hide();
         $('#wh_combo').hide();
         $('#loader').show();
 
@@ -15,7 +17,7 @@ $(function () {
             url: appName + "/index/level-combos-one",
             data: {office: $(this).val()},
             dataType: 'html',
-            success: function (data) {
+            success: function(data) {
                 $('#loader').hide();
                 var val1 = $('#office').val();
                 switch (val1) {
@@ -55,8 +57,11 @@ $(function () {
                         $('#warehouse').html(data);
                         break;
                     case '9':
-                        $('#wh_combo').show();
-                        $('#warehouse').html(data);
+                        $('#lblcombo3').text('Tehsil / Town');
+                        $('#div_combo3').show();
+                        $('#combo3').html(data);
+                        // $('#combo2').show();
+                        // $('#warehouse').html(data);
                         break;
                     case '60':
                         $('#wh_combo').show();
@@ -74,7 +79,7 @@ $(function () {
         });
     });
 
-    $('#combo1').change(function () {
+    $('#combo1').change(function() {
         $('#loader').show();
         $('#div_combo2').hide();
         $('#wh_combo').hide();
@@ -83,7 +88,7 @@ $(function () {
             url: appName + "/index/level-combos-two",
             data: {combo1: $(this).val(), office: $('#office').val()},
             dataType: 'html',
-            success: function (data) {
+            success: function(data) {
                 $('#loader').hide();
 
                 var val = $('#office').val();
@@ -145,14 +150,16 @@ $(function () {
         });
     });
 
-    $('#combo2').change(function () {
+         
+
+    $('#combo2').change(function() {
         $('#loader').show();
         $.ajax({
             type: "POST",
             url: appName + "/index/level-combos-three",
             data: {division: $(this).val()},
             dataType: 'html',
-            success: function (data) {
+            success: function(data) {
                 $('#loader').hide();
                 $('#wh_combo').show();
                 $('#warehouse').html(data);
@@ -160,6 +167,23 @@ $(function () {
             }
         });
     });
+    
+  $('#combo3').change(function() {
+        $('#loader').show();
+        $.ajax({
+            type: "POST",
+            url: appName + "/index/level-combos-four",
+            data: {combo3: $(this).val()},
+            dataType: 'html',
+            success: function(data) {
+                $('#loader').hide();
+                $('#wh_combo').show();
+                $('#warehouse').html(data);
+                $("#warehouse").val(wh_id);
+            }
+        });
+    });  
+    
 });
 
 function populateAllLevelCombo() {

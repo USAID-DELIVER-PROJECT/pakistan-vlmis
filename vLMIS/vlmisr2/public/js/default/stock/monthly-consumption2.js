@@ -76,6 +76,9 @@ $(document).ready(function() {
         if ($(this).val() == '' || isNaN($(this).val())) {
             $(this).val('0');
         }
+        if ($(this).val() < 0) {
+            $(this).val(Math.abs($(this).val()));
+        }
     });
 
     $("input[id$='-vials_used'],input[id$='-opening_balance'],input[id$='-received'],input[id$='-pregenant_women'],input[id$='-non_pregenant_women']").focusout(function() {
@@ -139,8 +142,8 @@ $(document).ready(function() {
              $(this).focus();
              }, 0);*/
         }
-
-        //$('#' + itemid + '-closing_balance').val(c);
+//alert(c);
+        // $('#' + itemid + '-closing_balance').val(c);
         // $('#' + itemid + '-cb').val(c);
         if (/-/i.test(c)) {
             $('#' + itemid + '-cb').css({
@@ -269,6 +272,93 @@ $(document).ready(function() {
         Metronic.startPageLoading('Please wait...');
         e.preventDefault();
         var flag = true;
+        /*Closing Balance Validation
+         
+         */
+
+        $("input[id$='-closing_balance']").each(function() {
+
+            var value = $(this).attr("id");
+            var itemid = value.replace("-closing_balance", "");
+            var item_category = $('#' + itemid + '-item_category').val();
+            var itemname = $('#' + itemid + '-item_name').val();
+            var opening = $('#' + itemid + '-opening_balance').val();
+            var received = $('#' + itemid + '-received').val();
+            var closing = $('#' + itemid + '-closing_balance').val();
+            var dispensed = $('#' + itemid + '-dispensed').val();
+            var pregenant_women_total = $('#pregenant_women_total').val();
+            var non_pregenant_women_total = $('#non_pregenant_women_total').val();
+            var start_no = parseInt($('#' + itemid + '-start_no').val());
+
+
+            var no_of_doses = parseInt($('#' + itemid + '-no_of_doses').val());
+            var i;
+            var vacine_schedule;
+            var nod;
+            var consumption = 0;
+            if (item_category == 1) {
+                for (i = start_no; i <= no_of_doses; i++) {
+                    if (i == 0) {
+                        nod += 1;
+                    }
+
+                    vacine_schedule = (i == 1 && i == nod) ? '' : i;
+
+                    if (parseInt(vacine_schedule.length) == 0) {
+                        vacine_schedule = 1;
+                    }
+
+                    // Calculating Consumption
+                    var v1 = $('#' + vacine_schedule + '-' + itemid + '-fixed_inuc_m_11').val();
+                    var v2 = $('#' + vacine_schedule + '-' + itemid + '-fixed_inuc_f_11').val();
+                    var v3 = $('#' + vacine_schedule + '-' + itemid + '-fixed_outuc_m_11').val();
+                    var v4 = $('#' + vacine_schedule + '-' + itemid + '-fixed_outuc_f_11').val();
+                    var v5 = $('#' + vacine_schedule + '-' + itemid + '-outreach_m_11').val();
+                    var v6 = $('#' + vacine_schedule + '-' + itemid + '-outreach_f_11').val();
+                    var v7 = $('#' + vacine_schedule + '-' + itemid + '-fixed_inuc_m_23').val();
+                    var v8 = $('#' + vacine_schedule + '-' + itemid + '-fixed_inuc_f_23').val();
+                    var v9 = $('#' + vacine_schedule + '-' + itemid + '-fixed_outuc_m_23').val();
+                    var v10 = $('#' + vacine_schedule + '-' + itemid + '-fixed_outuc_f_23').val();
+                    var v11 = $('#' + vacine_schedule + '-' + itemid + '-outreach_m_23').val();
+                    var v12 = $('#' + vacine_schedule + '-' + itemid + '-outreach_f_23').val();
+
+                    consumption += parseInt(v1) + parseInt(v2) + parseInt(v3) + parseInt(v4) +
+                            parseInt(v5) + parseInt(v6) + parseInt(v7) + parseInt(v8) +
+                            parseInt(v9) + parseInt(v10) + parseInt(v11) + parseInt(v12);
+
+                }
+            } else if (item_category == 2) {
+                consumption = parseInt(pregenant_women_total) + parseInt(non_pregenant_women_total);
+            } else if (item_category == 3) {
+
+                consumption = parseInt(dispensed);
+            }
+
+            //Validating Closing Balance
+
+            if (((parseInt(opening) + parseInt(received)) < parseInt(consumption))) {
+
+                alert("Consumption of " + itemname + " cannot be greater than (Opening+Receive) " + ((parseInt(opening) + parseInt(received))) + '\n' + "Please verify your calculations");
+                $('#' + vacine_schedule + '-' + itemid + '-fixed_inuc_m_11').focus();
+
+                flag = false;
+                return false;
+            }
+
+            if (((parseInt(opening) + parseInt(received)) - parseInt(consumption)) < closing) {
+                alert("Closing balance of " + itemname + " cannot be greater than " + ((parseInt(opening) + parseInt(received)) - parseInt(consumption)) + '\n' + "Please verify your calculations");
+                $(this).focus();
+
+                flag = false;
+                return false;
+            }
+
+
+        });
+
+        //Closing Balance Validation End
+
+
         $("input[id$='-vials_used']").each(function() {
             if ($(this).val() < 0) {
                 $(this).css({
@@ -296,7 +386,8 @@ $(document).ready(function() {
             var unused = ($('#' + itemid + '-unusable_vials').val() * doses);
             var dispensed = parseInt($('#' + itemid + '-dispensed').val());
             var a = (parseInt(used) + parseInt(unused));
-
+            //alert(dispensed);
+            // alert();
             if (used < dispensed) {
                 alert("Used Vials must equal or greater then dispensed quantity");
                 $(this).focus();
@@ -398,9 +489,29 @@ $(document).ready(function() {
         });
     }
 
-});
-function calculateSum(field, total) {
+    // Trigger for updating AMC - Start
+    /*$('#updateamc').click(function () {
+     var self = $(this);
+     $.ajax({
+     type: "POST",
+     url: appName + "/stock/update-wh-amc",
+     data: {date: self.data('date'), item: self.data('item'), wh_id: self.data('wh')},
+     success: function () {
+     
+     }
+     });
+     });
+     
+     var is_view = $("#is_view").val();
+     
+     if (is_view == 1) {
+     $('#updateamc').trigger("click");
+     }*/
+    // Trigger for updating AMC - End
 
+});
+
+function calculateSum(field, total) {
     var sum = 0;
 
     //var total = 'pregenant_women_total';
@@ -416,8 +527,6 @@ function calculateSum(field, total) {
     });
 
     $("input#" + total).val(sum);
-
-
 }
 
 function calculateSumView(field, total) {
@@ -516,7 +625,7 @@ function getPreMonthCB(wh_id, month, year, isNewRpt)
     if (confirm('Are you sure you refresh Closing Balance from previous month?'))
     {
         $.ajax({
-            url: appName + '/stock/ajax-get-pre-month-cb',
+            url: appName + '/stock/ajax-get-pre-month-cb2',
             type: 'post',
             data: {wh_id: wh_id, month: month, year: year, isNewRpt: isNewRpt},
             success: function(data) {
@@ -537,6 +646,7 @@ function getPreMonthCB(wh_id, month, year, isNewRpt)
                     if (c == 'NaN') {
                         c = 0;
                     }
+                    // alert(c);
                     //    $('#' + key + '-cb').val(c);
                     //    $('#' + key + '-closing_balance').val(c);
                 });

@@ -1,4 +1,5 @@
 <!-- Content -->
+
 <div class="page-content-wrapper">
     <div class="page-content">
         <h3 class="page-title">
@@ -26,19 +27,66 @@
                         </div>
                     </div>
                     <div class="portlet-body">
-                        <form name="search-pipeline" id="search-pipeline" method="post" action="">
+                        <form name="search-logbook" id="search-logbook" method="post" action="">
                             <div class="row">
                                 <div class="col-md-3">
                                     <!-- Group Receive No-->
                                     <div class="control-group">
+
+                                        <div class="controls">
+                                            <?php echo $this->form->entry_type; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <!-- Group Receive No-->
+                                    <div class="control-group">
+                                        <label class="control-label" for="province">
+                                            <?php echo $this->translate("Province"); ?><span class="red">*</span>
+
+                                        </label>
+                                        <div class="controls">
+                                            <?php echo $this->form->province; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <!-- Group Receive No-->
+                                    <div class="control-group">
                                         <label class="control-label" for="district">
-                                            <?php echo $this->translate("District"); ?>
+                                            <?php echo $this->translate("District"); ?><span class="red">*</span>
                                         </label>
                                         <div class="controls">
                                             <?php echo $this->form->district; ?>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-3">
+                                    <!-- Group Receive No-->
+                                    <div class="control-group">
+                                        <label class="control-label" for="tehsil">
+                                            <?php echo $this->translate("Tehsil"); ?><!--  <span class="red">*</span> -->
+                                        </label>
+                                        <div class="controls">
+                                            <?php echo $this->form->tehsil; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <!-- Group Receive No-->
+                                    <div class="control-group">
+                                        <label class="control-label" for="wh">
+                                            <?php echo $this->translate("Union Council"); ?><!--  <span class="red">*</span> -->
+                                        </label>
+                                        <div class="controls">
+                                            <?php echo $this->form->uc; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-3">
                                     <div class="control-group">
                                         <label class="control-label" for="Vaccination Date">
@@ -66,14 +114,18 @@
                                         <button data-loading-text="Please Wait ..." class="btn btn-primary" id="btn-loading" type="submit">
                                             <?php echo $this->translate("Search"); ?>
                                         </button>
+                                        <button  class="btn btn-info" id="reset" type="reset">
+                                            <?php echo $this->translate("Reset"); ?>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-
-                        </form>
                     </div>
+
+                    </form>
                 </div>
             </div>
+
         </div>
         <?php if ($this->arr_data && count($this->arr_data) > 0) { ?>
             <div class="row">
@@ -91,7 +143,7 @@
                         <div class="portlet-body">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <table class="table table-striped table-bordered table-condensed">
+                                    <table class="table table-striped table-bordered table-condensed" id="sample_2">
                                         <!-- Table heading -->
                                         <thead>
                                             <tr>
@@ -105,7 +157,10 @@
                                                     <?php echo $this->translate("Father Name"); ?>
                                                 </th>
                                                 <th rowspan="2" style="font-size:12px">
-                                                    <?php echo $this->translate("Age"); ?>
+                                                    <?php echo $this->translate("Age(Months)"); ?>
+                                                </th>
+                                                <th rowspan="2" style="font-size:12px">
+                                                    <?php echo $this->translate("Gender"); ?>
                                                 </th>
                                                 <th rowspan="2" style="font-size:12px">
                                                     <?php echo $this->translate("Contact"); ?>
@@ -117,17 +172,20 @@
                                                     <?php echo $this->translate("District"); ?>
                                                 </th>
                                                 <th rowspan="2" style="font-size:12px">
+                                                    <?php echo $this->translate("Tehsil"); ?>
+                                                </th>
+                                                <th rowspan="2" style="font-size:12px">
                                                     <?php echo $this->translate("Union Council"); ?>
                                                 </th>
                                                 <th rowspan="2"  style="font-size:12px">
-                                                    <?php echo $this->translate("Date of Vaccination"); ?>
+                                                    <?php echo $this->translate("Vaccination Date"); ?>
                                                 </th>
                                                 <th class="center" colspan="5" style="font-size:12px" >
                                                     <?php echo $this->translate("Dose No."); ?>
                                                 </th>   
                                                 <th rowspan="2" style="font-size:12px">
-                                                    <?php echo $this->translate("Refer to"); ?>
-                                                </th>  
+                                                    <?php echo $this->translate("Referred From UC"); ?>
+                                                </th>
                                                 <th rowspan="2" style="font-size:12px">
                                                     <?php echo $this->translate("Remarks"); ?>
                                                 </th>  
@@ -136,8 +194,7 @@
 
                                             <tr>
                                                 <?php foreach ($this->items as $row) { ?>
-                                                    <th style="font-size:12px"><?php echo $row['item_name'] ?></th>
-
+                                                    <th style="font-size:12px"><?php echo $row['description'] ?></th>
                                                 <?php } ?>
                                             </tr>
                                         </thead>
@@ -145,13 +202,14 @@
 
                                         <!-- Table body -->
                                         <tbody>
+
                                             <!-- Table row -->
                                             <?php
                                             $j = 1;
                                             foreach ($this->arr_data as $row) {
                                                 ?>
                                                 <tr class="dynamic-rows">
-                                                    <td class="serial" style="font-size:12px">
+                                                    <td class="serial" style="font-size:12px" align="center">
                                                         <?php echo $j; ?>
                                                     </td>
                                                     <td style="font-size:12px">
@@ -160,8 +218,11 @@
                                                     <td style="font-size:12px">
                                                         <?php echo $row['father_name'] ?>
                                                     </td>
-                                                    <td style="font-size:12px">
+                                                    <td style="font-size:12px"  align="right">
                                                         <?php echo $row['age'] ?>
+                                                    </td>
+                                                    <td style="font-size:12px">
+                                                        <?php echo $row['gender'] ?>
                                                     </td>
                                                     <td style="font-size:12px">
                                                         <?php echo $row['contact'] ?>
@@ -171,12 +232,15 @@
                                                     </td>
 
                                                     <td style="font-size:12px">
-                                                        <?php echo $row['district'] ?>
+                                                        <?php echo $row['District'] ?>
                                                     </td>
                                                     <td style="font-size:12px">
-                                                        <?php echo $row['uc'] ?>
+                                                        <?php echo $row['Tehsil'] ?>
                                                     </td>
                                                     <td style="font-size:12px">
+                                                        <?php echo $row['Uc'] ?>
+                                                    </td>
+                                                    <td style="font-size:12px" align="center">
                                                         <?php echo date("d/m/Y", strtotime($row['vaccination_date'])); ?>
 
                                                     </td>
@@ -184,15 +248,14 @@
                                                     <?php foreach ($this->monthlyConsumtion2()->logBook($row['pk_id']) as $row1) { ?>
                                                         <td style="font-size:12px" class="right">
 
-                                                            <?php echo (!empty($row1['doses'])) ? $row1['doses'] : '0'; ?>
+                                                            <?php echo (strlen($row1['doses']) > 0) ? $row1['doses'] : ''; ?>
                                                         </td>
                                                         <?php
                                                     }
                                                     ?>
-
-
                                                     <td style="font-size:12px">
-                                                        <?php echo $row['reffer_to'] ?>
+                                                        <?php echo $row['RefFromUc']; //ref_from_uc ?>  
+                                                        <i id="reference_tooltip" data-container="body" data-original-title="<?php echo "EPI: " .$row['RefFromEPI'] .  ", " . "District: " .$row['RefFromDist']?>" class="fa fa-warning tooltips"></i>
                                                     </td>
                                                     <td style="font-size:12px">
                                                         <?php echo $row['remarks'] ?>
@@ -228,3 +291,7 @@
     </div>
 </div>
 
+
+<input type="hidden" id="district_hdn" name="district_hdn" value="<?php echo $this->district_hdn ?>">
+<input type="hidden" id="tehsil_hdn" name="tehsil_hdn" value="<?php echo $this->tehsil_hdn ?>">
+<input type="hidden" id="uc_hdn" name="uc_hdn" value="<?php echo $this->uc_hdn ?>">

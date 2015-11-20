@@ -1,9 +1,44 @@
-$(function() {
-    $('#records').change(function() {
+$(function () {
+    
+    $('#records').change(function () {
         var counter = $(this).val();
 
         document.location.href = appName + '/iadmin/manage-users/routine-users?counter=' + counter;
     });
+
+    $("#search").validate({
+        rules: {
+            combo1: {
+                required: true
+            },
+            combo2: {
+                
+            },
+            combo3: {
+                required: true
+            },
+            combo4: {
+                required: true
+            }
+
+        },
+        messages: {
+            combo1: {
+                required: "Please select Province "
+            },
+            combo2: {
+                required: "Please select District "
+            },
+            combo3: {
+                required: "Please select Tehsil "
+            },
+            combo4: {
+                required: "Please select UC "
+            }
+        }
+
+    });
+
 
 
     // validate signup form on keyup and submit
@@ -16,10 +51,10 @@ $(function() {
                     url: appName + "/iadmin/manage-users/check-users-update",
                     type: "post",
                     data: {
-                        province: function() {
+                        province: function () {
                             return $("#combo1_edit").val();
                         },
-                        office_type_edit: function() {
+                        office_type_edit: function () {
 
                             return '6';
                         }
@@ -64,10 +99,10 @@ $(function() {
                     url: appName + "/iadmin/manage-users/check-users",
                     type: "post",
                     data: {
-                        province: function() {
+                        province: function () {
                             return $("#combo1_add").val();
                         },
-                        office_type_add: function() {
+                        office_type_add: function () {
 
                             return '6';
                         }
@@ -116,30 +151,30 @@ $(function() {
 
     });
 
-    $('#combo4_add').change(function() {
+    $('#combo4_add').change(function () {
         $.ajax({
             type: "POST",
             url: appName + "/iadmin/manage-users/get-default-warehouse",
             data: {geo_level_id: '6', location_id: $('#combo4_add').val()},
             dataType: 'html',
-            success: function(data) {
+            success: function (data) {
                 $('#default_warehouse').html(data);
             }
         });
     });
-    $(".update-stores").click(function() {
+    $(".update-stores").click(function () {
         $.ajax({
             type: "POST",
             url: appName + "/iadmin/manage-users/ajax-edit-routine",
             data: {wh_id: $(this).attr('itemid')},
             dataType: 'html',
-            success: function(data) {
+            success: function (data) {
                 $('#modal-body-contents').html(data);
 
                 $('#update-button').show();
                 //   alert($('#location_type').val());
                 //  $('#location_level_edit').val($('#location_type').val());
-                setTimeout(function() {
+                setTimeout(function () {
 
 
                     $('#combo1_edit').val($('#province_id_edit').val());
@@ -154,7 +189,7 @@ $(function() {
                             url: appName + "/index/locations-combos-two",
                             data: {combo1: $('#province_id_edit').val(), office: '6'},
                             dataType: 'html',
-                            success: function(data) {
+                            success: function (data) {
                                 $('#loader').hide();
 
                                 var val = '6';
@@ -188,7 +223,7 @@ $(function() {
                             url: appName + "/index/locations-combos-three",
                             data: {combo2: $('#district_id_edit').val(), office: '6'},
                             dataType: 'html',
-                            success: function(data) {
+                            success: function (data) {
                                 $('#loader').hide();
                                 var val = '6';
                                 switch (val)
@@ -217,7 +252,7 @@ $(function() {
                             url: appName + "/index/locations-combos-four",
                             data: {combo3: $('#tehsil_id_edit').val(), office: '6'},
                             dataType: 'html',
-                            success: function(data) {
+                            success: function (data) {
                                 $('#loader').hide();
                                 var val = '6';
                                 switch (val)
@@ -239,7 +274,7 @@ $(function() {
                             url: appName + "/iadmin/manage-users/get-default-warehouse",
                             data: {geo_level_id: '6', location_id: $('#parent_id_edit').val()},
                             dataType: 'html',
-                            success: function(data) {
+                            success: function (data) {
                                 $('#default_warehouse_update').html(data);
                                 $('#default_warehouse_update').val($('#default_warehouse_update_hidden').val());
                             }
@@ -255,7 +290,7 @@ $(function() {
 
     });
 
-    $('[data-toggle="notyfy"]').click(function()
+    $('[data-toggle="notyfy"]').click(function ()
     {
         $.notyfy.closeAll();
         var self = $(this);
@@ -268,14 +303,14 @@ $(function() {
             buttons: (self.data('type') != 'confirm') ? false : [{
                     addClass: 'btn btn-success btn-small btn-icon glyphicons ok_2',
                     text: '<i></i> Ok',
-                    onClick: function($notyfy) {
+                    onClick: function ($notyfy) {
                         $notyfy.close();
                         $.ajax({
                             type: "POST",
                             url: appName + "/iadmin/manage-users/delete",
                             data: {user_id: self.data('bind')},
                             dataType: 'html',
-                            success: function(data) {
+                            success: function (data) {
                                 notyfy({
                                     force: true,
                                     text: 'User has been deleted!',
@@ -289,7 +324,7 @@ $(function() {
                 }, {
                     addClass: 'btn btn-danger btn-small btn-icon glyphicons remove_2',
                     text: '<i></i> Cancel',
-                    onClick: function($notyfy) {
+                    onClick: function ($notyfy) {
                         $notyfy.close();
 //                        notyfy({
 //                            force: true,
@@ -303,7 +338,7 @@ $(function() {
         return false;
     });
 
-    $('th.sorting, th.sorting_asc, th.sorting_desc').click(function(e) {
+    $('th.sorting, th.sorting_asc, th.sorting_desc').click(function (e) {
         e.preventDefault();
 
         var self = $(this);

@@ -109,7 +109,17 @@ class Model_Dashlets extends Model_Base {
                        DATE_FORMAT(warehouses_data.reporting_start_date, '%Y-%m') = '$months_rs'
                        AND warehouses_data.warehouse_id  = " . $sub_rs['pk_id'] . "
                        GROUP BY
-                       warehouses_data.warehouse_id";
+                       warehouses_data.warehouse_id
+                       UNION 
+                       SELECT
+                       hf_data_master.warehouse_id
+                       FROM
+                       hf_data_master 
+                       WHERE
+                       DATE_FORMAT(hf_data_master.reporting_start_date, '%Y-%m') = '$months_rs'
+                       AND hf_data_master.warehouse_id  = " . $sub_rs['pk_id'] . "
+                       GROUP BY
+                       hf_data_master.warehouse_id";
 
                 //echo $str_sql_sub."<br>";
                 $row_r = $this->_em->getConnection()->prepare($str_sql_sub);
@@ -210,7 +220,7 @@ class Model_Dashlets extends Model_Base {
             where campaign_targets.campaign_id=$camp_id and warehouses.status = 1 "
                 . "$where
             GROUP BY warehouses.district_id,campaign_targets.campaign_id,item_pack_sizes.pk_id";
-        
+
         $row = $this->_em->getConnection()->prepare($str_sql);
         $row->execute();
         return $row->fetchAll();

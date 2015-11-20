@@ -89,6 +89,39 @@ class Model_ItemPackSizes extends Model_Base {
         }
     }
 
+    public function getAllPurposeItems() {
+        $str_sql = "SELECT
+                            item_pack_sizes.pk_id,
+                            item_pack_sizes.item_name
+                    FROM
+                            item_pack_sizes
+                    WHERE
+                            item_pack_sizes.item_id IN (
+                                    SELECT
+                                            item_pack_sizes.item_id
+                                    FROM
+                                            items
+                                    INNER JOIN item_pack_sizes ON items.pk_id = item_pack_sizes.item_id
+                                    GROUP BY
+                                            item_pack_sizes.item_id
+                                    HAVING
+                                            COUNT(item_pack_sizes.item_id) > 1
+                            )
+                    AND item_pack_sizes.item_category_id IN (1)
+                    ORDER BY
+                    item_pack_sizes.list_rank ASC,
+                    item_pack_sizes.item_id ASC";
+
+        $sql = $this->_em->getConnection()->prepare($str_sql);
+        $sql->execute();
+        $row = $sql->fetchAll();
+        if (!empty($row) && count($row) > 0) {
+            return $row;
+        } else {
+            return FALSE;
+        }
+    }
+
     public function getAllManageItems() {
         $str_sql = $this->_em->createQueryBuilder()
                 ->select("ip.pkId, ip.itemName")
@@ -190,8 +223,8 @@ class Model_ItemPackSizes extends Model_Base {
     }
 
     public function monthlyConsumtion2() {
+
         $str_sql = "SELECT
-                getMonthlyRcvQtyWH(" . $this->form_values['month'] . "," . $this->form_values['year'] . ",''," . $this->form_values['wh_id'] . ") as rcv,
                 item_pack_sizes.pk_id,
                 item_pack_sizes.item_name,
                 item_pack_sizes.description,
@@ -263,9 +296,9 @@ class Model_ItemPackSizes extends Model_Base {
                 item_pack_sizes
                 WHERE
                 item_pack_sizes.item_category_id <> 1
-               AND  item_pack_sizes.item_category_id <> 4
-                AND  item_pack_sizes.pk_id NOT IN (36,37)
-                ORDER BY pk_id";
+                AND  item_pack_sizes.item_category_id <> 4
+                AND  item_pack_sizes.pk_id NOT IN (36,37,39,22)
+                ORDER BY list_rank";
 //echo $str_sql;
 
         $sql = $this->_em->getConnection()->prepare($str_sql);
@@ -304,7 +337,24 @@ class Model_ItemPackSizes extends Model_Base {
                 ->select('ips.itemName,ips.pkId')
                 ->from('ItemPackSizes', 'ips')
                 ->where("ips.status='1'")
-                ->andWhere("ips.itemCategory <> 3")
+                ->orderBy("ips.listRank", "ASC");
+        //echo $str_sql->getQuery()->getSql();
+        //exit;
+        $rows = $str_sql->getQuery()->getResult();
+        if (!empty($rows) && count($rows) > 0) {
+            return $rows;
+        } else {
+            return FALSE;
+        }
+    }
+
+    public function VaccineProductsReport() {
+        $str_sql = $this->_em->createQueryBuilder()
+                ->select('ips.itemName,ips.pkId')
+                ->from('ItemPackSizes', 'ips')
+                ->where("ips.status='1'")
+                ->andWhere("ips.itemCategory = 1")
+                ->andWhere("ips.pkId NOT IN (23,24,25,28,30,31)")
                 ->orderBy("ips.listRank", "ASC");
         $rows = $str_sql->getQuery()->getResult();
         if (!empty($rows) && count($rows) > 0) {
@@ -516,15 +566,39 @@ class Model_ItemPackSizes extends Model_Base {
 
     public function logBookItemPackSize() {
         $str_sql = "SELECT
+                        item_pack_sizes.pk_id,
+                        item_pack_sizes.item_name,
+                        item_pack_sizes.description,
+                        item_schedule.number_of_doses,
+                        item_schedule.starting_no
+                        FROM
+                        item_pack_sizes
+                        INNER JOIN item_schedule ON item_schedule.item_pack_size_id = item_pack_sizes.pk_id
+                    WHERE
+                        item_pack_sizes.pk_id IN (6, 7, 8, 9, 26)
+                    ORDER BY pk_id";
+//echo $str_sql;
+
+        $sql = $this->_em->getConnection()->prepare($str_sql);
+        $sql->execute();
+        $row = $sql->fetchAll();
+        if (!empty($row) && count($row) > 0) {
+            return $row;
+        } else {
+            return FALSE;
+        }
+    }
+
+    public function getItemForConsumptionReport() {
+        $item = $this->form_values;
+        $str_sql = "SELECT
                 item_pack_sizes.pk_id,
                 item_pack_sizes.item_name,
                 item_pack_sizes.description
                 FROM
                 item_pack_sizes
                 WHERE
-                item_pack_sizes.pk_id IN (6,7,8,9,26)
-                ORDER BY pk_id";
-//echo $str_sql;
+                 item_pack_sizes.pk_id = $item";
 
         $sql = $this->_em->getConnection()->prepare($str_sql);
         $sql->execute();

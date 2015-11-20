@@ -47,14 +47,35 @@ $(function() {
         }
     });
 
-
+//    if ($("select[id$='-district']").val() != "") {
+//
+//        var str = $("select[id$='-district']").attr("id");
+//        var row = str.replace("-district", "");
+//
+//        $.ajax({
+//            type: "POST",
+//            url: appName + "/stock/ajax-get-ucs",
+//            data: {district_id: $("select[id$='-district']").val()},
+//            dataType: 'html',
+//            success: function(data) {
+//                $("#" + row + "-uc").html(data);
+//            }
+//        });
+//    }
 
     //form_clean = $("#stock_issue").serialize();
 
     // Auto Save function call
-    //interval = setInterval(autoSave, 20000);
-   //$("input[id$='vaccination']").datepicker({dateFormat: 'dd/mm/yy'});
-    $("#vaccination_date").datepicker({dateFormat: 'dd/mm/yy'});
+//    var month = $('#mm').val();
+//    var year = $('#yy').val();
+//
+//    $("input[id$='vaccination']").datepicker({
+//        dateFormat: 'dd/mm/yy',
+//        minDate: minDate,
+//        maxDate: maxDate,
+//        changeMonth: false,
+//    });
+    // $("#vaccination_date").datepicker({dateFormat: 'dd/mm/yy'});
 
     $("#default_counter").priceFormat({
         prefix: '',
@@ -91,6 +112,8 @@ $(function() {
 
 
 
+
+
     $("#add_more").click(function() {
         Metronic.startPageLoading('Please wait...');
 
@@ -104,30 +127,41 @@ $(function() {
 
         $.ajax({
             type: "POST",
-            url: appName + "/stock/ajax-add-more-issue-rows",
+            url: appName + "/stock/ajax-add-more-log-rows",
             data: {start: start, end: end},
             dataType: 'html',
             success: function(data) {
+
                 $('tbody').append(data);
                 $("#counter").val(end);
-                $.ajax({
-                    type: "POST",
-                    url: appName + "/stock/ajax-get-products-by-stakeholder-activity",
-                    data: {
-                        activity_id: $("#stakeholder_activity_id").val(), type: 1
-                    },
-                    dataType: 'html',
-                    success: function(combodata) {
-                        combodata = "<option val=''>Select</option>" + combodata;
-                        for (var i = start; i < end; i++) {
-                            $("#rows" + i + "-item_pack_size_id").html(combodata);
-                        }
+                $("select[id$='-district']").change(function() {
+                    var str = $(this).attr("id");
+                    var row = str.replace("-district", "");
+
+                    if ($(this).val() != "") {
+                        $.ajax({
+                            type: "POST",
+                            url: appName + "/stock/ajax-get-ucs",
+                            data: {district_id: $(this).val()},
+                            dataType: 'html',
+                            success: function(data) {
+                                $("#" + row + "-uc").html(data);
+                            }
+                        });
                     }
                 });
+
                 Metronic.stopPageLoading();
-                refreshDateFields();
+                //  refreshDateFields();
             }
         });
+    });
+$("#monthly_report").change(function() {
+
+        var action = $(this).val();
+
+        var url = appName + '/stock/log-book?do=' + action;
+        window.location.href = url;
     });
 });
 

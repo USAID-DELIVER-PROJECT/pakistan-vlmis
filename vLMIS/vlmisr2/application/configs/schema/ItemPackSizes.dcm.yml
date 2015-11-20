@@ -46,7 +46,21 @@ ItemPackSizes:
       fixed: false
       nullable: true
       column: color
+    vvmGroup:
+      type: integer
+      unsigned: false
+      nullable: true
+      column: vvm_group_id
   oneToOne:
+    stakeholderActivity:
+      targetEntity: StakeholderActivities
+      cascade: {  }
+      mappedBy: null
+      inversedBy: null
+      joinColumns:
+        stakeholder_activity_id:
+          referencedColumnName: pk_id
+      orphanRemoval: false
     itemCategory:
       targetEntity: ItemCategories
       cascade: {  }
@@ -55,7 +69,7 @@ ItemPackSizes:
       joinColumns:
         item_category_id:
           referencedColumnName: pk_id
-      orphanRemoval: false
+      orphanRemoval: false    
     item:
       targetEntity: Items
       cascade: {  }
@@ -73,5 +87,5 @@ ItemPackSizes:
       joinColumns:
         item_unit_id:
           referencedColumnName: pk_id
-      orphanRemoval: false
-  lifecycleCallbacks: {  }
+      orphanRemoval: false    
+  lifecycleCallbacks: { }

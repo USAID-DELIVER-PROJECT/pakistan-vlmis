@@ -138,6 +138,18 @@ class UsersProxy extends \Users implements \Doctrine\ORM\Proxy\Proxy
         return parent::getDepartment();
     }
 
+    public function setCountry($country)
+    {
+        $this->__load();
+        return parent::setCountry($country);
+    }
+
+    public function getCountry()
+    {
+        $this->__load();
+        return parent::getCountry();
+    }
+
     public function setPhoto($photo)
     {
         $this->__load();
@@ -172,6 +184,18 @@ class UsersProxy extends \Users implements \Doctrine\ORM\Proxy\Proxy
     {
         $this->__load();
         return parent::getPhoneNumber();
+    }
+
+    public function setOrganization($organization)
+    {
+        $this->__load();
+        return parent::setOrganization($organization);
+    }
+
+    public function getOrganization()
+    {
+        $this->__load();
+        return parent::getOrganization();
     }
 
     public function setStatus($status)
@@ -285,7 +309,7 @@ class UsersProxy extends \Users implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'pkId', 'userName', 'password', 'email', 'cellNumber', 'recordId', 'loginId', 'designation', 'department', 'photo', 'address', 'phoneNumber', 'status', 'loggedAt', 'failedAt', 'failedQuantity', 'auth', 'location', 'createdBy', 'role', 'stakeholder');
+        return array('__isInitialized__', 'pkId', 'userName', 'password', 'email', 'cellNumber', 'recordId', 'loginId', 'designation', 'department', 'country', 'photo', 'address', 'phoneNumber', 'organization', 'status', 'loggedAt', 'failedAt', 'failedQuantity', 'auth', 'location', 'createdBy', 'role', 'stakeholder');
     }
 
     public function __clone()

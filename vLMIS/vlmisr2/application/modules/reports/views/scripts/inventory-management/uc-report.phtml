@@ -115,7 +115,7 @@ if (!empty($sel_month)) {
         mygrid.selMultiRows = true;
         mygrid.setImagePath("<?php echo $this->baseUrl(); ?>/common/reports/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
         mygrid.setHeader("<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'><?php echo "Union Council Report For Province/Region = '$this->province_name'  District = '$this->district_name' Tehsil = '$this->tehsil_name'  Product = '$this->item_name'  (" . date('F', mktime(0, 0, 0, $sel_month)) . ' ' . $sel_year . ")"; ?></div>,#cspan,#cspan,#cspan,#cspan,#cspan");
-        mygrid.attachHeader("<span title='<?php echo $col_caption; ?>'><?php echo $col_caption; ?></span>,<span title='Product Consumption'>Consumption (Doses)</span>,<span title='Average Monthly Consumption'>AMC (Doses)</span>,<span title='Product On Hand'>On Hand (Doses)</span>,<span title='Months of Scale'>Months of Scale (MOS)</span>,#cspan");
+        mygrid.attachHeader("<span title='<?php echo $col_caption; ?>'><?php echo $col_caption; ?></span>,<span title='Product Consumption'>Consumption (Doses)</span>,<span title='Average Monthly Consumption'>AMC (Doses)</span>,<span title='Product On Hand'>Product On Hand (Doses)</span>,<span title='Months of Scale'>Months of Scale (MOS)</span>,#cspan");
         mygrid.setInitWidths("150,*,*,*,40,100");
         mygrid.setColAlign("left,right,right,right,center,center");
         //mygrid.setColSorting("str,int");

@@ -14,12 +14,16 @@ StockReceiveFromScanner:
       type: integer
       unsigned: false
       nullable: true
-    vvmStage:
-      type: integer
-      unsigned: false
-      nullable: true
-      column: vvm_stage
   oneToOne:
+    vvmStage:
+      targetEntity: VvmStages
+      cascade: {  }
+      mappedBy: null
+      inversedBy: null
+      joinColumns:
+        vvm_stage:
+          referencedColumnName: pk_id
+      orphanRemoval: false
     placementLocation:
       targetEntity: PlacementLocations
       cascade: {  }

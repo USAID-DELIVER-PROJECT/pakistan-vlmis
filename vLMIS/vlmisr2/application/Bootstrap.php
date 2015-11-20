@@ -27,18 +27,20 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap {
      * Initialize custom route for API
      */
     protected function _initCustomRoute() {
+
         $router = Zend_Controller_Front::getInstance()->getRouter();
-        /*$router->addRoute('authenticate-user', new Zend_Controller_Router_Route('authenticate-user', array(
-            'module' => 'api',
-            'controller' => 'index',
-            'action' => 'authenticate-user'
-        )));*/
+        /* $router->addRoute('authenticate-user', new Zend_Controller_Router_Route('authenticate-user', array(
+          'module' => 'api',
+          'controller' => 'index',
+          'action' => 'authenticate-user'
+          ))); */
     }
 
     /**
      * Initialize configuration values
      */
     protected function _initConfig() {
+        ini_set('memory_limit', '-1');
         $configFile = APPLICATION_PATH . '/configs/application.ini';
         $config = new Zend_Config_Ini($configFile, APPLICATION_ENV);
         Zend_Registry::set('config', $config);
@@ -50,19 +52,23 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap {
         Zend_Registry::set('lang_support', $config->app->language_support);
         Zend_Registry::set('api_from_date', $config->app->api_from_date);
         Zend_Registry::set('barcode_products', $config->app->barcode_products);
-        
-        $dateobj = new DateTime(date("Y-m-d"));
-        $dateobj->modify("-1 month");
+        Zend_Registry::set('smtpConfig', $config->smtpConfig);
+
+        $dateobj = new DateTime('-2 month');
+        //$dateobj = new DateTime('last day of last month');
         Zend_Registry::set('report_month', $dateobj->format("Y-m"));
     }
 
     /**
      * Initialize application autoloader
      */
-    protected function _initAppAutoload() {
-        $moduleLoader = new Zend_Application_Module_Autoloader(array(
+    protected function _initAutoload() {
+        $autoloader = new Zend_Application_Module_Autoloader(array(
             'namespace' => '',
-            'basePath' => APPLICATION_PATH));
+            'basePath' => dirname(__FILE__),
+        ));
+
+        return $autoloader;
     }
 
     protected function _initDoctrine() {
@@ -85,7 +91,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap {
         $config->setProxyDir($options['doctrine']['metadata']['proxyDir']);
         $config->setProxyNamespace('Doctrine\Proxy');
         $config->setAutoGenerateProxyClasses(true);
-        //$config->setAutoGenerateProxyClasses((APPLICATION_ENV == 'development'));
+        $config->setAutoGenerateProxyClasses((APPLICATION_ENV == 'development'));
         //$driverImpl = $config->newDefaultAnnotationDriver($options['metadata']['entityDir']);
         $driverImpl = new Doctrine\ORM\Mapping\Driver\YamlDriver($options['doctrine']['metadata']['entityDir']);
 
@@ -109,4 +115,11 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap {
         }
     }
 
+    /* public function _initBootstrap2(EventInterface $e) {
+      $app = $e->getApplication();
+      $sem = $app->getEventManager()->getSharedManager();
+      $sem->attach('Application\Controller\IndexController', 'MyEvent', function($e) {
+      exit("Hello");
+      });
+      } */
 }

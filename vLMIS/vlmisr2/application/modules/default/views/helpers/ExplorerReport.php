@@ -9,24 +9,23 @@ class Zend_View_Helper_ExplorerReport extends Zend_View_Helper_Abstract {
     public function ajaxExplorerReport($stkid, $wh_id, $yy, $mm) {
         $stakeholder_item_ids = "";
         $em = Zend_Registry::get('doctrine');
-        $str_sql = $em->createQueryBuilder()
+        /*$str_sql = $em->createQueryBuilder()
                 ->select("ips.pkId")
                 ->from('StakeholderItemPackSizes', 'si')
-                ->innerJoin("si.itemPackSize", "ips")
-                ->where("si.stakeholder = " . $stkid);
+                ->innerJoin("si.itemPackSize", "ips");
         $row = $str_sql->getQuery()->getResult();
         foreach ($row as $val) {
             $stakeholder_items[] = $val['pkId'];
         }
-        $stakeholder_item_ids = implode(",", $stakeholder_items);
+        $stakeholder_item_ids = implode(",", $stakeholder_items);*/
         
         $str_sql = $em->createQueryBuilder()
                 ->select('DISTINCT ips.itemName as item_name, ips.pkId as pk_id, ips.numberOfDoses as description')
                 ->from("ItemPackSizes", "ips")                
                 ->innerJoin("ips.itemCategory", "ic")
                 ->where("ips.status = 1")
-                ->andWhere("ic.pkId <> 3")
-                ->andWhere("ips.pkId IN (" . $stakeholder_item_ids . ")")
+                ->andWhere("ic.pkId = 1")
+                //->andWhere("ips.pkId IN (" . $stakeholder_item_ids . ")")
                 ->orderBy("ips.listRank", "ASC");
         $rows = $str_sql->getQuery()->getResult();
         if (!empty($rows) && count($rows) > 0) {

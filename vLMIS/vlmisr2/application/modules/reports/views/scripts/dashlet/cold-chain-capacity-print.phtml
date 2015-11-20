@@ -15,7 +15,6 @@
         border: 1px solid #444;
     }
 </style>
-
 <style type="text/css" media="print">
     .page{
         -webkit-transform: rotate(-90deg); -moz-transform:rotate(-90deg);
@@ -36,10 +35,10 @@
     <div class="col-md-12">
         <table id="mytable">
             <tr>
-                <th class="left">Cold Room</th>
+                <th>Cold Room</th>
                 <th class="right">Gross (In Litres)</th>
                 <th class="right">Net Usable (In Litres)</th>
-                <th class="right">Being Used (In Litres)</th>
+                <th class="right" colspan="2">Being Used (In Litres/Percentage)</th>
             </tr>
             <?php foreach ($this->data as $row) { ?>
                 <tr>
@@ -47,6 +46,7 @@
                     <td class="right"><?php echo number_format($row['gross']); ?></td>
                     <td class="right"><?php echo number_format($row['net_usable']); ?></td>
                     <td class="right"><?php echo number_format($row['being_used']); ?></td>
+                    <td class="right"><?php echo ROUND($row['being_used'] * 100 / $row['net_usable']); ?>%</td>
                 </tr>
             <?php } ?>
         </table>

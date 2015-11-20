@@ -90,6 +90,16 @@ class HfDataMaster
     private $modifiedDate;
 
     /**
+     * @var integer $itemAmc
+     */
+    private $itemAmc;
+
+    /**
+     * @var integer $cbas
+     */
+    private $cbas;
+
+    /**
      * @var Users
      */
     private $createdBy;
@@ -413,6 +423,46 @@ class HfDataMaster
     public function getModifiedDate()
     {
         return $this->modifiedDate;
+    }
+
+    /**
+     * Set itemAmc
+     *
+     * @param integer $itemAmc
+     */
+    public function setItemAmc($itemAmc)
+    {
+        $this->itemAmc = $itemAmc;
+    }
+
+    /**
+     * Get itemAmc
+     *
+     * @return integer 
+     */
+    public function getItemAmc()
+    {
+        return $this->itemAmc;
+    }
+
+    /**
+     * Set cbas
+     *
+     * @param integer $cbas
+     */
+    public function setCbas($cbas)
+    {
+        $this->cbas = $cbas;
+    }
+
+    /**
+     * Get cbas
+     *
+     * @return integer 
+     */
+    public function getCbas()
+    {
+        return $this->cbas;
     }
 
     /**

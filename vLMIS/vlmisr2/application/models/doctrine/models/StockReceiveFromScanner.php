@@ -20,7 +20,7 @@ class StockReceiveFromScanner
     private $quantity;
 
     /**
-     * @var integer $vvmStage
+     * @var VvmStages
      */
     private $vvmStage;
 
@@ -68,9 +68,9 @@ class StockReceiveFromScanner
     /**
      * Set vvmStage
      *
-     * @param integer $vvmStage
+     * @param VvmStages $vvmStage
      */
-    public function setVvmStage($vvmStage)
+    public function setVvmStage(\VvmStages $vvmStage)
     {
         $this->vvmStage = $vvmStage;
     }
@@ -78,7 +78,7 @@ class StockReceiveFromScanner
     /**
      * Get vvmStage
      *
-     * @return integer 
+     * @return VvmStages 
      */
     public function getVvmStage()
     {

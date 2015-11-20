@@ -96,7 +96,7 @@ if (!empty($sel_month)) {
                     mygrid.setImagePath("<?php echo $this->baseUrl(); ?>/common/reports/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
                     mygrid.setHeader("<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'><?php echo "Provincial/Regional Store-Stock on Hand (doses) (" . date('F', mktime(0, 0, 0, $this->month_sel)) . ' ' . $this->year_sel . ") " ?><?php echo $cspan; ?>");
                     mygrid.attachHeader("<?php echo $header; ?>");
-                    //mygrid.attachHeader("<?php //echo $header1;          ?>");
+                    //mygrid.attachHeader("<?php //echo $header1;           ?>");
                     mygrid.setInitWidths("<?php echo $width; ?>");
                     //mygrid.setColAlign("left,right,right,right,right,right,right,right,right,right,right,right,right");
                     //mygrid.setColSorting("str,int");
@@ -111,7 +111,7 @@ if (!empty($sel_month)) {
                 }
             </script>
             <table width="99%">
-                 <tr>
+                <tr>
                     <td colspan="2">
                         <?php
                         echo App_Controller_Functions::getPageNarrative(Zend_Registry::get('resource'));
@@ -123,7 +123,7 @@ if (!empty($sel_month)) {
                         <?php echo $this->render('inventory-management/reports-header.phtml') ?>
                     </td>
                 </tr>
-               
+
                 <tr>
                     <td colspan="2" style="text-align:right; padding-bottom:10px;">
                         <img style="cursor:pointer;" src="<?php echo $this->baseUrl(); ?>/images/pdf-32.png" onClick="mygrid.toPDF('<?php echo $this->baseUrl(); ?>/common/reports/dhtmlxGrid/dhtmlxGrid/grid2pdf/server/generate.php');" title="<?php echo $this->translate("Export to PDF"); ?>"/>&nbsp;&nbsp;

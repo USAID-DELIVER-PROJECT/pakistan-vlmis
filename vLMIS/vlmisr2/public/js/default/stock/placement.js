@@ -23,7 +23,7 @@ $(function() {
         },
         messages: {
             area: {
-                required: "Please select area."
+                required: "Please select store."
             },
             row: {
                 required: "Please select row."
@@ -35,10 +35,10 @@ $(function() {
                 required: "Please select rack type."
             },
             pallet: {
-                required: "Please select pallet."
+                required: "Please select shelf."
             },
             level: {
-                required: "Please select level."
+                required: "Please select bin."
             }
         }
     });
@@ -55,8 +55,7 @@ $(function() {
         });
     });
 
-  $('[data-toggle="notyfy"]').click(function()
-    {
+  $('[data-toggle="notyfy"]').click(function() {
         $.notyfy.closeAll();
         var self = $(this);
 

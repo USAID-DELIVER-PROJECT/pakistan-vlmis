@@ -9,6 +9,8 @@ $parameters = $this->parameters;
 $parameter_width = $this->parameter_width;
 $sel_month = $this->month_sel;
 $sel_year = $this->year_sel;
+$from_sel_month = $this->from_month_sel;
+$from_sel_year = $this->from_year_sel;
 $sel_item = $this->sel_item;
 $sel_prov = $this->prov_sel;
 $sel_dist = $this->sel_dist;
@@ -18,7 +20,7 @@ $sel_uc = $this->sel_uc;
 $lvl_stktype = '';
 $sel_indicator = $this->sel_indicator;
 $geo_level_id = $this->geo_level_id;
- $sel_level = $this->sel_level;
+$sel_level = $this->sel_level;
 
 $wh_type = $this->wh_type;
 
@@ -43,13 +45,21 @@ if (!empty($sel_month)) {
                             $report_id !== 'STOCKOUTRPT' &&
                             $report_id !== 'SNASUMSTOCKLOC' &&
                             $report_id !== 'SNONREPDIST' &&
+                            $report_id !== 'SNONREPDIST1' &&
+                            $report_id !== 'VCOVERAGE' &&
+                            $report_id !== 'PVCOVERAGE' &&
+                            $report_id !== 'STOREISSUANCEREPORT' &&
+                            $report_id !== 'VSTATUSWASTAGE' &&
+                            $report_id !== 'VDROPOUTRATE' &&
                             $report_id !== "CENTRALWAREHOUSE" &&
+                            $report_id !== "STOCKMOVEMENT" &&
                             $report_id !== "PROVINCIALWAREHOUSE" &&
                             $report_id !== "UCWISE1" &&
                             $report_id !== "UCWISE2" &&
-                             $report_id !== "UCWISE3" &&
+                            $report_id !== "UCWISE3" &&
                             $report_id !== "REPORTEDPROVINCES" &&
                             $report_id !== "REPORTEDBYUC" &&
+                            $report_id !== "WASTAGESREPORTING" &&
                             $report_id !== "REPORTEDFacility" &&
                             $report_id !== "REPORTEDUSERS" &&
                             $report_id !== "SOH" &&
@@ -93,7 +103,7 @@ if (!empty($sel_month)) {
                         <!-- // Widget Heading END -->
                         <div class="widget-body">
                             <table cellpadding="0" cellspacing="0" border="0" width="100%">
-                                <?php //}          ?>
+                                <?php //}  ?>
                                 <tr valign="top">
                                     <!-- TimePeriod -->
                                     <?php
@@ -149,6 +159,7 @@ if (!empty($sel_month)) {
                                                 $report_id == "DISTRICTWAREHOUSE" ||
                                                 $report_id == "PRODUCTDISTRICTWAREHOUSE" ||
                                                 $report_id == "CENTRALWAREHOUSE" ||
+                                                $report_id == "STOCKMOVEMENT" ||
                                                 $report_id == "REPORTEDPROVINCES" ||
                                                 $report_id == "SHIPMENTREPORT" ||
                                                 $report_id == "WASTAGESREPORTING" ||
@@ -180,7 +191,73 @@ if (!empty($sel_month)) {
                                         }
                                         ?>
                                         <?php
+                                        if ($report_id == "VDROPOUTRATE" || $report_id == "VSTATUSWASTAGE" || $report_id == "SNONREPDIST") {
+                                            ?>
+                                            <td style="width:65px; padding-right: 5px;">
+                                                <label>From Month:</label>
+                                                <select name="from_month_sel" id="from_month_sel" class="form-control input-sm input-small">
+                                                    <?php if ($paramTsel == 1) { ?>
+                                                        <option value=""><?php echo $this->translate("Select"); ?></option>
+                                                    <?php } ?>
+                                                    <?php if ($paramTall == 1) { ?>
+                                                        <option value="all"><?php echo $this->translate("All"); ?></option>
+                                                    <?php } ?>
+
+                                                    <?php
+                                                    for ($i = 1; $i <= 12; $i++) {
+                                                        if ($from_sel_month == $i) {
+                                                            $sel = "selected='selected'";
+                                                        } else if ($i == 1) {
+                                                            $sel = "selected='selected'";
+                                                        } else {
+                                                            $sel = "";
+                                                        }
+                                                        ?>
+                                                        <option value="<?php echo $i; ?>"<?php echo $sel; ?> ><?php echo date('M', mktime(0, 0, 0, $i, 1)); ?></option>
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                </select>
+                                            <?php }
+                                            ?>
+                                        </td>   
+                                        <?php
+                                        if (
+                                                $report_id == "VDROPOUTRATE" || $report_id == "VSTATUSWASTAGE" || $report_id == "SNONREPDIST"
+                                        ) {
+                                            ?>
+                                            <td style="width:80px; padding-right: 5px;">
+                                                <label>From Year:</label>
+                                                <select name="from_year_sel" id="from_year_sel" class="form-control input-sm">
+                                                    <?php if ($paramTsel == 1) { ?>
+                                                        <option value=""><?php echo $this->translate("Select"); ?></option>
+                                                    <?php }
+                                                    ?>
+                                                    <?php if ($paramTall == 1) { ?>
+                                                        <option value="all"><?php echo $this->translate("All"); ?></option>
+                                                    <?php }
+                                                    ?>
+                                                    <?php
+                                                    for ($j = date('Y'); $j >= 2014; $j--) {
+                                                        if ($from_sel_year == $j)
+                                                            $sel = "selected='selected'";
+                                                        else
+                                                        if ($j == date("Y"))
+                                                            $sel = "selected='selected'";
+                                                        else
+                                                            $sel = "";
+                                                        ?>
+                                                        <option value="<?php echo $j; ?>" <?php echo $sel; ?> ><?php echo $j; ?></option>
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                </select></td>
+                                        <?php }
+                                        ?>  
+
+                                        <?php
                                         if ($report_id !== "CENTRALWAREHOUSE" &&
+                                                $report_id !== "STOCKMOVEMENT" &&
                                                 $report_id !== "PROVINCIALWAREHOUSE" &&
                                                 $report_id !== "QTRREPORT" &&
                                                 $report_id !== "DISTRICTWAREHOUSE" &&
@@ -188,13 +265,27 @@ if (!empty($sel_month)) {
                                                 $report_id !== "SUBDISTRICTWAREHOUSE" &&
                                                 $report_id !== "REPORTEDPROVINCES" &&
                                                 $report_id !== "SHIPMENTREPORT" &&
+                                                $report_id !== "STOREISSUANCEREPORT" &&
                                                 $report_id !== "WASTAGESREPORTING" &&
                                                 $report_id !== "REPORTEDBYUC" &&
-                                                $report_id !== "DataEntryStatus"
+                                                $report_id !== "DataEntryStatus" &&
+                                                $report_id !== "VCOVERAGE" &&
+                                                $report_id !== "PVCOVERAGE"
                                         ) {
                                             ?>
                                             <td style="width:65px; padding-right: 5px;">
-                                                <label>Month:</label>
+                                                <?php if ($report_id == 'VDROPOUTRATE' || $report_id == "VSTATUSWASTAGE" || $report_id == "SNONREPDIST") {
+                                                    ?>        <label>To Month:</label>
+
+                                                    <?php
+                                                    $cla = "form-control input-sm ";
+                                                } else {
+                                                    ?>
+                                                    <label>Month:</label>
+                                                    <?php
+                                                    $cla = "form-control input-sm input-small";
+                                                }
+                                                ?>
                                                 <select name="month_sel" id="month_sel" class="form-control input-sm input-small">
                                                     <?php if ($paramTsel == 1) { ?>
                                                         <option value=""><?php echo $this->translate("Select"); ?></option>
@@ -227,7 +318,11 @@ if (!empty($sel_month)) {
                                         ) {
                                             ?>
                                             <td style="width:80px; padding-right: 5px;">
-                                                <label>Year:</label>
+                                                <?php if ($report_id == 'VDROPOUTRATE' || $report_id == "VSTATUSWASTAGE" || $report_id == "SNONREPDIST") {
+                                                    ?>        <label>To Year:</label>
+                                                <?php } else { ?>
+                                                    <label>Year:</label>
+                                                <?php } ?>
                                                 <select name="year_sel" id="year_sel" class="form-control input-sm">
                                                     <?php if ($paramTsel == 1) { ?>
                                                         <option value=""><?php echo $this->translate("Select"); ?></option>
@@ -238,7 +333,7 @@ if (!empty($sel_month)) {
                                                     <?php }
                                                     ?>
                                                     <?php
-                                                    for ($j = date('Y'); $j >= 2010; $j--) {
+                                                    for ($j = date('Y'); $j >= 2014; $j--) {
                                                         if ($sel_year == $j)
                                                             $sel = "selected='selected'";
                                                         else
@@ -270,7 +365,7 @@ if (!empty($sel_month)) {
                                                 <?php }
                                                 ?>
                                                 <?php
-                                                for ($j = date('Y'); $j >= 2010; $j--) {
+                                                for ($j = date('Y'); $j >= 2014; $j--) {
                                                     if ($sel_year == $j)
                                                         $sel = "selected='selected'";
                                                     else
@@ -394,51 +489,72 @@ if (!empty($sel_month)) {
                                         ?>
                                         <td style="width:160px; padding-right: 5px;">
                                             <label><?php echo $this->translate("Level"); ?>:</label>
-                                            
-                                            
+
+
                                             <select name="level" id="level" class="col-md-2 form-control input-sm">
-                                                <option value="1" <?php if($sel_level == '1') {echo "selected";} else {} ?> >Region/Province</option>
-                                                <option value="2" <?php if($sel_level == '2') {echo "selected";} else {} ?> >District</option>                
+                                                <option value="1" <?php
+                                                if ($sel_level == '1') {
+                                                    echo "selected";
+                                                } else {
+                                                    
+                                                }
+                                                ?> >Region/Province</option>
+                                                <option value="2" <?php
+                                                if ($sel_level == '2') {
+                                                    echo "selected";
+                                                } else {
+                                                    
+                                                }
+                                                ?> >District</option>                
                                             </select>
 
                                         </td>
 
                                     <?php } ?>
-                                    <td style="width:160px; padding-right: 5px;">
-                                        <label><?php echo $this->translate("Province Region"); ?>:</label>
-                                        <select name="prov_sel" id="prov_sel" class="col-md-2 form-control input-sm">
-                                            <?php
-                                            if ($report_id != "TEHSILREPORT" &&
-                                                    $report_id != 'SNONREPDIST' &&
-                                                    $report_id != 'SDISTRICTREPORT' &&
-                                                    $report_id != 'UCREPORT') {
-                                                ?>
-                                                <option value=""><?php echo $this->translate("Select"); ?></option>
-                                            <?php } ?>
-                                            <?php
-                                            foreach ($this->location as $rowprov) {
-                                               
-                                                if ($sel_prov == $rowprov['pk_id'])
-                                                    $sel = "selected='selected'";
-                                                else
-                                                    $sel = "";
-                                                ?>
-                                                <option value="<?php echo $rowprov['pk_id']; ?>" <?php echo $sel; ?>><?php echo $rowprov['location_name']; ?></option>
+                                    <?php
+                                    if ($report_id != "REPORTEDBYUC" && $report_id != "WASTAGESREPORTING" && $report_id != "SNONREPDIST" && $report_id != "VCOVERAGE" && $report_id != "PVCOVERAGE" && $report_id != "STOREISSUANCEREPORT" && $report_id != "VSTATUSWASTAGE" && $report_id != "VDROPOUTRATE" || $report_id == "SNONREPDIST1") {
+                                        ?>       
+                                        <td style="width:160px; padding-right: 5px;">
+                                            <label><?php echo $this->translate("Province Region"); ?>:</label>
+                                            <select name="prov_sel" id="prov_sel" class="col-md-2 form-control input-sm">
                                                 <?php
-                                            }
-                                            ?>
-                                        </select>
+                                                if ($report_id != "TEHSILREPORT" &&
+                                                        $report_id != 'SNONREPDIST' &&
+                                                        $report_id != 'SNONREPDIST1' &&
+                                                        $report_id != 'VCOVERAGE' &&
+                                                        $report_id != 'PVCOVERAGE' &&
+                                                        $report_id != 'STOREISSUANCEREPORT' &&
+                                                        $report_id != 'VSTATUSWASTAGE' &&
+                                                        $report_id != 'VDROPOUTRATE' &&
+                                                        $report_id != 'SDISTRICTREPORT' &&
+                                                        $report_id != 'UCREPORT') {
+                                                    ?>
+                                                    <option value=""><?php echo $this->translate("Select"); ?></option>
+                                                <?php } ?>
+                                                <?php
+                                                foreach ($this->location as $rowprov) {
 
-                                    </td>
+                                                    if ($sel_prov == $rowprov['pk_id'])
+                                                        $sel = "selected='selected'";
+                                                    else
+                                                        $sel = "";
+                                                    ?>
+                                                    <option value="<?php echo $rowprov['pk_id']; ?>" <?php echo $sel; ?>><?php echo $rowprov['location_name']; ?></option>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </select>
 
+                                        </td>
 
+                                    <?php } ?>
 
 
 
 
 
                                     <?php
-                                    if ($report_id == "TEHSILREPORT" || $report_id == 'SNONREPDIST') {
+                                    if ($report_id == "TEHSILREPORT" || $report_id == "DISTRICTWAREHOUSE") {
                                         ?>
                                         <td style="width:160px; padding-right: 5px;">
                                             <div id="wh_combo">
@@ -459,7 +575,7 @@ if (!empty($sel_month)) {
                                         </td>
                                     <?php } ?>
                                     <?php
-                                    if ($report_id === "PRODUCTDISTRICTWAREHOUSE" || $report_id === "PROVINCIALWAREHOUSE" || $report_id === "UCWISE1" || $report_id === "UCWISE2" || $report_id === "UCWISE3") {
+                                    if ($report_id === "PRODUCTDISTRICTWAREHOUSE" || $report_id === "PROVINCIALWAREHOUSE" || $report_id === "UCWISE1" || $report_id === "UCWISE2" || $report_id === "UCWISE3" || $report_id === "SNONREPDIST1") {
                                         ?>
                                         <td style="width:125px; padding-right: 5px;">
                                             <div id="wh_combo">
@@ -612,6 +728,7 @@ if (!empty($sel_month)) {
                                     ?>
                                     <?php
                                     if ($report_id !== "CENTRALWAREHOUSE" &&
+                                            $report_id !== "STOCKMOVEMENT" &&
                                             $report_id !== "PROVINCIALWAREHOUSE" &&
                                             $report_id !== "UCWISE1" &&
                                             $report_id !== "UCWISE2" &&
@@ -620,9 +737,14 @@ if (!empty($sel_month)) {
                                             $report_id !== "REPORTEDBYUC" &&
                                             $report_id !== "SHIPMENTREPORT" &&
                                             $report_id !== "DataEntryStatus" &&
-                                            $report_id !== "PRODUCTDISTRICTWAREHOUSE") {
+                                            $report_id !== "PRODUCTDISTRICTWAREHOUSE" &&
+                                            $report_id !== "SNONREPDIST" &&
+                                            $report_id !== "SNONREPDIST1" &&
+                                            $report_id !== "VCOVERAGE" &&
+                                            $report_id !== "VDROPOUTRATE"
+                                    ) {
                                         ?>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <!--                        <td width="9%" class="sb1NormalFont" bgcolor="#FFFFFF">Product:</td>-->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <!--                        <td width="9%" class="sb1NormalFont" bgcolor="#FFFFFF">Product:</td>-->
                                         <td style="width:160px; padding-right: 5px;">
                                             <label><?php echo $this->translate("Product"); ?>:</label>
                                             <select name="prod_sel" id="prod_sel" class="col-md-2 form-control input-sm">
@@ -630,7 +752,7 @@ if (!empty($sel_month)) {
                                                     <option value=""><?php echo $this->translate("Select"); ?></option>
                                                 <?php }
                                                 ?>
-                                               
+
                                                 <?php
                                                 foreach ($this->item_id as $items) {
                                                     if ($items['pkId'] == $sel_item) {
@@ -701,7 +823,7 @@ if (!empty($sel_month)) {
                                         </td>
                                         <?php
                                     }
-                                    if ($report_id == "CENTRALWAREHOUSE") {
+                                    if ($report_id == "CENTRALWAREHOUSE" || $report_id == "STOCKMOVEMENT") {
                                         ?>
                                         <td style="width:160px; padding-right: 5px;">
                                             <label>Indicator:</label>
@@ -711,11 +833,14 @@ if (!empty($sel_month)) {
                                                     echo 'selected="selected"';
                                                 }
                                                 ?>><?php echo $this->translate("Issued"); ?></option>
-                                                <option value="2" <?php
-                                                if (!empty($sel_indicator) && $sel_indicator == 2) {
-                                                    echo 'selected="selected"';
-                                                }
-                                                ?>><?php echo $this->translate("Stock on Hand"); ?></option>
+                                                        <?php if ($report_id == "CENTRALWAREHOUSE") { ?>
+                                                    <option value="2" <?php
+                                                    if (!empty($sel_indicator) && $sel_indicator == 2) {
+                                                        echo 'selected="selected"';
+                                                    }
+                                                    ?>><?php echo $this->translate("Stock on Hand"); ?></option>
+
+                                                <?php } ?>
                                                 <option value="3" <?php
                                                 if (!empty($sel_indicator) && $sel_indicator == 3) {
                                                     echo 'selected="selected"';
@@ -726,12 +851,21 @@ if (!empty($sel_month)) {
                                         <?php
                                     }
 
-                                    if ($report_id == "CENTRALWAREHOUSE" || $report_id == "SHIPMENTREPORT" || $report_id == "DataEntryStatus") {
+                                    if ($report_id == "CENTRALWAREHOUSE" || $report_id == "STOCKMOVEMENT" || $report_id == "SHIPMENTREPORT" || $report_id == "STOREISSUANCEREPORT" || $report_id == "DataEntryStatus" || $report_id == "REPORTEDBYUC" || $report_id == "VSTATUSWASTAGE" || $report_id == "VDROPOUTRATE" || $report_id == "SNONREPDIST" || $report_id == "WASTAGESREPORTING" || $report_id == "PVCOVERAGE") {
                                         ?>
-                                        <td style="width:160px; margin-right:10px;">
-                                            <?php if ($report_id == "CENTRALWAREHOUSE" || $report_id == "SHIPMENTREPORT") { ?>
-                                                <label><?php echo $this->translate("Warehouse"); ?>:</label>
+                                        <td 
+                                        <?php if ($report_id == "WASTAGESREPORTING" || $report_id == "REPORTEDBYUC" || $report_id == "SNONREPDIST" || $report_id == "VCOVERAGE" || $report_id == "VSTATUSWASTAGE" || $report_id == "VDROPOUTRATE" || $report_id == "SHIPMENTREPORT" || $report_id == "STOREISSUANCEREPORT") { ?>
+                                                style="width:60px; margin-right:10px;"
                                             <?php } else { ?>
+                                                style="width:140px; margin-right:10px;"
+                                            <?php } ?>
+                                            >
+                                                <?php if ($report_id == "CENTRALWAREHOUSE" || $report_id == "SHIPMENTREPORT" || $report_id == "STOREISSUANCEREPORT") { ?>
+                                                <label>Warehouse:</label>
+                                            <?php } elseif ($report_id == "STOCKMOVEMENT") { ?>
+                                                <label>From Warehouse:</label>
+                                            <?php } else {
+                                                ?>
                                                 <label><?php echo $this->translate("Office"); ?>:</label>
                                             <?php } ?>
                                             <select name="wh_type" id="wh_type" class="col-md-2 form-control input-sm input-small">
@@ -740,7 +874,10 @@ if (!empty($sel_month)) {
                                                     echo 'selected="selected"';
                                                 }
                                                 ?>>All</option>-->
-                                                <?php if ($this->report_id1 != 'STATUSREPORT') { ?>
+                                                <?php
+                                                // echo $this->report_id;
+                                                if ($this->report_id1 != 'STATUSREPORT' && $this->report_id != 'REPORTEDBYUC' && $this->report_id != 'WASTAGESREPORTING' && $this->report_id != 'SNONREPDIST' && $this->report_id != 'VCOVERAGE' && $this->report_id != 'VSTATUSWASTAGE' && $this->report_id != 'VDROPOUTRATE' && $this->report_id != 'PVCOVERAGE') {
+                                                    ?>
                                                     <option value="1" <?php
                                                     if (!empty($wh_type) && $wh_type == 1) {
                                                         echo 'selected="selected"';
@@ -748,31 +885,54 @@ if (!empty($sel_month)) {
                                                     ?>><?php echo $this->translate("Federal"); ?></option>
 
                                                 <?php } ?>
+                                                <?php if ($this->report_id != 'SNONREPDIST' && $this->report_id != 'VCOVERAGE' && $this->report_id != 'VSTATUSWASTAGE' && $this->report_id != 'VDROPOUTRATE') { ?>
+                                                    <option value="2" <?php
+                                                    if (!empty($wh_type) && $wh_type == 2) {
+                                                        echo 'selected="selected"';
+                                                    }
+                                                    ?>><?php echo $this->translate("Provincial"); ?></option>
+                                                        <?php } ?>
 
-                                                <option value="2" <?php
-                                                if (!empty($wh_type) && $wh_type == 2) {
-                                                    echo 'selected="selected"';
-                                                }
-                                                ?>><?php echo $this->translate("Provincial"); ?></option>
+                                                <?php if ($this->report_id == 'SHIPMENTREPORT') {
+                                                    ?>
+                                                    <option value="3" <?php
+                                                    if (!empty($wh_type) && $wh_type == 3) {
+                                                        echo 'selected="selected"';
+                                                    }
+                                                    ?>><?php echo $this->translate("Divisional"); ?></option>
+                                                        <?php } ?>   
+
                                                 <option value="4" <?php
                                                 if (!empty($wh_type) && $wh_type == 4) {
                                                     echo 'selected="selected"';
                                                 }
                                                 ?>><?php echo $this->translate("District"); ?></option>
-                                                <option value="5" <?php
-                                                if (!empty($wh_type) && $wh_type == 5) {
-                                                    echo 'selected="selected"';
-                                                }
-                                                ?>><?php echo $this->translate("Tehsil"); ?></option>
+
+                                                <?php
+                                                // echo $this->report_id;
+                                                if ($this->report_id != 'REPORTEDBYUC' && $this->report_id != 'WASTAGESREPORTING' && $this->report_id != 'PVCOVERAGE') {
+                                                    ?>
+                                                    <option value="5" <?php
+                                                    if (!empty($wh_type) && $wh_type == 5) {
+                                                        echo 'selected="selected"';
+                                                    }
+                                                    ?>><?php echo $this->translate("Tehsil"); ?></option>
+                                                        <?php } ?>
                                             </select>
                                         </td>
-                                        <?php
-                                    }
-                                    if ($report_id == "SHIPMENTREPORT" || $report_id == "DataEntryStatus") {
+                                    <?php } ?>
+                                    <?php
+                                    if ($report_id == "SHIPMENTREPORT" || $report_id == "DataEntryStatus" || $report_id == "REPORTEDBYUC" || $report_id == "SNONREPDIST" || $report_id == "VCOVERAGE" || $report_id == "PVCOVERAGE" || $report_id == "STOREISSUANCEREPORT" || $report_id == "VSTATUSWASTAGE" || $report_id == "VDROPOUTRATE" || $report_id == "WASTAGESREPORTING") {
                                         ?>
-                                        <td id="province_combo" style="display:none; width:160px; padding-right:10px;" >
+                                        <td id="province_combo" style="display:none; width:160px; padding-right:10px; padding-left:10px;" >
                                             <label>Province/Region:</label>
                                             <select name="province" id="province" class="col-md-2 form-control input-sm">
+                                                <option value="">Loading...</option>
+                                            </select>
+                                        </td>
+                                        <td id="division_combo" style="display:none; width:160px; padding-right:15px;">
+                                            <label>Division:</label>
+                                            <select name="division" id="division" class="col-md-2 form-control input-sm">
                                                 <option value="">Loading...</option>
                                             </select>
                                         </td>
@@ -791,7 +951,7 @@ if (!empty($sel_month)) {
                                         <?php
                                     }
 
-                                    if ($report_id == "CENTRALWAREHOUSE") {
+                                    if ($report_id == "CENTRALWAREHOUSE" || $report_id == "STOCKMOVEMENT") {
                                         if (!empty($this->wh_prov_sel) && ($this->wh_type == 4 || $this->wh_type == 5)) {
                                             $display = 'display:table-cell !important;';
                                         } else {
@@ -818,9 +978,9 @@ if (!empty($sel_month)) {
                                         <?php
                                     }
 
-                                    if ($report_id == "CENTRALWAREHOUSE") {
+                                    if ($report_id == "CENTRALWAREHOUSE" || $report_id == "STOCKMOVEMENT") {
                                         ?>
-                                        <td style="width:180px; margin-right:10px;">
+                                        <td style="width:160px; margin-right:10px;">
                                             <label>Store:</label>
                                             <select name="warehouse_id" id="warehouse_id" class="col-md-2 form-control input-sm">
                                                 <?php
@@ -854,6 +1014,8 @@ if (!empty($sel_month)) {
                                     }
                                 }
                                 ?>
+
+
                                 <td> <!-- bgcolor="#FFFFFF" style="margin-left:20px; padding-top: 14px;" valign="middle" 
                                     <input type="submit" name="go" id="go" value="GO" class="btn btn-primary input-sm" />-->
                                     <div class="controls" style="margin: 20px 0 0 10px;">
@@ -938,6 +1100,10 @@ if (!empty($sel_month)) {
                     }
                 }
                 ?> </tr>
+
+
+
+
 
         </tbody>
     </table>

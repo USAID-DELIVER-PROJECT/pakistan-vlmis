@@ -2,7 +2,7 @@
 <div class="page-content-wrapper">
     <div class="page-content">
         <h3 class="page-title">
-            Stock Sufficiency Report 
+            Stock Sufficiency Report (Federal EPI Store)
         </h3>
         <?php if ($this->role_id == 2 || $this->role_id == 22) { ?>
             <div class="row">
@@ -46,28 +46,30 @@
                                 <th class="col-md-2">Stock On Hand</th>
                                 <th class="col-md-2" style="background-color: #CDFFA5;">EPI AMC</th>
                                 <th class="center col-md-2" style="background-color: #CDFFA5;">MOS (EPI AMC)</th>
-                                <th class="col-md-2" style="background-color: #C0DDF9;">Avg. Issue/Month</th>                                
-                                <th class="center col-md-2" style="background-color: #C0DDF9;">MOS (Avg. Issuance)<span style="color: red;">**</span></th>
+                                <th class="col-md-2" style="background-color: #C0DDF9;">Shipment Quantity</th>
+                                <th class="col-md-2" style="background-color: #C0DDF9;">Projected SOH</th>
+                                <th class="col-md-2" style="background-color: #C0DDF9;">Projected MOS</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
                             $count = 1;
                             foreach ($this->result as $row) {
-                                $month6 = ROUND($row['soh'] / $row['avg_issue'],1);
+                                $month6 = ROUND($row['soh'] / $row['amc'], 1);
                                 //if ($month6 < 12) {
-                                    ?>
-                                    <tr>
-                                        <td><?php echo $count; ?></th>
-                                        <td><?php echo $row['item_name']; ?></td>
-                                        <td class="right"><?php echo number_format($row['soh']); ?></td>
-                                        <td style="background-color: #CDFFA5;" class="right"><?php echo number_format($row['amc']); ?></td>
-                                        <td class="center" style="background-color: #CDFFA5;"><?php echo ROUND($row['soh']/$row['amc'],2)." months"; ?></td>
-                                        <td class="right" style="background-color: #C0DDF9;"><?php echo number_format(ROUND($row['avg_issue'])); ?></td>
-                                        <td class="center" style="background-color: #C0DDF9;"><?php echo ($month6 > 0) ? $month6 . " months" : ''; ?></td>                                        
-                                    </tr>
-                                    <?php
-                                    $count++;
+                                ?>
+                                <tr>
+                                    <td><?php echo $count; ?></td>
+                                    <td><?php echo $row['item_name']; ?></td>
+                                    <td class="right"><?php echo number_format($row['soh']); ?></td>
+                                    <td style="background-color: #CDFFA5;" class="right"><?php echo number_format($row['amc']); ?></td>
+                                    <td class="center" style="background-color: #CDFFA5;"><?php echo ROUND($row['soh'] / $row['amc'], 2) . " months"; ?></td>
+                                    <td class="right" style="background-color: #C0DDF9;"><?php echo number_format($row['quantity']); ?></td>
+                                    <td class="right" style="background-color: #C0DDF9;"><?php echo number_format($row['soh']+$row['quantity']); ?></td> 
+                                    <td class="center" style="background-color: #C0DDF9;"><?php echo ROUND(($row['soh']+$row['quantity'])/$row['amc'], 2) . " months"; ?></td>                                      
+                                </tr>
+                                <?php
+                                $count++;
                                 //}
                             }
                             ?>
@@ -84,11 +86,9 @@
             </div>
         <?php } ?>
         <div class="row">
-            <div class="col-md-3"><span style="color: red;">**</span> - Issuance during year 2014</div>
-            
+            <div class="col-md-12"><span style="color: blue;">Stock Sufficiency report from <?php echo $this->from_date; ?> to <?php echo $this->to_date; ?></span></div>
         </div>
-        
-            <div class="row">
+        <div class="row">
             <div class="col-md-12">
                 <?php
                 require_once 'FusionCharts/Code/PHP/Includes/FusionCharts.php';
@@ -96,6 +96,6 @@
                 echo renderChart($this->baseUrl() . "/FusionCharts/Charts/Column2D.swf", "", $this->xml_store, 'chartContainer', '100%', 395, false, false);
                 ?>
             </div>
-        </div> 
+        </div>
     </div>
 </div>

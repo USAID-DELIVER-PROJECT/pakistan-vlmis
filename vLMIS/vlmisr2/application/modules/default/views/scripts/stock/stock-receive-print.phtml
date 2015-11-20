@@ -85,8 +85,8 @@
                     
                     <td align="left"><?php echo '&nbsp;' . $val['vvm_type_name']; ?></td>
                     <td align="right"><?php echo '&nbsp;' . $val['vvm_stage']; ?></td>
-                    <td align="center"><?php echo date("m/d/y", strtotime($val['production_date'])); ?></td>
-                    <td align="center"> <?php echo date("m/d/y", strtotime($val['expiry_date'])); ?></td>
+                    <td align="center"><?php echo date("d/m/Y", strtotime($val['production_date'])); ?></td>
+                    <td align="center"> <?php echo date("d/m/Y", strtotime($val['expiry_date'])); ?></td>
                 </tr>
                 <?php
             }

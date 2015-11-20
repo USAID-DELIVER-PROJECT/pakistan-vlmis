@@ -1,6 +1,24 @@
-$(function() {
+$(function () {
+
+    $('input[type="text"]').keydown(function (e) {
+        if (e.shiftKey || e.ctrlKey || e.altKey) { // if shift, ctrl or alt keys held down
+            e.preventDefault();         // Prevent character input
+        } else {
+            var n = e.keyCode;
+            if (!((n == 8)              // backspace
+                    || (n == 9)                // Tab
+                    || (n == 46)                // delete
+                    || (n >= 35 && n <= 40)     // arrow keys/home/end
+                    || (n >= 48 && n <= 57)     // numbers on keyboard
+                    || (n >= 96 && n <= 105))   // number on keypad
+                    ) {
+                e.preventDefault();     // Prevent character input
+            }
+        }
+    });
+
     $('#print_stock').click(
-            function() {
+            function () {
                 var searchby, number, warehouses, product, date_from, date_to, all_arguments;
                 searchby = $('#searchby').val();
                 number = $('#number').val();
@@ -80,7 +98,7 @@ $(function() {
 
 
 
-    $("#btn-loading").click(function() {
+    $("#btn-loading").click(function () {
         //alert("here");
         //added by
         var q = 0;
@@ -101,6 +119,13 @@ $(function() {
                     return false;
                 }
             }
+            if (isNaN(inp[i].value))
+            {
+                alert('Quantity should be a number');
+                inp[i].focus();
+                inp[i].value = "";
+                return false;
+            }
         }
 
         if (q == 0)
@@ -116,7 +141,7 @@ $(function() {
                 url: appName + "/stock/ajax-add-stock-placement?" + qtydata,
                 data: {},
                 dataType: 'html',
-                success: function(data) {
+                success: function (data) {
                     window.location.href = window.location + '&success=1';
                     //$('#success').show();       
                 }

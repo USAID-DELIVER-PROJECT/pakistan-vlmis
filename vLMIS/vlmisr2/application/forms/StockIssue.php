@@ -45,11 +45,7 @@ class Form_StockIssue extends Zend_Form {
         'item_id' => array(),
         'number' => array(),
         'vvm_stage' => array(
-            '' => 'NA',
-            '1' => '1 (Usable)',
-            '2' => '2 (Usable)',
-            '3' => '3 (Not Usable)',
-            '4' => '4 (Not Usable)'
+            '' => 'NA'
         ),
         'activity_id' => array(),
         'campaign_id' => array('' => 'Select'),
@@ -58,16 +54,19 @@ class Form_StockIssue extends Zend_Form {
 
     public function init() {
 
-        /*$current_datetime = new DateTime();
-        $start_month = $current_datetime->format("m");
-        $start_year = $current_datetime->format("Y");
-        $month6_datetime = $current_datetime->modify("+6 months");
-        $end_month = $month6_datetime->format("m");
-        $end_year = $month6_datetime->format("Y");
-         * $dateObj = DateTime::createFromFormat('!m', $m);
-                $monthName = $dateObj->format('F');
-         */
-        
+        /* $current_datetime = new DateTime();
+          $monthn3_datetime = $current_datetime->modify("-3 months");
+          echo $monthn3_datetime->format("m")."<br>";
+          $start_month = $monthn3_datetime->format("m");
+          $start_year = $monthn3_datetime->format("Y");
+          $monthp3_datetime = $current_datetime->modify("+9 months");
+          echo $monthp3_datetime->format("m")."<br>";
+
+          $end_month = ceil($monthp3_datetime->format("m")/3);
+          echo $end_month;
+          exit;
+          $end_year = $monthp3_datetime->format("Y"); */
+
         $quarter = array(
             1 => '1st Quarter',
             2 => '2nd Quarter',
@@ -75,9 +74,10 @@ class Form_StockIssue extends Zend_Form {
             4 => '4th Quarter'
         );
         $this->_list["issue_period"][""] = "Select Period";
-        for ($y = 2014; $y <= date("Y") + 1; $y++) {
+
+        for ($y = 2015; $y <= date("Y"); $y++) {
             for ($q = 1; $q <= 4; $q++) {
-                switch ($q){
+                switch ($q) {
                     case 1:
                         $key = "01/01/$y-01/03/$y";
                         break;
@@ -97,14 +97,14 @@ class Form_StockIssue extends Zend_Form {
         $this->_list["issue_period"]["custom"] = "Custom";
 
         //Generate Products(items) Combo
-        $item_pack_sizes = new Model_ItemPackSizes();
-        $items = $item_pack_sizes->getAllWarehouseProducts();
+        //$item_pack_sizes = new Model_ItemPackSizes();
+        //$items = $item_pack_sizes->getAllWarehouseProducts();
         $this->_list["item_id"][''] = "Select";
-        if ($items && count($items) > 0) {
+        /*if ($items && count($items) > 0) {
             foreach ($items as $item) {
                 $this->_list["item_id"][$item['pk_id']] = $item['item_name'];
             }
-        }
+        }*/
 
         //Generate Purpose(activity_id) combo 
         $stk_activities = new Model_StakeholderActivities();
@@ -185,7 +185,6 @@ class Form_StockIssue extends Zend_Form {
                     "registerInArrayValidator" => false,
                     "multiOptions" => $this->_list[$col],
                     "validators" => array(
-                        
                     )
                 ));
                 $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");

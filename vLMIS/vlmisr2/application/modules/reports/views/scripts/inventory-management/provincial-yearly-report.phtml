@@ -40,14 +40,14 @@ foreach ($period as $date) {
     $width .= ',65';
     $ro .= ',ro';
 
-    $query_vals = $this->reports()->getProvincialYearlyReport($sel_indicator, $str_date, $sel_prov,$sel_dist);
+    $query_vals = $this->reports()->getProvincialYearlyReport($sel_indicator, $str_date, $sel_prov, $sel_dist);
 
     foreach ($query_vals as $row) {
         $data_arr[$row['item_pack_size_id']][$count] = $row['total'];
     }
     $count++;
 }
-
+//App_Controller_Functions::pr($data_arr);
 $xml_store = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 $xml_store .= "<rows>";
 
@@ -132,7 +132,7 @@ if (!empty($sel_month)) {
         mygrid.selMultiRows = true;
         mygrid.setImagePath("<?php echo $this->baseUrl(); ?>/common/reports/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
         //mygrid.setHeader("Province,Consumption,AMC,On Hand,MOS,#cspan");
-        mygrid.setHeader("<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'><?php echo "Product wise Provincial Yearly '$this->str_indicator' Report  for  '$this->location_name' (In Doses)"; ?></div>,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan");
+        mygrid.setHeader("<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'><?php echo "Product wise Provincial Yearly '$this->str_indicator' Report  for  '$this->location_name' '$this->district_name' (In Doses)"; ?></div>,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan");
         mygrid.attachHeader("<?php echo $header; ?>");
         mygrid.setInitWidths("<?php echo $width; ?>");
         mygrid.setColTypes("<?php echo $ro; ?>");

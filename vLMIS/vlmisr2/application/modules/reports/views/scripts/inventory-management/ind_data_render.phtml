@@ -23,6 +23,7 @@ if ($v_cb != 'UNK') {
 
 $v_mos = $tmp[3];
 if ($v_mos != 'UNK') {
+    $v_mos1 = ($v_mos / 1);
     $v_mos = number_format($v_mos / 1, 1);
 }
 
@@ -32,7 +33,7 @@ if ($v_cyp != 'UNK') {
 }
 
 
-$b_col = $this->reports()->reportsMos($v_mos, $sel_item, 1, $sel_lvl);
+$b_col = $this->reports()->reportsMos($v_mos1, $sel_item, 1, $sel_lvl);
 
 foreach ($b_col as $result) {
     $bg_color = $result['col'];

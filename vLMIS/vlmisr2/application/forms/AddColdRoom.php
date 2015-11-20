@@ -41,7 +41,7 @@ class Form_AddColdRoom extends Zend_Form {
     private $_radio = array(
         'placed_at' => array(
             "1" => "Unallocated",
-            "2" => "Select Warehouse",
+            "2" => "Select Store",
         ),
         'no_of_phases' => array(
             "1" => "One",

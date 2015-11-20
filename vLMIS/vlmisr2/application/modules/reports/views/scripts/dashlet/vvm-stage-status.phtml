@@ -28,7 +28,6 @@
                         </tr>
                     </thead>
                     <tbody>
-
                         <?php
                         $count = 1;
                         foreach ($this->data as $row) {
@@ -36,17 +35,15 @@
                             <tr>
                                 <td><?php echo $count; ?></td>
                                 <td><?php echo $row['number']; ?></td>
-                                <td><?php echo $row['Qty']; ?></td>
+                                <td><?php echo number_format($row['Qty']); ?></td>
                             </tr>
                             <?php
                             $count++;
                         }
                         ?>
-
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
-

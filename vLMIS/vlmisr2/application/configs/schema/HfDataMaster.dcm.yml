@@ -79,6 +79,16 @@ HfDataMaster:
       type: datetime
       nullable: false
       column: modified_date
+    itemAmc:
+      type: integer
+      unsigned: false
+      nullable: true
+      column: item_amc
+    cbas:
+      type: integer
+      unsigned: false
+      nullable: true
+      column: cbas  
   oneToOne:
     createdBy:
       targetEntity: Users

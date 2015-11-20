@@ -18,13 +18,15 @@ class App_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Helper
         $controller = $front->getRequest()->getControllerName();
         $action = $front->getRequest()->getActionName();
         $translate = Zend_Registry::get('Zend_Translate');
+        $auth = App_Auth::getInstance();
+        $province_id = $auth->getProvinceId();
 
         $resource = ($action == '') ? trim($controller) . '/index' : trim($controller) . '/' . trim($action);
         $resource = ($module == 'default') ? $resource : $module . "/" . $resource;
 
         if ($resource == 'dashboard/index') {
             $parts = parse_url($_SERVER["REQUEST_URI"]);
-            $resource = $resource . "?office=" . $front->getRequest()->getParam('office','');
+            $resource = $resource . "?office=" . $front->getRequest()->getParam('office', '');
         }
 
         $em = Zend_Registry::get("doctrine");
@@ -55,7 +57,7 @@ class App_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Helper
                         <div class="sidebar-toggler hidden-phone"></div>
                         <div class="dashboard-header">
                            <span class=" welcm">
-                           '.$translate->translate("Welcome").'<br>
+                           ' . $translate->translate("Welcome") . '<br>
                            <span class="title">' . ucfirst($username) . '</span>
                            <!-- <img src="' . $baseurl . '/common/assets/img/dashboard.png" alt=""/> -->
                            </span>
@@ -158,6 +160,13 @@ class App_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Helper
                                     $child_status = (in_array($resource, $child_child_pages)) ? "open" : '';
                                     $child_in = (in_array($resource, $child_child_pages)) ? "block" : 'none';
 
+                                    if ($value2->getResource()->getResourceName() == 'stock/issue' && $province_id == 2 && $role_id == 7) {
+                                        continue;
+                                    }
+                                    if ($value2->getResource()->getResourceName() == 'stock/stock-issue' && $province_id != 2 && $role_id != 7) {
+                                        continue;
+                                    }
+
                                     if (count($child_child_pages) > 0) {
                                         $container .= '<li class=" ' . $child_status . '"><a  class="" href="#subsubmenu-' . $child_id . '">
                                             <span>
@@ -203,6 +212,12 @@ class App_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Helper
 
                     $container .= '</li>';
                 } else {
+                    if ($value->getResource()->getResourceName() == 'stock/monthly-consumption' && $province_id == 2) {
+                        continue;
+                    }
+                    if ($value->getResource()->getResourceName() == 'stock/monthly-consumption2' && $province_id != 2) {
+                        continue;
+                    }
                     $status = ($value->getResource()->getResourceName() == $resource) ? "start green-color " : "";
                     $container .= '<li class="' . $status . '">'
                             . '<a href="' . $baseurl . '/' . $value->getResource()->getResourceName() . '">'

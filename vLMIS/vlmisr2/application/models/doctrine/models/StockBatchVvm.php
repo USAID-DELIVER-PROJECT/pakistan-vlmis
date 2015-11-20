@@ -15,14 +15,14 @@ class StockBatchVvm
     private $pkId;
 
     /**
-     * @var integer $vvmStage
-     */
-    private $vvmStage;
-
-    /**
      * @var decimal $quantity
      */
     private $quantity;
+
+    /**
+     * @var VvmStages
+     */
+    private $vvmStage;
 
     /**
      * @var StockBatch
@@ -38,26 +38,6 @@ class StockBatchVvm
     public function getPkId()
     {
         return $this->pkId;
-    }
-
-    /**
-     * Set vvmStage
-     *
-     * @param integer $vvmStage
-     */
-    public function setVvmStage($vvmStage)
-    {
-        $this->vvmStage = $vvmStage;
-    }
-
-    /**
-     * Get vvmStage
-     *
-     * @return integer 
-     */
-    public function getVvmStage()
-    {
-        return $this->vvmStage;
     }
 
     /**
@@ -78,6 +58,26 @@ class StockBatchVvm
     public function getQuantity()
     {
         return $this->quantity;
+    }
+
+    /**
+     * Set vvmStage
+     *
+     * @param VvmStages $vvmStage
+     */
+    public function setVvmStage(\VvmStages $vvmStage)
+    {
+        $this->vvmStage = $vvmStage;
+    }
+
+    /**
+     * Get vvmStage
+     *
+     * @return VvmStages 
+     */
+    public function getVvmStage()
+    {
+        return $this->vvmStage;
     }
 
     /**

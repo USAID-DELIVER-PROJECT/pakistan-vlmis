@@ -27,7 +27,6 @@ class Reports_GraphsController extends App_Controller_Base {
     /*
      * Following 4 Graphs are Under the Refrigerator/Freezer Sub-menu
      */
-
     public function vaccineStorageCapacityAt2to8Action() {
         $ccm_warehouse = new Model_CcmWarehouses();
         $search_form = new Form_ReportsSearch();
@@ -59,7 +58,7 @@ class Reports_GraphsController extends App_Controller_Base {
         $s_number_prefix = "";
 
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .='<chart bgcolor="FFFFFF" outcnvbasefontcolor="000000" caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" numvdivlines="10" showalternatevgridcolor="1" alternatevgridcolor="e1f5ff" divlinecolor="e1f5ff" vdivlinecolor="e1f5ff" basefontcolor="666666" tooltipbgcolor="F3F3F3" tooltipbordercolor="666666" canvasbordercolor="666666" canvasborderthickness="1" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" theme="fint" >';
+        $xmlstore .='<chart caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" theme="fint">';
 
         $categories = '<categories>';
         $dataset_1 = '<dataset seriesname="Surplus > 30%" >';
@@ -73,7 +72,7 @@ class Reports_GraphsController extends App_Controller_Base {
             $categories .='<category label="' . $sub_arr['FacilityType'] . '" />';
             $dataset_1 .= '<set value="' . $sub_arr['surplus30'] . '" />';
             //$dataset_2 .= '<set value="' . $sub_arr['surplus1030'] . '" />';
-            $dataset_3 .= '<set value="' . $sub_arr['match10'] . '" />';
+            $dataset_3 .= '<set value="' . ($sub_arr['match10'] + $sub_arr['surplus1030'] + $sub_arr['shortage1030']) . '" />';
             //$dataset_4 .= '<set value="' . $sub_arr['shortage1030'] . '" />';
             $dataset_5 .= '<set value="' . $sub_arr['shortage30'] . '" />';
             $dataset_6 .= '<set value="' . $sub_arr['Unknown'] . '" />';
@@ -135,12 +134,12 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $xmlstore = "<?xml version = \"1.0\"?>";
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .='<chart bgcolor="FFFFFF" outcnvbasefontcolor="000000" caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" numvdivlines="10" showalternatevgridcolor="1" alternatevgridcolor="e1f5ff" divlinecolor="e1f5ff" vdivlinecolor="e1f5ff" basefontcolor="666666" tooltipbgcolor="F3F3F3" tooltipbordercolor="666666" canvasbordercolor="666666" canvasborderthickness="1" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" >';
+        $xmlstore .='<chart caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" theme="fint">';
 
         $categories = '<categories>';
         $dataset_1 = '<dataset seriesname="Surplus > 30%" >';
         $dataset_2 = '<dataset seriesname="Surplus 10-30%" >';
-        $dataset_3 = '<dataset seriesname="Match +/- 30%" >';
+        $dataset_3 = '<dataset seriesname="Match +/- 10%" >';
         $dataset_4 = '<dataset seriesname="Shortage 10-30%" >';
         $dataset_5 = '<dataset seriesname="Shortage > 30%" >';
 
@@ -172,7 +171,7 @@ class Reports_GraphsController extends App_Controller_Base {
         $this->view->xmlstore = $xmlstore;
         $this->view->main_heading = $main_heading;
         $this->view->str_sub_heading = $str_sub_heading;
-        $this->view->chart_type = 'StackedBar3D';
+        $this->view->chart_type = 'StackedBar2D';
         $this->view->width = '80%';
         $this->view->height = '400';
     }
@@ -204,7 +203,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $xmlstore = "<?xml version = \"1.0\"?>";
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .='<chart bgcolor="FFFFFF" outcnvbasefontcolor="000000" caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" numvdivlines="10" showalternatevgridcolor="1" alternatevgridcolor="e1f5ff" divlinecolor="e1f5ff" vdivlinecolor="e1f5ff" basefontcolor="666666" tooltipbgcolor="F3F3F3" tooltipbordercolor="666666" canvasbordercolor="666666" canvasborderthickness="1" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" >';
+        $xmlstore .='<chart caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" showborder="0" exportEnabled="1" rotateValues="1" theme="fint">';
 
         $categories = '<categories>';
         $dataset_1 = '<dataset seriesname="Surplus > 30%" >';
@@ -242,7 +241,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $this->view->main_heading = $main_heading;
         $this->view->str_sub_heading = $str_sub_heading;
-        $this->view->chart_type = 'StackedBar3D';
+        $this->view->chart_type = 'StackedBar2D';
         $this->view->width = '80%';
         $this->view->height = '400';
     }
@@ -272,7 +271,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $xmlstore = "<?xml version = \"1.0\"?>";
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .='<chart bgcolor="FFFFFF" outcnvbasefontcolor="000000" caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" numvdivlines="10" showalternatevgridcolor="1" alternatevgridcolor="e1f5ff" divlinecolor="e1f5ff" vdivlinecolor="e1f5ff" basefontcolor="666666" tooltipbgcolor="F3F3F3" tooltipbordercolor="666666" canvasbordercolor="666666" canvasborderthickness="1" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" >';
+        $xmlstore .='<chart caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0"exportEnabled="1" rotateValues="1" theme="fint">';
 
         $categories = '<categories>';
         $dataset_1 = '<dataset seriesname="Surplus > 30%" >';
@@ -310,7 +309,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $this->view->main_heading = $main_heading;
         $this->view->str_sub_heading = $str_sub_heading;
-        $this->view->chart_type = 'StackedBar3D';
+        $this->view->chart_type = 'StackedBar2D';
         $this->view->width = '80%';
         $this->view->height = '400';
     }
@@ -331,7 +330,7 @@ class Reports_GraphsController extends App_Controller_Base {
         $s_number_prefix = "";
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Working Well" value="' . $data_arr['WorkingWell'] . '"/>';
         $xmlstore .='<set label="Working Needs Service" value="' . $data_arr['WorkingNeedsService'] . '"/>';
         $xmlstore .='<set label="Not Working" value="' . $data_arr['NotWorking'] . '"/>';
@@ -341,7 +340,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $this->view->main_heading = $main_heading;
         $this->view->str_sub_heading = $str_sub_heading;
-        $this->view->chart_type = 'StackedBar3D';
+        $this->view->chart_type = 'StackedBar2D';
         $this->view->width = '80%';
         $this->view->height = '400';
         $this->view->search_form = $search_form;
@@ -360,7 +359,7 @@ class Reports_GraphsController extends App_Controller_Base {
         $s_number_prefix = "";
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Working Well" value="' . $data_arr['WorkingWell'] . '"/>';
         $xmlstore .='<set label="Working Needs Service" value="' . $data_arr['WorkingNeedsService'] . '"/>';
         $xmlstore .='<set label="Not Working" value="' . $data_arr['NotWorking'] . '"/>';
@@ -370,7 +369,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $this->view->main_heading = $main_heading;
         $this->view->str_sub_heading = $str_sub_heading;
-        $this->view->chart_type = 'StackedBar3D';
+        $this->view->chart_type = 'StackedBar2D';
         $this->view->width = '80%';
         $this->view->height = '500';
     }
@@ -404,7 +403,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $xmlstore = "<?xml version = \"1.0\"?>";
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .='<chart bgcolor="FFFFFF" outcnvbasefontcolor="000000" caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" numvdivlines="10" showalternatevgridcolor="1" alternatevgridcolor="e1f5ff" divlinecolor="e1f5ff" vdivlinecolor="e1f5ff" basefontcolor="666666" tooltipbgcolor="F3F3F3" tooltipbordercolor="666666" canvasbordercolor="666666" canvasborderthickness="1" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" >';
+        $xmlstore .='<chart caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" exportEnabled="1" rotateValues="1" theme="fint">';
 
         $categories = '<categories>';
         $dataset_1 = '<dataset seriesname="0-2 Years" >';
@@ -446,7 +445,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $this->view->main_heading = $main_heading;
         $this->view->str_sub_heading = $str_sub_heading;
-        $this->view->chart_type = 'StackedBar3D';
+        $this->view->chart_type = 'StackedBar2D';
         $this->view->width = '80%';
         $this->view->height = '400';
     }
@@ -481,7 +480,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $xmlstore = "<?xml version = \"1.0\"?>";
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .='<chart bgcolor="FFFFFF" outcnvbasefontcolor="000000" caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" numvdivlines="10" showalternatevgridcolor="1" alternatevgridcolor="e1f5ff" divlinecolor="e1f5ff" vdivlinecolor="e1f5ff" basefontcolor="666666" tooltipbgcolor="F3F3F3" tooltipbordercolor="666666" canvasbordercolor="666666" canvasborderthickness="1" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" >';
+        $xmlstore .='<chart caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" exportEnabled="1" rotateValues="1" theme="fint">';
 
         $categories = '<categories>';
         $dataset_1 = '<dataset seriesname="In Use" >';
@@ -519,7 +518,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $this->view->main_heading = $main_heading;
         $this->view->str_sub_heading = $str_sub_heading;
-        $this->view->chart_type = 'StackedBar3D';
+        $this->view->chart_type = 'StackedBar2D';
         $this->view->width = '80%';
         $this->view->height = '400';
     }
@@ -561,7 +560,7 @@ class Reports_GraphsController extends App_Controller_Base {
         $s_number_prefix = "";
 
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .='<chart bgcolor="FFFFFF" outcnvbasefontcolor="000000" caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" numvdivlines="10" showalternatevgridcolor="1" alternatevgridcolor="e1f5ff" divlinecolor="e1f5ff" vdivlinecolor="e1f5ff" basefontcolor="666666" tooltipbgcolor="F3F3F3" tooltipbordercolor="666666" canvasbordercolor="666666" canvasborderthickness="1" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" >';
+        $xmlstore .='<chart caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" exportEnabled="1" rotateValues="1" theme="fint">';
 
         $categories = '<categories>';
         $dataset_1 = '<dataset seriesname="Working" >';
@@ -587,7 +586,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $this->view->main_heading = $main_heading;
         $this->view->str_sub_heading = $str_sub_heading;
-        $this->view->chart_type = 'StackedBar3D';
+        $this->view->chart_type = 'StackedBar2D';
         $this->view->width = '80%';
         $this->view->height = '500';
     }
@@ -622,7 +621,7 @@ class Reports_GraphsController extends App_Controller_Base {
         $number_suffix = "%";
         $s_number_prefix = "";
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .='<chart bgcolor="FFFFFF" outcnvbasefontcolor="000000" caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" numvdivlines="10" showalternatevgridcolor="1" alternatevgridcolor="e1f5ff" divlinecolor="e1f5ff" vdivlinecolor="e1f5ff" basefontcolor="666666" tooltipbgcolor="F3F3F3" tooltipbordercolor="666666" canvasbordercolor="666666" canvasborderthickness="1" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" >';
+        $xmlstore .='<chart caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" exportEnabled="1" rotateValues="1" theme="fint">';
 
         $categories = '<categories>';
         $dataset_min = '<dataset seriesname="Min" >';
@@ -657,7 +656,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $this->view->main_heading = $main_heading;
         $this->view->str_sub_heading = $str_sub_heading;
-        $this->view->chart_type = 'StackedBar3D';
+        $this->view->chart_type = 'StackedBar2D';
         $this->view->width = '80%';
         $this->view->height = '400';
     }
@@ -686,7 +685,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Working Well" value="' . $data_arr['WorkingWell'] . '"/>';
         $xmlstore .='<set label="Working Needs Service" value="' . $data_arr['WorkingNeedsService'] . '"/>';
         $xmlstore .='<set label="Not Working" value="' . $data_arr['NotWorking'] . '"/>';
@@ -724,7 +723,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Working Well" value="' . $data_arr['WorkingWell'] . '"/>';
         $xmlstore .='<set label="Working Needs Service" value="' . $data_arr['WorkingNeedsService'] . '"/>';
         $xmlstore .='<set label="Not Working" value="' . $data_arr['NotWorking'] . '"/>';
@@ -770,7 +769,7 @@ class Reports_GraphsController extends App_Controller_Base {
         $s_number_prefix = "";
 
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .='<chart bgcolor="FFFFFF" outcnvbasefontcolor="000000" caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" numvdivlines="10" showalternatevgridcolor="1" alternatevgridcolor="e1f5ff" divlinecolor="e1f5ff" vdivlinecolor="e1f5ff" basefontcolor="666666" tooltipbgcolor="F3F3F3" tooltipbordercolor="666666" canvasbordercolor="666666" canvasborderthickness="1" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" >';
+        $xmlstore .='<chart caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" exportEnabled="1" rotateValues="1" theme="fint">';
 
         $categories = '<categories>';
         $dataset_1 = '<dataset seriesname="Working Well" >';
@@ -800,7 +799,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $this->view->main_heading = $main_heading;
         $this->view->str_sub_heading = $str_sub_heading;
-        $this->view->chart_type = 'StackedBar3D';
+        $this->view->chart_type = 'StackedBar2D';
         $this->view->width = '80%';
         $this->view->height = '500';
     }
@@ -831,7 +830,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Less than 8hrs/24hrs" value="' . $data_arr['<8hrs/24hrs'] . '"/>';
         $xmlstore .='<set label="8 to 16hrs/24hrs" value="' . $data_arr['8to16hrs/24hrs'] . '"/>';
         $xmlstore .='<set label="More than 16hrs/24hrs" value="' . $data_arr['>16hrs/24hrs'] . '"/>';
@@ -862,7 +861,7 @@ class Reports_GraphsController extends App_Controller_Base {
         $s_number_prefix = "";
 
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Less than 8hrs/24hrs" value="' . $data_arr['<8hrs/24hrs'] . '"/>';
         $xmlstore .='<set label="8 to 16hrs/24hrs" value="' . $data_arr['8to16hrs/24hrs'] . '"/>';
         $xmlstore .='<set label="More than 16hrs/24hrs" value="' . $data_arr['>16hrs/24hrs'] . '"/>';
@@ -892,7 +891,7 @@ class Reports_GraphsController extends App_Controller_Base {
         $s_number_prefix = "";
 
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Less than 8hrs/24hrs" value="' . $data_arr['<8hrs/24hrs'] . '"/>';
         $xmlstore .='<set label="8 to 16hrs/24hrs" value="' . $data_arr['8to16hrs/24hrs'] . '"/>';
         $xmlstore .='<set label="More than 16hrs/24hrs" value="' . $data_arr['>16hrs/24hrs'] . '"/>';
@@ -941,7 +940,7 @@ class Reports_GraphsController extends App_Controller_Base {
         $s_number_prefix = "";
 
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .='<chart bgcolor="FFFFFF" outcnvbasefontcolor="000000" caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" numvdivlines="10" showalternatevgridcolor="1" alternatevgridcolor="e1f5ff" divlinecolor="e1f5ff" vdivlinecolor="e1f5ff" basefontcolor="666666" tooltipbgcolor="F3F3F3" tooltipbordercolor="666666" canvasbordercolor="666666" canvasborderthickness="1" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" >';
+        $xmlstore .='<chart caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" showborder="0" exportEnabled="1" rotateValues="1" theme="fint">';
 
         $categories = '<categories>';
         $dataset_1 = '<dataset seriesname="Working Well" >';
@@ -971,7 +970,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $this->view->main_heading = $main_heading;
         $this->view->str_sub_heading = $str_sub_heading;
-        $this->view->chart_type = "StackedBar3D";
+        $this->view->chart_type = "StackedBar2D";
         $this->view->width = '80%';
         $this->view->height = '400';
         $this->view->search_form = $search_form;
@@ -991,7 +990,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Less than 8hrs/24hrs" value="' . $data_arr['<8hrs/24hrs'] . '"/>';
         $xmlstore .='<set label="8 to 16hrs/24hrs" value="' . $data_arr['8to16hrs/24hrs'] . '"/>';
         $xmlstore .='<set label="More than 16hrs/24hrs" value="' . $data_arr['>16hrs/24hrs'] . '"/>';
@@ -1022,7 +1021,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Less than 8hrs/24hrs" value="' . $data_arr['<8hrs/24hrs'] . '"/>';
         $xmlstore .='<set label="8 to 16hrs/24hrs" value="' . $data_arr['8to16hrs/24hrs'] . '"/>';
         $xmlstore .='<set label="More than 16hrs/24hrs" value="' . $data_arr['>16hrs/24hrs'] . '"/>';
@@ -1053,7 +1052,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Chest Refrigerator AC" value="' . $data_arr['ChestRefAC'] . '"/>';
         $xmlstore .='<set label="Chest Refrigerator Electricity and Gas" value="' . $data_arr['ChestRefEleGas'] . '"/>';
         $xmlstore .='<set label="Chest Refrigerator Electricity and Kerosene" value="' . $data_arr['ChestRefEleKerosene'] . '"/>';
@@ -1091,7 +1090,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="0-5 Years" value="' . $data_arr['05Years'] . '"/>';
         $xmlstore .='<set label="6-10 Years" value="' . $data_arr['610Years'] . '"/>';
         $xmlstore .='<set label="More than 10 Years" value="' . $data_arr['>10Years'] . '"/>';
@@ -1123,7 +1122,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="In Use" value="' . $data_arr['<InUse'] . '"/>';
         $xmlstore .='<set label="In Store" value="' . $data_arr['InStore'] . '"/>';
         $xmlstore .='<set label="Not Used" value="' . $data_arr['NotUsed'] . '"/>';
@@ -1161,7 +1160,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Working Well" value="' . $data_arr['WorkingWell'] . '"/>';
         $xmlstore .='<set label="Working Needs Service" value="' . $data_arr['WorkingNeedsService'] . '"/>';
         $xmlstore .='<set label="Not Working" value="' . $data_arr['NotWorking'] . '"/>';
@@ -1198,7 +1197,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Working Well" value="' . $data_arr['WorkingWell'] . '"/>';
         $xmlstore .='<set label="Working Needs Service" value="' . $data_arr['WorkingNeedsService'] . '"/>';
         $xmlstore .='<set label="Not Working" value="' . $data_arr['NotWorking'] . '"/>';
@@ -1235,7 +1234,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Working Well" value="' . $data_arr['WorkingWell'] . '"/>';
         $xmlstore .='<set label="Working Needs Service" value="' . $data_arr['WorkingNeedsService'] . '"/>';
         $xmlstore .='<set label="Not Working" value="' . $data_arr['NotWorking'] . '"/>';
@@ -1272,7 +1271,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         //App_Controller_Functions::pr($data_arr);
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0">';
+        $xmlstore .= '<chart caption="' . $main_heading . '" subCaption="' . $str_sub_heading . '" numberPrefix="' . $number_prefix . '" numberSuffix="' . $number_suffix . '" sformatNumberScale="1" sNumberPrefix="' . $s_number_prefix . '" syncAxisLimits="1" rotateValues="1" showSum="0" theme="fint">';
         $xmlstore .='<set label="Working Well" value="' . $data_arr['WorkingWell'] . '"/>';
         $xmlstore .='<set label="Working Needs Service" value="' . $data_arr['WorkingNeedsService'] . '"/>';
         $xmlstore .='<set label="Not Working" value="' . $data_arr['NotWorking'] . '"/>';
@@ -1322,7 +1321,7 @@ class Reports_GraphsController extends App_Controller_Base {
         $s_number_prefix = "";
 
         $xmlstore = "<?xml version=\"1.0\"?>";
-        $xmlstore .='<chart bgcolor="FFFFFF" outcnvbasefontcolor="000000" caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" numvdivlines="10" showalternatevgridcolor="1" alternatevgridcolor="e1f5ff" divlinecolor="e1f5ff" vdivlinecolor="e1f5ff" basefontcolor="666666" tooltipbgcolor="F3F3F3" tooltipbordercolor="666666" canvasbordercolor="666666" canvasborderthickness="1" showplotborder="1" plotfillalpha="80" showborder="0" exportEnabled="1" rotateValues="1" >';
+        $xmlstore .='<chart caption="' . $main_heading . '" numberprefix="' . $number_prefix . '" showvalues="0" showborder="0" exportEnabled="1" rotateValues="1" theme="fint">';
 
         $categories = '<categories>';
         $dataset_1 = '<dataset seriesname="Working" >';
@@ -1348,7 +1347,7 @@ class Reports_GraphsController extends App_Controller_Base {
 
         $this->view->main_heading = $main_heading;
         $this->view->str_sub_heading = $str_sub_heading;
-        $this->view->chart_type = 'StackedBar3D';
+        $this->view->chart_type = 'StackedBar2D';
         $this->view->width = '80%';
         $this->view->height = '500';
     }
@@ -1437,6 +1436,7 @@ class Reports_GraphsController extends App_Controller_Base {
     }
 
     public function simpleGraphsAction() {
+        
         if ($this->_request->isPost()) {
             $post = $this->_request->getPost();
             $graphs = new Model_Graphs();

@@ -12,6 +12,10 @@ class Zend_View_Helper_AllLevelCombo extends Zend_View_Helper_Abstract {
             $user_lvl = $identity->getUserLevel($identity->getIdentity());
         }
 
+        $prov_id = $identity->getUserProvinceId($identity->getIdentity());
+        if ($prov_id == 2) {
+            $user_lvl = 11;
+        }
 
         if ($menu_type == 1) {
             switch ($user_lvl) {
@@ -23,6 +27,16 @@ class Zend_View_Helper_AllLevelCombo extends Zend_View_Helper_Abstract {
                         '2' => $translate->translate('Province'),
                         '3' => $translate->translate('Division'),
                         '4' => $translate->translate('District'),
+                        '60' => $translate->translate('IHR')
+                    );
+                    break;
+                case 11:
+                    $arr_province = array(
+                        '1' => $translate->translate('Federal'),
+                        '2' => $translate->translate('Province'),
+                        '3' => $translate->translate('Division'),
+                        '4' => $translate->translate('District'),
+                        '5' => $translate->translate('Tehsil - Towns'),
                         '60' => $translate->translate('IHR')
                     );
                     break;
@@ -215,6 +229,11 @@ class Zend_View_Helper_AllLevelCombo extends Zend_View_Helper_Abstract {
                     <div class="col-md-3" id="div_combo2<?php echo $postfix; ?>" <?php if (empty($translate->dist_id) || isset($translate->office_id) == 1 || empty($translate->office_id)) { ?> style="display:none;" <?php } ?>>		
                         <label class="control-label" id="lblcombo2"><?php echo $translate->translate("District"); ?> <span class="red">*</span></label>
                         <select name="combo2" id="combo2<?php echo $postfix; ?>" class="form-control">
+                        </select>
+                    </div>
+                    <div class="col-md-3" id="div_combo3<?php echo $postfix; ?>" <?php if (empty($translate->dist_id) || isset($translate->office_id) == 1 || empty($translate->office_id)) { ?> style="display:none;" <?php } ?>>		
+                        <label class="control-label" id="lblcombo3"><?php echo $translate->translate("Tehsil"); ?> <span class="red">*</span></label>
+                        <select name="combo3" id="combo3<?php echo $postfix; ?>" class="form-control">
                         </select>
                     </div>
                     <div class="col-md-3" id="wh_combo<?php echo $postfix; ?>" <?php if (empty($translate->warehouse)) { ?> style="display:none;" <?php } ?>>

@@ -5,26 +5,30 @@ class Form_StockBatch extends Zend_Form {
     private $_fields = array(
         "item_pack_size_id" => "Vaccine",
         "status" => "Status",
-        "number" => "Batch Number",
-        "transaction_refernece" => "Transaction Refernece"
+        "searchby" => "Search By",
+        "searchinput" => "Search Input"
     );
     private $_list = array(
-        'item_pack_size_id' => array()
+        'item_pack_size_id' => array(),
+        'searchby' => array(
+            '' => 'Select',
+            'number' => 'Batch Number',
+            'expired_before' => 'Expired on or before',
+            'expired_after' => 'Expired on or after'
+        )
     );
 
     public function init() {
         //Generate Products(items) Combo
         $items = new Model_ItemPackSizes();
         $result2 = $items->getAllItems();
-        $this->_list["item_pack_size_id"][''] = "Select";
         foreach ($result2 as $item) {
             $this->_list["item_pack_size_id"][$item['pkId']] = $item['itemName'];
         }
 
         foreach ($this->_fields as $col => $name) {
             switch ($col) {
-                case "number":
-                case "transaction_refernece":
+                case "searchinput":
                     $this->addElement("text", $col, array(
                         "attribs" => array("class" => "form-control"),
                         "allowEmpty" => false,
@@ -40,11 +44,14 @@ class Form_StockBatch extends Zend_Form {
                         'separator' => '',
                         "filters" => array("StringTrim", "StripTags"),
                         "validators" => array(),
-                        "multiOptions" => array(
-                            "1" => "Running",
-                            "2" => "Stacked",
-                            "3" => "Finished",
-                            "4" => "Total (Running + Stacked)"
+                        "multiOptions" => array(  
+                            "6" => "All Priorities",
+                            "1" => "Priority 1",
+                            "2" => "Priority 2",
+                            "3" => "Priority 3",                            
+                            "4" => "Finished",
+                            "5" => "Expired by date",
+                            "7" => "Expired by VVM"
                         ),
                         'options' => array(
                             'label' => 'Title',
@@ -68,15 +75,7 @@ class Form_StockBatch extends Zend_Form {
                     "required" => false,
                     "registerInArrayValidator" => false,
                     "multiOptions" => $this->_list[$col],
-                    "validators" => array(
-                        array(
-                            "validator" => "Float",
-                            "breakChainOnFailure" => false,
-                            "options" => array(
-                                "messages" => array("notFloat" => $name . " must be a valid option")
-                            )
-                        )
-                    )
+                    "validators" => array()
                 ));
                 $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
             }

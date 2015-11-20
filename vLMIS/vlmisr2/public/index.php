@@ -9,6 +9,8 @@ defined('LIBRARY_PATH') || define('LIBRARY_PATH', realpath(dirname(__FILE__) . '
 
 defined('UPLOAD_PATH') || define('UPLOAD_PATH', realpath(dirname(__FILE__) . '/images/upload'));
 
+defined('PUBLIC_DIR') || define('PUBLIC_DIR', realpath(dirname(__FILE__)));
+
 // Define application environment
 defined('APPLICATION_ENV') || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'development'));
 

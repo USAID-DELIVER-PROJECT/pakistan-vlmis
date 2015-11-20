@@ -56,11 +56,20 @@ class Model_Resources extends Model_Base {
     }
 
     public function getAllResources() {
+
         $qry = $this->_em->createQueryBuilder()
                 ->select("r")
-                ->from("Resources", "r")
-                ->orderBy("r.resourceName", "ASC")
-                ->addOrderBy("r.description", "ASC");
+                ->from("Resources", "r");
+        if (!empty($this->form_values['resourceName'])) {
+            $qry->where("r.resourceName= '" . $this->form_values['resourceName'] . "' ");
+        }
+        if (!empty($this->form_values['resourceType'])) {
+            $qry->andWhere("r.resourceType=" . $this->form_values['resourceType']);
+        }
+        $qry->orderBy("r.resourceName", "ASC");
+        $qry->addOrderBy("r.description", "ASC");
+
+
         return $qry->getQuery()->getResult();
     }
 

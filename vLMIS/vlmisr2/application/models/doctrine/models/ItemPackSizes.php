@@ -55,6 +55,16 @@ class ItemPackSizes
     private $color;
 
     /**
+     * @var integer $vvmGroup
+     */
+    private $vvmGroup;
+
+    /**
+     * @var StakeholderActivities
+     */
+    private $stakeholderActivity;
+
+    /**
      * @var ItemCategories
      */
     private $itemCategory;
@@ -238,6 +248,46 @@ class ItemPackSizes
     public function getColor()
     {
         return $this->color;
+    }
+
+    /**
+     * Set vvmGroup
+     *
+     * @param integer $vvmGroup
+     */
+    public function setVvmGroup($vvmGroup)
+    {
+        $this->vvmGroup = $vvmGroup;
+    }
+
+    /**
+     * Get vvmGroup
+     *
+     * @return integer 
+     */
+    public function getVvmGroup()
+    {
+        return $this->vvmGroup;
+    }
+
+    /**
+     * Set stakeholderActivity
+     *
+     * @param StakeholderActivities $stakeholderActivity
+     */
+    public function setStakeholderActivity(\StakeholderActivities $stakeholderActivity)
+    {
+        $this->stakeholderActivity = $stakeholderActivity;
+    }
+
+    /**
+     * Get stakeholderActivity
+     *
+     * @return StakeholderActivities 
+     */
+    public function getStakeholderActivity()
+    {
+        return $this->stakeholderActivity;
     }
 
     /**

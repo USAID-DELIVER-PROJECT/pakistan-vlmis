@@ -298,12 +298,12 @@ class Zend_EventManager_EventManager implements Zend_EventManager_EventCollectio
         if (empty($this->events[$event])) {
             $this->events[$event] = new Zend_Stdlib_PriorityQueue();
         }
-
+        
         // Create a callback handler, setting the event and priority in its metadata
         $listener = new Zend_Stdlib_CallbackHandler($callback, array('event' => $event, 'priority' => $priority));
 
         // Inject the callback handler into the queue
-        $this->events[$event]->insert($listener, $priority);
+        $this->events[$event]->insert($listener, $priority);        
         return $listener;
     }
 

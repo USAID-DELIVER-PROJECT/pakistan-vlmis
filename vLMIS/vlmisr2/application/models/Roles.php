@@ -13,7 +13,7 @@
 class Model_Roles extends Model_Base {
 
     protected $_table;
-    
+
     const CAMPAIGN = 7;
     const INVENTORY = 29;
     const COLDCHAIN = 30;
@@ -23,11 +23,11 @@ class Model_Roles extends Model_Base {
         parent::__construct();
         $this->_table = $this->_em->getRepository('Roles');
     }
-    
+
     public function getRoleByCat($cat_id) {
         return $this->_table->findBy(array("category" => $cat_id));
     }
-    
+
     public function getRoles($order = null, $sort = null) {
         if (!empty($this->form_values)) {
             return $this->_table->findBy($this->form_values);
@@ -35,7 +35,7 @@ class Model_Roles extends Model_Base {
             $qry = $this->_em->createQueryBuilder()
                     ->select("r")
                     ->from("Roles", "r")
-                    ->join("r.category","c");
+                    ->join("r.category", "c");
 
             if ($order == 'role_name') {
                 $qry->orderBy("r.roleName", $sort);
@@ -52,6 +52,29 @@ class Model_Roles extends Model_Base {
 
             return $qry->getQuery()->getResult();
         }
+    }
+
+    public function getAllRoles() {
+
+        $qry = $this->_em->createQueryBuilder()
+                ->select("r.pkId,r.roleName")
+                ->from("Roles", "r");
+
+
+        return $qry->getQuery()->getResult();
+    }
+
+    public function getAllRolesResources() {
+
+
+        $qry = $this->_em->createQueryBuilder()
+                ->select("r.pkId,r.roleName")
+                ->from("Roles", "r");
+        if (!empty($this->form_values['role'])) {
+            $qry->where("r.pkId =" . $this->form_values['role']);
+        }
+
+        return $qry->getQuery()->getResult();
     }
 
 }

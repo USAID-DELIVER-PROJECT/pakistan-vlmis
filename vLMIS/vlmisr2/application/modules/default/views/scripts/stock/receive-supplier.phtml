@@ -13,7 +13,6 @@
                 $btn_hidden = '';
             }
             ?>
-
             <?php echo $this->translate('Stock Receive from Supplier'); ?>
         </h3>
         <!-- <p class="red"><b>Important!</b> Please use Ctrl + R before using this form.</p> -->
@@ -113,13 +112,15 @@
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="control-label" for="manufacturer_id" ><?php echo $this->translate("Manufacturer"); ?> <span class="red">*</span></label>
+                                            <label class="control-label" for="manufacturer_id" >
+                                                <?php echo $this->translate("Manufacturer"); ?> <span class="red">*</span>
+                                            </label>
                                             <div class="controls">
                                                 <?php echo $this->form->manufacturer_id; ?>
-                                                &nbsp;
+                                                <!--&nbsp;
                                                 <a class="btn btn-primary btn-small" onclick="javascript:void(0);" data-toggle="modal" href="#modal-new-manufacturer" title="<?php echo $this->translate("Add New Manufacturer"); ?>">
-                                                    <?php echo $this->translate("Add"); ?>
-                                                </a> 
+                                                    <?php //echo $this->translate("Add"); ?>
+                                                </a> -->
                                             </div> 
 
 
@@ -444,7 +445,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="control-label" for="catalogueid" ><?php echo $this->translate("Qunatity Per Pack"); ?> <span class="red">*</span></label>
+                            <label class="control-label" for="catalogueid" ><?php echo $this->translate("Quantity Per Pack"); ?> <span class="red">*</span></label>
                             <div class="controls">
                                 <?php echo $this->form_manufacturer->quantity_per_pack; ?>
                             </div>

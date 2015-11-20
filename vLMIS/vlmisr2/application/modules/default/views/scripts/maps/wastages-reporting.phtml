@@ -16,20 +16,20 @@
                     </div>
                     <div class="portlet-body">
                         <div class="row">
-                            <div class="col-md-12">
-                                <div class="col-md-2">
+                            <div class="col-md-10">
+                                  <div class="col-md-2">
                                     <div class="control-group">
-                                        <label class="control-label" > <?php echo $this->translate("Year"); ?> : </label>
+                                        <label class="control-label" ><?php echo $this->translate("Month"); ?>:</label>
                                         <div class="controls">
-                                            <?php echo $this->form->year; ?>
+                                            <?php echo $this->form->month; ?>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="control-group">
-                                        <label class="control-label" ><?php echo $this->translate("Month"); ?>:</label>
+                                        <label class="control-label" > <?php echo $this->translate("Year"); ?> : </label>
                                         <div class="controls">
-                                            <?php echo $this->form->month; ?>
+                                            <?php echo $this->form->year; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -49,7 +49,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-1">
                                     <div class="control-group ">
                                         <label class="control-label" >&nbsp;</label>
                                         <div class="controls">
@@ -74,7 +74,6 @@
             <div class="col-md-12">
                 <div class="map-buttons-download">
                     <img id="image"  src="<?php echo $this->baseUrl(); ?>/images/image.png"  align="right" title="Download Map" />
-                    <img id="print"  src="<?php echo $this->baseUrl(); ?>/images/print.png"  align="right" title="Print Map"/>
                 </div>
             </div>
         </div>

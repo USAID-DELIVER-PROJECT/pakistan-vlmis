@@ -111,11 +111,10 @@ class Model_Locations extends Model_Base {
 			l.pk_id as pkId,l.location_name as locationName
 			FROM
 			locations l
-			INNER JOIN pilot_districts ON pilot_districts.district_id = l.pk_id
+			INNER JOIN pilot_districts ON pilot_districts.district_id = l.district_id
 			WHERE
 			(l.geo_level_id = $geo_level_id "
-                . "AND l.province_id=  $province_id "
-                . "AND pilot_districts.district_id <> 87)"
+                . "AND l.province_id=  $province_id )"
                 . "ORDER BY locationName";
         $this->_em = Zend_Registry::get('doctrine');
         $row = $this->_em->getConnection()->prepare($querypro);
@@ -211,8 +210,28 @@ class Model_Locations extends Model_Base {
         $row->execute();
         return $rs = $row->fetchAll();
     }
-    
-     public function conusmptionReportLocations() {
+
+    public function getProvinceForDropoutReport() {
+        $querypro = "SELECT DISTINCT
+                    l0_.pk_id,
+                    l0_.location_name
+                    FROM
+                    locations AS l0_
+                    INNER JOIN locations AS dist ON dist.province_id = l0_.pk_id
+                    INNER JOIN pilot_districts ON pilot_districts.district_id = dist.pk_id
+                    WHERE
+                    l0_.geo_level_id = 2 AND
+                    l0_.province_id = 2
+                    ORDER BY l0_.pk_id";
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($querypro);
+
+        $row->execute();
+        return $rs = $row->fetchAll();
+    }
+
+    public function conusmptionReportLocations() {
         $querypro = "SELECT DISTINCT
                     l0_.pk_id,
                     l0_.location_name
@@ -250,7 +269,6 @@ class Model_Locations extends Model_Base {
                 ->from("PilotDistricts", "pd")
                 ->join("pd.district", "l")
                 ->where("l.geoLevel = '4' ")
-                ->andwhere("pd.district <> 87")
                 ->andWhere("l.province= '" . $this->form_values['province_id'] . "' ");
 
         $row = $str_sql->getQuery()->getResult();
@@ -378,6 +396,27 @@ class Model_Locations extends Model_Base {
         return $row;
     }
 
+    public function tehsilLocationsDistrict() {
+        if (!empty($this->form_values['province_id'])) {
+            $where[] = "l.province = '" . $this->form_values['province_id'] . "'";
+        }
+        if (!empty($this->form_values['district_id'])) {
+            $where[] = "l.district = '" . $this->form_values['district_id'] . "'";
+        }
+        if (is_array($where)) {
+            $where_s = implode(" AND ", $where);
+        }
+        $str_sql = $this->_em->createQueryBuilder()
+                ->select('l.pkId,l.locationName')
+                ->from("Locations", "l")
+                ->where("l.geoLevel = 5 ")
+                ->andWhere($where_s)
+                ->orderBy("l.locationName");
+
+        $row = $str_sql->getQuery()->getResult();
+        return $row;
+    }
+
     public function ucLocations() {
 
         if (!empty($this->form_values['province_id'])) {
@@ -422,7 +461,6 @@ class Model_Locations extends Model_Base {
                     ->where($where_s)
                     ->andWhere("w.status = 1")
                     ->orderBy("s.pkId", "ASC");
-//echo $str_sql->getQuery()->getSql();
 
             $row = $str_sql->getQuery()->getResult();
             return $row;
@@ -436,15 +474,16 @@ class Model_Locations extends Model_Base {
             $where[] = "gl.pkId = '" . $form_values['location_level'] . "'";
         } else {
 
-            $where[] = "gl.pkId IN (3,4,5,6)";
+//$where[] = "gl.pkId IN (3,4,5,6)";
+            $where[] = "gl.pkId  = '3' ";
         }
         if (!empty($form_values['combo1'])) {
             $where[] = "l.province = '" . $form_values['combo1'] . "'";
         }
-        // if (!empty($form_values['combo2'])) {
-        //  $where[] = "l.district  = '" . $form_values['combo2'] . "'";
-        // }
-        $where[] = "l.district  = '107' ";
+        if (!empty($form_values['combo2'])) {
+            $where[] = "l.district  = '" . $form_values['combo2'] . "'";
+        }
+//$where[] = "l.district  = '107' ";
         if (!empty($form_values['combo3'])) {
             $where[] = "l.parent = '" . $form_values['combo3'] . "'";
         }
@@ -465,14 +504,12 @@ class Model_Locations extends Model_Base {
                 ->join("l.geoLevel", "gl")
                 ->join("l.locationType", "lt")
                 ->join("l.parent", "p")
-                ->where($where_s)
-
-        ;
+                ->where($where_s);
         if (!empty($form_values['not_used'])) {
             $str_sql->AndWhere("l.pkId NOT IN (" . $sub_sql->getQuery()->getDql() . ")");
         }
 
-        //  echo $str_sql->getQuery()->getSql();
+//echo $str_sql->getQuery()->getSql();
         $row = $str_sql->getQuery()->getResult();
         return $row;
     }
@@ -482,6 +519,17 @@ class Model_Locations extends Model_Base {
                 ->select("l.pkId,l.locationName")
                 ->from('Locations', 'l')
                 ->where("l.parent = 10");
+
+        $row = $str_sql->getQuery()->getResult();
+        return $row;
+    }
+
+    public function getProvince() {
+        $str_sql = $this->_em->createQueryBuilder()
+                ->select("l.pkId,l.locationName")
+                ->from('Locations', 'l')
+                ->where("l.parent = 10")
+                ->andWhere("l.pkId = 2");
 
         $row = $str_sql->getQuery()->getResult();
         return $row;
@@ -555,7 +603,7 @@ class Model_Locations extends Model_Base {
 
     public function checkCcmLocationId() {
         $form_values = $this->form_values;
-        //App_Controller_Functions::pr($form_values);
+//App_Controller_Functions::pr($form_values);
         if ($form_values['locLvl'] == 3) {
             $where = "l.province ='" . $form_values['province'] . "' and gl.pkId='3' and l.ccmLocationId='" . $form_values['ccm_location_id'] . "' ";
         }
@@ -585,7 +633,7 @@ class Model_Locations extends Model_Base {
 
     public function checkCcmLocationIdUpdate() {
         $form_values = $this->form_values;
-        //App_Controller_Functions::pr($form_values);
+//App_Controller_Functions::pr($form_values);
         if ($form_values['locLvl'] == 3) {
             $where = "l.province ='" . $form_values['province'] . "' and gl.pkId='3' and l.ccmLocationId='" . $form_values['ccm_location_id_update'] . "' and l.locationName='" . $form_values['location_name_update'] . "' ";
         }
@@ -703,42 +751,38 @@ placement_locations.location_type = $type");
     }
 
     public function getLocations() {
-        $str_sql = $this->_em->createQueryBuilder()
-                ->select("l.pkId,l.locationName")
-                ->from("PilotDistricts", "pd")
-                ->join("pd.district", "l")
-                ->join('l.province', 'p')
-                ->join('l.geoLevel', 'gl')
-                ->AndWhere('gl.pkId=4')
-                ->Andwhere('pd.district <> 87')
-                ->AndWhere('p.pkId=' . $this->form_values['province_id']);
+        if (isset($this->form_values['dist_id'])) {
+            $str_sql = $this->_em->createQueryBuilder()
+                    ->select("l.pkId,l.locationName")
+                    ->from("PilotDistricts", "pd")
+                    ->join("pd.district", "l")
+                    ->join('l.province', 'p')
+                    ->join('l.geoLevel', 'gl')
+                    ->AndWhere('gl.pkId=5')
+                    ->AndWhere('l.pkId=' . $this->form_values['dist_id']);
+        } else {
+            $str_sql = $this->_em->createQueryBuilder()
+                    ->select("l.pkId,l.locationName")
+                    ->from("PilotDistricts", "pd")
+                    ->join("pd.district", "l")
+                    ->join('l.province', 'p')
+                    ->join('l.geoLevel', 'gl')
+                    ->AndWhere('gl.pkId=4')
+                    ->AndWhere('p.pkId=' . $this->form_values['province_id']);
+        }
+
         $rs = $str_sql->getQuery()->getResult();
+
         return $rs;
     }
 
     public function getLocationWastages() {
+        $prov = $this->form_values['province_id'];
+        $district = $this->form_values['district_id'];
+        if ($this->form_values['level_id'] == '2') {
 
-        if ($this->form_values['level_id'] == '1') {
 
-
-            $str_sql = $this->_em->getConnection()->prepare("SELECT DISTINCT
-            l0_.pk_id AS districtId,
-            l0_.location_name AS districtName,
-            COUNT(DISTINCT dist.pk_id) AS totalWH
-            FROM
-                    locations AS l0_
-            INNER JOIN locations AS dist ON dist.province_id = l0_.pk_id
-            INNER JOIN warehouses ON dist.pk_id =  warehouses.district_id
-            INNER JOIN pilot_districts ON pilot_districts.district_id = dist.pk_id
-            WHERE
-                    l0_.geo_level_id = 2
-            AND l0_.province_id IS NOT NULL
-            GROUP BY
-            dist.pk_id
-            ORDER BY
-	l0_.pk_id");
-        } else {
-            $str_sql = $this->_em->getConnection()->prepare("SELECT
+            $str_sql = "SELECT
 							District.pk_id AS districtId,
 							District.location_name AS districtName,
 							COUNT(DISTINCT UC.pk_id) AS totalWH
@@ -750,18 +794,37 @@ placement_locations.location_type = $type");
 						WHERE
 							 District.geo_level_id = 4
                                                         and warehouses.status = 1
-							AND UC.province_id = " . $this->form_values['province_id'] . "
+							AND UC.province_id = " . $prov . "
+                                                           
 						GROUP BY
 							District.pk_id
 						ORDER BY
-							districtId ASC");
+							districtId ASC";
+        } else {
+            $str_sql = "SELECT DISTINCT
+	District.pk_id AS districtId,
+	District.location_name AS districtName
+
+        FROM
+                locations AS District
+        INNER JOIN locations AS UC ON District.pk_Id = UC.parent_id
+        INNER JOIN warehouses ON UC.pk_id = warehouses.location_id
+
+        WHERE
+                District.geo_level_id = 5
+        AND warehouses. STATUS = 1
+        AND  UC.district_id = " . $district . "
+        GROUP BY
+                UC.pk_id
+        ORDER BY
+                districtId ASC";
         }
 
 
-
-
-        $str_sql->execute();
-        return $str_sql->fetchAll();
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $row = $this->_em->getConnection()->prepare($str_sql);
+        $row->execute();
+        return $row->fetchAll();
     }
 
     public function getProvincesName() {
@@ -842,7 +905,7 @@ placement_locations.location_type = $type");
         return $result;
     }
 
-    // Added by GM 
+// Added by GM 
     public function getCcmLocationsStatus($wh_id) {
 
         $str_sql = "SELECT
@@ -888,7 +951,7 @@ placement_locations.location_type = $type");
         }
     }
 
-    // Added by GM
+// Added by GM
     public function getNonCcmLocationsStatus($wh_id) {
 
         $str_sql = "SELECT
@@ -969,6 +1032,40 @@ GROUP BY
         return $rs;
     }
 
+    public function getDistrictsByProvince() {
+        $str_sql = $this->_em->createQueryBuilder()
+                ->select("l.pkId,l.locationName")
+                ->from('Locations', 'l')
+                ->where('l.geoLevel =4')
+                ->andWhere('l.province =' . $this->form_values['province_id']);
+
+        $rs = $str_sql->getQuery()->getResult();
+
+        return $rs;
+    }
+
+    public function getTehsilsByDistrict() {
+        $str_sql = $this->_em->createQueryBuilder()
+                ->select("l.pkId,l.locationName")
+                ->from('Locations', 'l')
+                ->where('l.geoLevel =5')
+                ->andWhere('l.district =' . $this->form_values['district_id']);
+
+        $rs = $str_sql->getQuery()->getResult();
+        return $rs;
+    }
+
+    public function getUcsByTehsil() {
+        $str_sql = $this->_em->createQueryBuilder()
+                ->select("l.pkId,l.locationName")
+                ->from('Locations', 'l')
+                ->where('l.geoLevel =6')
+                ->andWhere('l.parent =' . $this->form_values['tehsil_id']);
+
+        $rs = $str_sql->getQuery()->getResult();
+        return $rs;
+    }
+
     public function getSindhDistricts() {
 
         $str_sql = $this->_em->createQueryBuilder()
@@ -995,6 +1092,7 @@ GROUP BY
 
     public function getLocationsForConsumptionReport() {
         $dist_id = $this->form_values['dist_id'];
+        $year = $this->form_values['year'];
         if (!empty($this->form_values['dist_id'])) {
             $where = "  AND
                     locations.pk_id = $dist_id ";
@@ -1007,15 +1105,16 @@ GROUP BY
                     locations.location_name AS district,
                     tehsils.location_name AS tehsil,
                     ucs.location_name AS ucs,
-                    sum(warehouse_population.facility_total_pouplation) as facility_total_pouplation
+                    ROUND(COALESCE(ROUND((((location_populations.population*1)/100*3.5)))/12,null,0)) AS target
                     FROM
                     locations
                     INNER JOIN locations AS tehsils ON locations.pk_id = tehsils.parent_id
                     INNER JOIN locations AS ucs ON tehsils.pk_id = ucs.parent_id
                     INNER JOIN warehouses ON ucs.pk_id = warehouses.location_id
-                    LEFT  JOIN warehouse_population ON warehouses.pk_id = warehouse_population.warehouse_id
+                    INNER JOIN location_populations ON ucs.pk_id = location_populations.location_id
                     WHERE
                     locations.geo_level_id = 4 AND
+                    YEAR(location_populations.estimation_date) = '$year' AND
                     locations.province_id = 2 $where
                     GROUP BY ucs.pk_id
                     ORDER BY tehsil,ucs";
@@ -1052,7 +1151,50 @@ GROUP BY
                     locations.province_id = 2 
                     ORDER BY tehsil,ucs";
 
+        $rec = $this->_em->getConnection()->prepare($str_sql);
 
+        $rec->execute();
+        $result = $rec->fetchAll();
+        if (count($result) > 0) {
+            return $result;
+        } else {
+            return false;
+        }
+    }
+
+    public function getLocationForReport() {
+        $id = $this->form_values['dist_id'];
+        $row = $this->_table->find($id);
+        if (count($row) > 0) {
+            return $row->getLocationName();
+        } else {
+            return false;
+        }
+    }
+
+    public function getBatchVvmLocations($batch_id) {
+        $str_sql = "SELECT
+                            cold_chain.asset_id AS location,
+                            Sum(placements.quantity) AS placed_qty,
+                            vvm_stages.vvm_stage_value,
+                            vvm_stages.pk_id AS vvm_stage,
+                            item_pack_sizes.vvm_group_id,
+                            stock_batch.pk_id as batch_id,
+                            placement_locations.pk_id as location_id
+                    FROM
+                            placements
+                    INNER JOIN placement_locations ON placements.placement_location_id = placement_locations.pk_id
+                    INNER JOIN cold_chain ON placement_locations.location_id = cold_chain.pk_id
+                    INNER JOIN vvm_stages ON placements.vvm_stage = vvm_stages.pk_id
+                    INNER JOIN stock_batch ON placements.stock_batch_id = stock_batch.pk_id
+                    INNER JOIN item_pack_sizes ON stock_batch.item_pack_size_id = item_pack_sizes.pk_id
+                    WHERE
+                            placements.stock_batch_id = $batch_id
+                    AND placement_locations.location_type = " . Model_Placements::LOCATIONTYPE_CCM . "
+                    GROUP BY
+                            placements.vvm_stage,
+                            placements.placement_location_id,
+                            placements.stock_batch_id";
 
         $rec = $this->_em->getConnection()->prepare($str_sql);
 
@@ -1064,12 +1206,19 @@ GROUP BY
             return false;
         }
     }
-    
-     public function getLocationForReport() {
-        $id = $this->form_values['dist_id'];
-        $row = $this->_table->find($id);
-        if (count($row) > 0) {
-            return $row->getLocationName();
+
+    public function getCountryList() {
+        $str_sql = "SELECT
+                        tbl_country.id AS country_id,
+                        tbl_country.countryName AS country_name
+                    FROM
+                        tbl_country";
+        $rec = $this->_em->getConnection()->prepare($str_sql);
+
+        $rec->execute();
+        $result = $rec->fetchAll();
+        if (count($result) > 0) {
+            return $result;
         } else {
             return false;
         }

@@ -1,24 +1,27 @@
 <?php
 $param = $param = $this->param;
-$districtId = $param[0];
 
-$month = $param[1];
-$year = $param[2];
-$query2 = $this->reports()->getReportetUcUser($districtId);
+
+$wh_type = $param[0];
+$districtId = $param[1];
+
+$month = $param[2];
+$year = $param[3];
+$query2 = $this->reports()->getReportetUcUser($wh_type, $districtId);
 
 $userInfo = array();
 foreach ($query2 as $row) {
     array_push($userInfo, $row);
     $districtName = $row['District'];
 }
-$query21 = $this->reports()->getReportetUcUser1($districtId, $month, $year);
+$query21 = $this->reports()->getReportetUcUser1($wh_type,$districtId, $month, $year);
 
 
 $reportedUsersArr = array();
 foreach ($query21 as $row) {
     array_push($reportedUsersArr, $row['UserID']);
 }
-$query21 = $this->reports()->getReportetUcUser2($districtId, $month, $year);
+$query21 = $this->reports()->getReportetUcUser2($wh_type,$districtId, $month, $year);
 
 
 $reportedUcArr = array();
@@ -112,7 +115,7 @@ $title = "Operator's Data Reporting Status For $districtName ($month/$year)";
         $('body').append('<textarea id="xml_string" style="display:none;"><?php echo addslashes($xml_store); ?></textarea>');
         mygrid.loadXMLString(document.getElementById('xml_string').value);
     }
-    window.onload = function () {
+    window.onload = function() {
         doInitGrid();
     }
 

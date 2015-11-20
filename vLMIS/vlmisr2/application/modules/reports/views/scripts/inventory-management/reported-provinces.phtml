@@ -16,23 +16,23 @@ $end_date = $this->end_date;
 $period = $this->period;
 $str_indicator = $this->str_indicator;
 
-
 $data_arr = array();
 
 // Headers of the Grid
-$header = 'Province Id,Province/Region,Total UCs';
-$header1 = '#rspan,#rspan,#rspan';
+$header = 'Province Id,Province/Region';
+$header1 = '#rspan,#rspan';
 $cspan = '';
-$width = '*,150,60';
-$ro = 'ro,ro,ro';
+$width = '*,250';
+$ro = 'ro,ro';
 //$count = 1;
 foreach ($period as $date) {
-    $cspan .= ',#cspan,#cspan';
-    $header .= ',<span>' . $date->format("M-y") . '</span>,#cspan';
+    $cspan .= ',#cspan,#cspan,#cspan';
+    $header .= ',<span>' . $date->format("M-y") . '</span>,#cspan,#cspan';
     $monthArr[] = $date->format("m-Y");
-    $width .= ',70,70';
-    $ro .= ',ro,ro';
-    $header1 .= ',<span>Reported UCs</span>,#cspan';
+    $width .= ',89,89,89';
+    $ro .= ',ro,ro,ro,ro';
+    //$header1 .= '#cspan';
+    $header1 .= ',<span>Total UCs</span>,<span>Reported UCs</span>,#cspan';
     $str_date = $startDate = $endDate = $date->format("Y-m");
 }
 
@@ -40,22 +40,47 @@ $query_vals_1 = $this->reports()->getReportedProvinces1();
 
 foreach ($query_vals_1 as $row) {
     $data_arr[$row['provinceId']][] = $row['provinceName'];
-    $data_arr[$row['provinceId']][] = $row['TotalUCs'];
-    $count = 2;
+
+    $count = 1;
+    foreach ($period as $date) {
+        $data_arr[$row['provinceId']][$count] = 0;
+        $count++;
+    }
+    foreach ($period as $date) {
+        $data_arr[$row['provinceId']][$count] = 0;
+        $count++;
+    }
     foreach ($period as $date) {
         $data_arr[$row['provinceId']][$count] = 0;
         $count++;
     }
 }
 
-$count = 2;
+$count = 1;
+$total_uc = array();
+
+
+
 foreach ($period as $date) {
     $str_date1 = $date->format("Y-m");
-    $query_vals = $this->reports()->getReportedProvinces($str_date1);
-    foreach ($query_vals as $row) {
-
-        $data_arr[$row['provinceId']][$count] = $row['reported'];
+    $query_total = $this->reports()->gettoalUcs($str_date1);
+    foreach ($query_total as $key => $row) {
+        $data_arr[$row['provinceId']][$count] = $row['TotalUCs'];
+        // $total_uc[$key] = $row['TotalUCs'];
     }
+    // $query_vals = $this->reports()->getReportedProvinces($str_date1);
+
+    $count += 1;
+    foreach ($query_total as $row) {
+        $data_arr[$row['provinceId']][$count] = $row['reported'];
+        //$reported = $row['reported'];
+    }
+    $count += 1;
+    foreach ($query_total as $row) {
+        //   echo $total_uc;
+        $data_arr[$row['provinceId']][$count] = $row['reportingPercentage'];
+    }
+
     $count++;
 }
 
@@ -67,41 +92,72 @@ $sum_arr = array();
 
 foreach ($data_arr as $dis_id => $sub_arr) {
 
+
     $xml_store .= "<row>";
-
-    $param1 = base64_encode($sub_arr[0] . '|' . $start_date . '|' . $end_date . '|' . $dis_id . '|' . $sub_arr[1] . '|' . '1');
-
-    $xml_store .= "<cell>$dis_id</cell>";
-    $xml_store .= "<cell>$sub_arr[0]</cell>";
-    $xml_store .= "<cell style=\"text-align:right\">$sub_arr[1]</cell>";
+    //$param1 = base64_encode($sub_arr[0] . '|' . $start_date . '|' . $end_date . '|' . $dis_id . '|' . $sub_arr[1] . '|' . '1');
+    // $xml_store .= "<cell>$dis_id</cell>";
+    $xml_store .= "<cell style=\"text-align:left\">$sub_arr[0]</cell>";
+    // $total_uc = $sub_arr[1];
+    // $xml_store .= "<cell style=\"text-align:right\">$sub_arr[1]</cell>";
     foreach ($sub_arr as $key => $value) {
 
+        //  App_Controller_Functions::pr($sub_arr);
         if (!isset($sum_arr[$key])) {
             $sum_arr[$key] = 0;
         }
         $sum_arr[$key] += $value;
+        // if ($key == 1 || $key == 4 || $key == 7) {
+        $param = $dis_id;
+        base64_encode($disId . '-' . $monthArr[$key - 2]);
 
-        if ($key > 1) {
-            $param = $dis_id;
-            //base64_encode($disId.'-'.$monthArr[$key-2]);
-            $xml_store .= "<cell style=\"text-align:right\"><![CDATA[<a href=javascript:functionCall('$param')>$value</a>]]>^_self</cell>";
-            $xml_store .= "<cell style=\"text-align:right\">" . @round(($value / $sub_arr[1]) * 100) . " %</cell>";
+        if (!is_numeric($value)) {
+
+            $xml_store .= "<cell style=\"text-align:left\"><![CDATA[<a href=javascript:functionCall('$param')>$value</a>]]>^_self</cell>";
+        } else {
+            if ($key == 1 || $key == 4 || $key == 7) {
+                $xml_store .= "<cell style=\"text-align:right\">$value </cell>";
+            } else if ($key == 3 || $key == 6 || $key == 9) {
+                $xml_store .= "<cell style=\"text-align:right\">$value %</cell>";
+            } else {
+                $xml_store .= "<cell style=\"text-align:right\"><![CDATA[<a href=javascript:functionCall('$param')>$value</a>]]>^_self</cell>";
+            }
         }
+        //  $xml_store .= "<cell style=\"text-align:right\"><![CDATA[<a href=javascript:functionCall('$param')>$value</a>]]>^_self</cell>";
+        //  $xml_store .= "<cell style=\"text-align:right\">" . @round(($value / $total_uc) * 100) . " %</cell>";
+        //  }
     }
+
     $xml_store .="</row>";
 }
-
+// exit;
 // To show Total
 array_shift($sum_arr);
 
 $xml_store .= "<row>";
 $xml_store .= "<cell></cell>";
 $xml_store .= "<cell style=\"font-weight:bold\">Total</cell>";
+
 foreach ($sum_arr as $key => $value) {
+    // App_Controller_Functions::pr($sum_arr);
+
     if ($key == 0) {
         $total_wh = $value;
         $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . number_format($value) . "</cell>";
-    } else {
+    } else if ($key == 1) {
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">$value</cell>";
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . @round(($value / $total_wh) * 100) . " %</cell>";
+    }
+    if ($key == 3) {
+        $total_wh = $value;
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . number_format($value) . "</cell>";
+    } else if ($key == 4) {
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">$value</cell>";
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . @round(($value / $total_wh) * 100) . " %</cell>";
+    }
+    if ($key == 6) {
+        $total_wh = $value;
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . number_format($value) . "</cell>";
+    } else if ($key == 7) {
         $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">$value</cell>";
         $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . @round(($value / $total_wh) * 100) . " %</cell>";
     }
@@ -130,14 +186,14 @@ if (!empty($sel_month)) {
             <table width="99%">
                 <tr>
                     <td colspan="2">
-                        <?php
-                        echo App_Controller_Functions::getPageNarrative(Zend_Registry::get('resource'));
-                        ?>
+<?php
+echo App_Controller_Functions::getPageNarrative(Zend_Registry::get('resource'));
+?>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="2">
-                        <?php echo $this->render('inventory-management/reports-header.phtml') ?>
+<?php echo $this->render('inventory-management/reports-header.phtml') ?>
                     </td>
                 </tr>
 
@@ -192,7 +248,7 @@ if (!empty($sel_month)) {
         var year = '<?php echo $sel_year ?>';
         var x = (screen.width / 2) - (width / 2);
         var y = (screen.height / 2) - (height / 2);
-        window.open('reported-districts-by-uc?prov_sel=' + param + '&ending_month=' + month + '&year_sel=' + year);
+        window.open('reported-districts-by-uc?province=' + param + '&ending_month=' + month + '&year_sel=' + year);
     }
 
     function showGraph(param) {

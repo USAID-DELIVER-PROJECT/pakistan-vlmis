@@ -100,7 +100,8 @@ class Model_PipelineConsignments extends Model_Base {
         $placements->setPipelineConsignment($pipeline_consignments);
         $placements->setPlacementLocation($plac_loc_id);
         $placements->setQuantity($qty);
-        $placements->setVvmStage($vvmstage);
+        $vvms = $this->_em->getRepository("VvmStages")->find($vvmstage);
+        $placements->setVvmStage($vvms);
         $this->_em->persist($placements);
         $this->_em->flush();
 
@@ -248,7 +249,8 @@ class Model_PipelineConsignments extends Model_Base {
             $stock_detail = new StockDetail();
             $stock_detail->setQuantity("-" . $qty);
             $stock_detail->setTemporary(0);
-            $stock_detail->setVvmStage($vvmstage);
+            $vvms = $this->_em->getRepository("VvmStages")->find($vvmstage);
+            $stock_detail->setVvmStage($vvms);
             $stock_detail->setIsReceived(0);
             $stock_detail->setAdjustmentType(2);
             $stock_master = $this->_em->getRepository("StockMaster")->find($master_id);
@@ -395,7 +397,8 @@ class Model_PipelineConsignments extends Model_Base {
         $stock_detail = new StockDetail();
         $stock_detail->setQuantity($qty);
         $stock_detail->setTemporary(0);
-        $stock_detail->setVvmStage(1);
+        $vvms = $this->_em->getRepository("VvmStages")->find(1);
+        $stock_detail->setVvmStage($vvms);
         $stock_detail->setIsReceived(1);
         $stock_detail->setAdjustmentType(1);
         $stock_master = $this->_em->getRepository("StockMaster")->find($master_id);
@@ -414,7 +417,8 @@ class Model_PipelineConsignments extends Model_Base {
                  */
                 $placements = new Placements();
                 $placements->setQuantity($qty);
-                $placements->setVvmStage(1);
+                $vvms = $this->_em->getRepository("VvmStages")->find(1);
+                $placements->setVvmStage($vvms);
                 $placements->setIsPlaced(1);
                 $placements->setPlacementLocation($plac_loc_id);
                 $placements->setStockBatch($stock_batch);
@@ -926,15 +930,25 @@ class Model_PipelineConsignments extends Model_Base {
                 ->join("fa.fromWarehouse", 'warehouse')
                 ->andWhere("fa.toWarehouse = " . $this->_identity->getWarehouseId());
 
-        if (!empty($this->form_values['pkId'])) {
-            $str_sql->andWhere("fa.pkId = '" . $this->form_values['pkId'] . "' ");
+        if (!empty($this->form_values['from_date']) && !empty($this->form_values['to_date'])) {
+            $str_sql->andWhere("DATE_FORMAT(fa.expectedArrivalDate,'%Y-%m-%d') BETWEEN '" . App_Controller_Functions::dateToDbFormat($this->form_values['from_date']) . "' AND '" . App_Controller_Functions::dateToDbFormat($this->form_values['to_date']) . "'");
+        } else {
+            $date_from = date('Y-m' . '-01');
+            $date_to = date('Y-m-d');
+            $str_sql->andWhere("DATE_FORMAT(fa.expectedArrivalDate,'%Y-%m-%d') BETWEEN '" . $date_from . "' AND '" . $date_to . "'");
         }
-        if (!empty($this->form_values['voucher_number'])) {
-            $str_sql->andWhere("fa.voucherNumber = '" . $this->form_values['voucher_number'] . "'");
+        if (!empty($this->form_values['item_pack_size_id'])) {
+            $str_sql->andWhere("fa.itemPackSize = '" . $this->form_values['item_pack_size_id'] . "'");
         }
-        if (!empty($this->form_values['source'])) {
-            $str_sql->andWhere("fa.fromWarehouse = '" . $this->form_values['source'] . "'");
+        if (!empty($this->form_values['from_warehouse_id'])) {
+            $str_sql->andWhere("fa.fromWarehouse = '" . $this->form_values['from_warehouse_id'] . "'");
         }
+        if (!empty($this->form_values['status'])) {
+            $str_sql->andWhere("fa.status = '" . $this->form_values['status'] . "'");
+        } else {
+            $str_sql->andWhere("fa.status = 'Planned' ");
+        }
+
         $str_sql->groupBy("fa.voucherNumber");
         $str_sql->orderBy("fa.pkId", "DESC");
 

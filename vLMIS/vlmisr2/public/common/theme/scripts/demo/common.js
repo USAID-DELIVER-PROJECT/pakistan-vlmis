@@ -293,7 +293,7 @@ $(function()
     $(window).resize();
 
     // prettyphoto
-    $('[data-toggle="prettyPhoto"]').prettyPhoto();
+    //$('[data-toggle="prettyPhoto"]').prettyPhoto();
 
     // view source toggle buttons
     $('.btn-source-toggle').click(function(e) {

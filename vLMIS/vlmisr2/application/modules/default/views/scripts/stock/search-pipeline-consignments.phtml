@@ -85,6 +85,9 @@
                                         <button data-loading-text="Please Wait ..." class="btn btn-primary" id="btn-loading" type="submit">
                                             <?php echo $this->translate("Search"); ?>
                                         </button>
+                                        <button type="reset" class="btn btn-info" id="reset">
+                                            <?php echo $this->translate("Reset"); ?>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -186,7 +189,14 @@
             </div>
             <?php
         }
-        ?>
+        else {
+            ?>
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>No data found</h4>
+                </div>
+            </div>
+        <?php } ?>
         <div id="future_arrival_details"></div>
     </div>
 </div>

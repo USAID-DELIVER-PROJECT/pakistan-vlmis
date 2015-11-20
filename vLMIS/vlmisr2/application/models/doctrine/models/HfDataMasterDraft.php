@@ -55,6 +55,26 @@ class HfDataMasterDraft
     private $reportingStartDate;
 
     /**
+     * @var integer $childrenLiveBirth
+     */
+    private $childrenLiveBirth;
+
+    /**
+     * @var integer $survivingChildren011
+     */
+    private $survivingChildren011;
+
+    /**
+     * @var integer $childrenAged1223
+     */
+    private $childrenAged1223;
+
+    /**
+     * @var integer $pregnantWomen
+     */
+    private $pregnantWomen;
+
+    /**
      * @var datetime $nearestExpiry
      */
     private $nearestExpiry;
@@ -68,6 +88,16 @@ class HfDataMasterDraft
      * @var datetime $modifiedDate
      */
     private $modifiedDate;
+
+    /**
+     * @var integer $itemAmc
+     */
+    private $itemAmc;
+
+    /**
+     * @var integer $cbas
+     */
+    private $cbas;
 
     /**
      * @var Users
@@ -256,6 +286,86 @@ class HfDataMasterDraft
     }
 
     /**
+     * Set childrenLiveBirth
+     *
+     * @param integer $childrenLiveBirth
+     */
+    public function setChildrenLiveBirth($childrenLiveBirth)
+    {
+        $this->childrenLiveBirth = $childrenLiveBirth;
+    }
+
+    /**
+     * Get childrenLiveBirth
+     *
+     * @return integer 
+     */
+    public function getChildrenLiveBirth()
+    {
+        return $this->childrenLiveBirth;
+    }
+
+    /**
+     * Set survivingChildren011
+     *
+     * @param integer $survivingChildren011
+     */
+    public function setSurvivingChildren011($survivingChildren011)
+    {
+        $this->survivingChildren011 = $survivingChildren011;
+    }
+
+    /**
+     * Get survivingChildren011
+     *
+     * @return integer 
+     */
+    public function getSurvivingChildren011()
+    {
+        return $this->survivingChildren011;
+    }
+
+    /**
+     * Set childrenAged1223
+     *
+     * @param integer $childrenAged1223
+     */
+    public function setChildrenAged1223($childrenAged1223)
+    {
+        $this->childrenAged1223 = $childrenAged1223;
+    }
+
+    /**
+     * Get childrenAged1223
+     *
+     * @return integer 
+     */
+    public function getChildrenAged1223()
+    {
+        return $this->childrenAged1223;
+    }
+
+    /**
+     * Set pregnantWomen
+     *
+     * @param integer $pregnantWomen
+     */
+    public function setPregnantWomen($pregnantWomen)
+    {
+        $this->pregnantWomen = $pregnantWomen;
+    }
+
+    /**
+     * Get pregnantWomen
+     *
+     * @return integer 
+     */
+    public function getPregnantWomen()
+    {
+        return $this->pregnantWomen;
+    }
+
+    /**
      * Set nearestExpiry
      *
      * @param datetime $nearestExpiry
@@ -313,6 +423,46 @@ class HfDataMasterDraft
     public function getModifiedDate()
     {
         return $this->modifiedDate;
+    }
+
+    /**
+     * Set itemAmc
+     *
+     * @param integer $itemAmc
+     */
+    public function setItemAmc($itemAmc)
+    {
+        $this->itemAmc = $itemAmc;
+    }
+
+    /**
+     * Get itemAmc
+     *
+     * @return integer 
+     */
+    public function getItemAmc()
+    {
+        return $this->itemAmc;
+    }
+
+    /**
+     * Set cbas
+     *
+     * @param integer $cbas
+     */
+    public function setCbas($cbas)
+    {
+        $this->cbas = $cbas;
+    }
+
+    /**
+     * Get cbas
+     *
+     * @return integer 
+     */
+    public function getCbas()
+    {
+        return $this->cbas;
     }
 
     /**

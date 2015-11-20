@@ -21,6 +21,11 @@ LogBook:
       fixed: false
       nullable: true
       column: father_name
+    gender:
+      type: string
+      length: null
+      fixed: false
+      nullable: true  
     age:
       type: string
       length: 255
@@ -40,12 +45,10 @@ LogBook:
       type: datetime
       nullable: true
       column: vaccination_date
-    refferTo:
-      type: string
-      length: 255
-      fixed: false
+    reportingStartDate:
+      type: datetime
       nullable: true
-      column: reffer_to
+      column: reporting_start_date  
     remarks:
       type: string
       length: 255
@@ -85,6 +88,15 @@ LogBook:
       inversedBy: null
       joinColumns:
         warehouse_id:
+          referencedColumnName: pk_id
+      orphanRemoval: false
+    referToWarehouse:
+      targetEntity: Warehouses
+      cascade: {  }
+      mappedBy: null
+      inversedBy: null
+      joinColumns:
+        refer_to_warehouse_id:
           referencedColumnName: pk_id
       orphanRemoval: false
     createdBy:

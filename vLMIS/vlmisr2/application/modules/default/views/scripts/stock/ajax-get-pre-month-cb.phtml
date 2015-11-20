@@ -11,7 +11,7 @@ if ($this->data['wh_id'] && !empty($this->data['wh_id'])) {
     $rptDate = date('Y-m-d', strtotime("-1 month", strtotime($rptDate)));
 
     if (($month == '01' || $month == '1') && $year == '2014') {
-        $resSet = array();        
+        $resSet = array();
     } else {
         $qry = $this->reports()->getPreMonthCb($wh_id, $rptDate);
         $resSet = array();

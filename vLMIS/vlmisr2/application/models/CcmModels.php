@@ -356,10 +356,10 @@ class Model_CcmModels extends Model_Base {
         if (!empty($this->form_values['facility_type'])) {
             $where[] = "warehouse_types.pk_id = " . $this->form_values['facility_type'];
         }
-        if (!empty($this->form_values['combo1']) && $this->form_values['office'] == 2) {
+        if (!empty($this->form_values['combo1']) == 2) {
             $where[] = "Province.province_id = " . $this->form_values['combo1'];
         }
-        if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
+        if (!empty($this->form_values['combo2'])) {
             $where[] = "District.district_id = " . $this->form_values['combo2'];
         }
         if (count($where) > 0) {
@@ -419,34 +419,36 @@ WHERE
             $str_where .= " AND " . implode(" AND ", $where);
         }
 
-        $str_qry = "
-        SELECT Model, 
-           sum(b.Working) as Working,
-           sum(b.NeedsService) as NeedsService,
-           sum(b.NotWorking) as NotWorking
-           from (            
-            SELECT
-                    ccm_models.ccm_model_name AS Model,
-                    Sum(IF(ccm_status_history.ccm_status_list_id = 1,1,0)) AS Working,
-                    Sum(IF(ccm_status_history.ccm_status_list_id = 2,1,0)) AS NeedsService,
-                    Sum(IF(ccm_status_history.ccm_status_list_id = 3,1,0)) AS NotWorking,
-                    warehouse_types.warehouse_type_name
-                    FROM
- ccm_models
-INNER JOIN cold_chain ON cold_chain.ccm_model_id = ccm_models.pk_id
-INNER JOIN ccm_status_history ON cold_chain.ccm_status_history_id = ccm_status_history.pk_id
-INNER JOIN warehouses ON cold_chain.warehouse_id = warehouses.pk_id
-INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
-INNER JOIN locations AS District ON warehouses.district_id = District.pk_id
-INNER JOIN locations AS Province ON District.province_id = Province.pk_id
-WHERE
- cold_chain.ccm_asset_type_id = 1
- AND warehouses.status = 1 
-                        " . $str_where . "
-                    GROUP BY
-                        ccm_models.pk_id
-                ) b group by Model
-                    ";
+        $str_qry = "SELECT Model, 
+                        sum(b.Working) as Working,
+                        sum(b.NeedsService) as NeedsService,
+                        sum(b.NotWorking) as NotWorking
+                        from (            
+                            SELECT
+                                ccm_models.ccm_model_name AS Model,
+                                Sum(IF(ccm_status_history.ccm_status_list_id = 1,1,0)) AS Working,
+                                Sum(IF(ccm_status_history.ccm_status_list_id = 2,1,0)) AS NeedsService,
+                                Sum(IF(ccm_status_history.ccm_status_list_id = 3,1,0)) AS NotWorking,
+                                warehouse_types.warehouse_type_name
+                            FROM
+                                ccm_models
+                            INNER JOIN cold_chain ON cold_chain.ccm_model_id = ccm_models.pk_id
+                            INNER JOIN ccm_status_history ON cold_chain.ccm_status_history_id = ccm_status_history.pk_id
+                            INNER JOIN warehouses ON cold_chain.warehouse_id = warehouses.pk_id
+                            INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
+                            INNER JOIN locations AS District ON warehouses.district_id = District.pk_id
+                            INNER JOIN locations AS Province ON District.province_id = Province.pk_id
+                            INNER JOIN ccm_asset_types AS Asset_Type ON Asset_Type.pk_id = ccm_models.ccm_asset_type_id
+                            WHERE
+                            (
+                                Asset_Type.pk_id = 1
+                                OR Asset_Type.parent_id = 1
+                            )
+                            AND warehouses.status = 1 
+                            " . $str_where . "
+                        GROUP BY
+                            ccm_models.pk_id
+                   ) b group by Model ";
         $row = $this->_em->getConnection()->prepare($str_qry);
         $row->execute();
         return $row->fetchAll();
@@ -455,39 +457,47 @@ WHERE
     public function getRefrigeratorModelsByAgeGroupReport() {
         $where = array();
         $str_where = "";
-
+        
         if (!empty($this->form_values['facility_type'])) {
-            $where[] = "warehouse_types.pk_id = " . $this->form_values['facility_type'];
+            $where[] = "warehouses.warehouse_type_id = " . $this->form_values['facility_type'];
         }
         if (!empty($this->form_values['combo1']) && $this->form_values['office'] == 2) {
-            $where[] = "Province.province_id = " . $this->form_values['combo1'];
+            $where[] = "warehouses.province_id = " . $this->form_values['combo1'];
         }
         if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
-            $where[] = "District.district_id = " . $this->form_values['combo2'];
+            $where[] = "warehouses.district_id = " . $this->form_values['combo2'];
         }
         if (count($where) > 0) {
             $str_where .= " AND " . implode(" AND ", $where);
         }
 
         $str_qry = "SELECT
-	ccm_models.ccm_model_name,
-	COUNT(ccm_models.pk_id) AS total,
-	SUM(IF(ADDDATE(CURDATE(), INTERVAL -2 YEAR) < DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0))AS `0-2 Years`,
-	ROUND(SUM(IF(ADDDATE(CURDATE(), INTERVAL -2 YEAR) < DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) / COUNT(ccm_models.pk_id) * 100, 2) AS `0-2 Years Per`,
-	SUM(IF(ADDDATE(CURDATE(), INTERVAL -2 YEAR) > DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND ADDDATE(CURDATE(), INTERVAL -5 YEAR) < DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) AS `3-5 Years`,
-	ROUND(SUM(IF(ADDDATE(CURDATE(), INTERVAL -2 YEAR) > DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND ADDDATE(CURDATE(), INTERVAL -5 YEAR) < DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) / COUNT(ccm_models.pk_id) * 100, 2) AS `3-5 Years Per`,
-	SUM(IF(ADDDATE(CURDATE(), INTERVAL -5 YEAR) > DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND ADDDATE(CURDATE(), INTERVAL -10 YEAR) < DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) AS `6-10 Years`,
-	ROUND(SUM(IF(ADDDATE(CURDATE(), INTERVAL -5 YEAR) > DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND ADDDATE(CURDATE(), INTERVAL -10 YEAR) < DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) / COUNT(ccm_models.pk_id) * 100, 2) AS `6-10 Years Per`,
-	SUM(IF(ADDDATE(CURDATE(), INTERVAL -10 YEAR) > DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) AS `>10 Years`,
-	ROUND(SUM(IF(ADDDATE(CURDATE(), INTERVAL -10 YEAR) > DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) / COUNT(ccm_models.pk_id) * 100, 2) AS `>10 Years Per`,
-	SUM(IF(DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') = '0000-00-00' || cold_chain.working_since IS NULL, 1, 0)) AS `Unknown`,
-	ROUND(SUM(IF(DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') = '0000-00-00' || cold_chain.working_since IS NULL, 1, 0)) / COUNT(ccm_models.pk_id) * 100, 2) AS `Unknown Per`
-    FROM
-	ccm_models
-        INNER JOIN cold_chain ON cold_chain.ccm_model_id = ccm_models.pk_id
-    GROUP BY
-    ccm_models.pk_id
-    ";
+                        ccm_models.ccm_model_name,
+                        COUNT(ccm_models.pk_id) AS total,
+                        SUM(IF(ADDDATE(CURDATE(), INTERVAL -2 YEAR) < DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0))AS `0-2 Years`,
+                        ROUND(SUM(IF(ADDDATE(CURDATE(), INTERVAL -2 YEAR) < DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) / COUNT(ccm_models.pk_id) * 100, 2) AS `0-2 Years Per`,
+                        SUM(IF(ADDDATE(CURDATE(), INTERVAL -2 YEAR) > DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND ADDDATE(CURDATE(), INTERVAL -5 YEAR) < DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) AS `3-5 Years`,
+                        ROUND(SUM(IF(ADDDATE(CURDATE(), INTERVAL -2 YEAR) > DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND ADDDATE(CURDATE(), INTERVAL -5 YEAR) < DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) / COUNT(ccm_models.pk_id) * 100, 2) AS `3-5 Years Per`,
+                        SUM(IF(ADDDATE(CURDATE(), INTERVAL -5 YEAR) > DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND ADDDATE(CURDATE(), INTERVAL -10 YEAR) < DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) AS `6-10 Years`,
+                        ROUND(SUM(IF(ADDDATE(CURDATE(), INTERVAL -5 YEAR) > DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND ADDDATE(CURDATE(), INTERVAL -10 YEAR) < DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) / COUNT(ccm_models.pk_id) * 100, 2) AS `6-10 Years Per`,
+                        SUM(IF(ADDDATE(CURDATE(), INTERVAL -10 YEAR) > DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) AS `>10 Years`,
+                        ROUND(SUM(IF(ADDDATE(CURDATE(), INTERVAL -10 YEAR) > DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') AND DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') != '0000-00-00', 1, 0)) / COUNT(ccm_models.pk_id) * 100, 2) AS `>10 Years Per`,
+                        SUM(IF(DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') = '0000-00-00' || cold_chain.working_since IS NULL, 1, 0)) AS `Unknown`,
+                        ROUND(SUM(IF(DATE_FORMAT(cold_chain.working_since, '%Y-%m-%d') = '0000-00-00' || cold_chain.working_since IS NULL, 1, 0)) / COUNT(ccm_models.pk_id) * 100, 2) AS `Unknown Per`
+                    FROM
+                        ccm_models
+                    INNER JOIN cold_chain ON cold_chain.ccm_model_id = ccm_models.pk_id
+                    INNER JOIN warehouses ON cold_chain.warehouse_id = warehouses.pk_id
+                    INNER JOIN ccm_asset_types AS Asset_Type ON Asset_Type.pk_id = ccm_models.ccm_asset_type_id
+                    WHERE
+                    (
+                        Asset_Type.pk_id = " . Model_CcmAssetTypes::REFRIGERATOR . "
+                        OR Asset_Type.parent_id = " . Model_CcmAssetTypes::REFRIGERATOR . "
+                    )
+                    AND warehouses.status = 1 
+                         " . $str_where . "
+                     GROUP BY
+                         ccm_models.pk_id";
         $row = $this->_em->getConnection()->prepare($str_qry);
         $row->execute();
         return $row->fetchAll();
@@ -546,10 +556,10 @@ LIMIT 0,10
         if (!empty($this->form_values['facility_type'])) {
             $where[] = "warehouse_types.pk_id = " . $this->form_values['facility_type'];
         }
-        if (!empty($this->form_values['combo1']) && $this->form_values['office'] == 2) {
+        if (!empty($this->form_values['combo1'])) {
             $where[] = "warehouses.province_id = " . $this->form_values['combo1'];
         }
-        if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
+        if (!empty($this->form_values['combo2'])) {
             $where[] = "warehouses.district_id = " . $this->form_values['combo2'];
         }
         if (count($where) > 0) {
@@ -559,8 +569,8 @@ LIMIT 0,10
         $str_qry = "
                 SELECT ccm_models.ccm_model_name,
                 COUNT(cold_chain.warehouse_id) AS Total,
-                Sum(IF(ccm_status_history.ccm_status_list_id=1, 1, 0)) AS inUse,
-                ROUND((SUM(IF(ccm_status_history.ccm_status_list_id=1, 1, 0))/COUNT(cold_chain.warehouse_id)) * 100, 1) AS inUsePer,
+                Sum(IF(ccm_status_history.ccm_status_list_id=8, 1, 0)) AS inUse,
+                ROUND((SUM(IF(ccm_status_history.ccm_status_list_id=8, 1, 0))/COUNT(cold_chain.warehouse_id)) * 100, 1) AS inUsePer,
                 Sum(IF(ccm_status_history.ccm_status_list_id=14, 1, 0)) AS inStore,
                 ROUND((SUM(IF(ccm_status_history.ccm_status_list_id=14, 1, 0))/COUNT(cold_chain.warehouse_id)) * 100, 1) AS inStorePer,
                 Sum(IF(ccm_status_history.ccm_status_list_id IN(9, 10), 1, 0)) AS notUsed,
@@ -573,9 +583,9 @@ LIMIT 0,10
                     INNER JOIN cold_chain ON cold_chain.ccm_model_id = ccm_models.pk_id
                     INNER JOIN ccm_status_history ON cold_chain.ccm_status_history_id = ccm_status_history.pk_id
                     INNER JOIN ccm_asset_types AS AssetSubtype ON cold_chain.ccm_asset_type_id = AssetSubtype.pk_id
-                        INNER JOIN warehouses ON cold_chain.warehouse_id = warehouses.pk_id
-                        INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
-                        INNER JOIN ccm_asset_types AS Asset_Type ON Asset_Type.pk_id = ccm_models.ccm_asset_type_id
+                    INNER JOIN warehouses ON cold_chain.warehouse_id = warehouses.pk_id
+                    INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
+                    INNER JOIN ccm_asset_types AS Asset_Type ON Asset_Type.pk_id = ccm_models.ccm_asset_type_id
                 WHERE
                     (
                    Asset_Type.pk_id = " . Model_CcmAssetTypes::REFRIGERATOR . "
@@ -627,11 +637,14 @@ LIMIT 0,10
                    ccm_models
                     INNER JOIN cold_chain ON cold_chain.ccm_model_id = ccm_models.pk_id
                     INNER JOIN ccm_status_history ON cold_chain.ccm_status_history_id = ccm_status_history.pk_id
-                    INNER JOIN ccm_asset_types AS AssetSubtype ON cold_chain.ccm_asset_type_id = AssetSubtype.pk_id
-                        INNER JOIN warehouses ON cold_chain.warehouse_id = warehouses.pk_id
-                        INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
+                    INNER JOIN warehouses ON cold_chain.warehouse_id = warehouses.pk_id
+                    INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
+                    INNER JOIN ccm_asset_types AS Asset_Type ON Asset_Type.pk_id = ccm_models.ccm_asset_type_id
                 WHERE
-                    cold_chain.ccm_asset_type_id=1
+                    (
+                   Asset_Type.pk_id = " . Model_CcmAssetTypes::REFRIGERATOR . "
+                   OR Asset_Type.parent_id = " . Model_CcmAssetTypes::REFRIGERATOR . "
+                        )
                     and warehouses.status = 1
                     " . $str_where . "
                 GROUP BY
@@ -651,10 +664,10 @@ LIMIT 0,10
         if (!empty($this->form_values['facility_type'])) {
             $where[] = "warehouse_types.pk_id = " . $this->form_values['facility_type'];
         }
-        if (!empty($this->form_values['combo1']) && $this->form_values['office'] == 2) {
+        if (!empty($this->form_values['combo1'])) {
             $where[] = "warehouses.province_id = " . $this->form_values['combo1'];
         }
-        if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
+        if (!empty($this->form_values['combo2'])) {
             $where[] = "warehouses.district_id = " . $this->form_values['combo2'];
         }
         if (count($where) > 0) {
@@ -676,9 +689,13 @@ LIMIT 0,10
                     INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
                     INNER JOIN cold_chain ON cold_chain.warehouse_id = warehouses.pk_id
                     INNER JOIN ccm_models ON cold_chain.ccm_model_id = ccm_models.pk_id
+                    INNER JOIN ccm_asset_types AS Asset_Type ON Asset_Type.pk_id = ccm_models.ccm_asset_type_id
                 WHERE
-                    ccm_models.ccm_asset_type_id = 1
-                    and warehouses.status = 1
+                    (
+                        Asset_Type.pk_id = " . Model_CcmAssetTypes::REFRIGERATOR . "
+                        OR Asset_Type.parent_id = " . Model_CcmAssetTypes::REFRIGERATOR . "
+                    )
+                AND warehouses.status = 1
                      " . $str_where . "
                 GROUP BY
                     warehouse_types.pk_id
@@ -855,10 +872,10 @@ LIMIT 0,10
         if (!empty($this->form_values['facility_type'])) {
             $where[] = "warehouse_types.pk_id = " . $this->form_values['facility_type'];
         }
-        if (!empty($this->form_values['combo1']) && $this->form_values['office'] == 2) {
+        if (!empty($this->form_values['combo1'])) {
             $where[] = "Province.province_id = " . $this->form_values['combo1'];
         }
-        if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
+        if (!empty($this->form_values['combo2'])) {
             $where[] = "locations.district_id = " . $this->form_values['combo2'];
         }
         if (count($where) > 0) {
@@ -888,10 +905,10 @@ LIMIT 0,10
                         INNER JOIN ccm_makes ON ccm_models.ccm_make_id = ccm_makes.pk_id
                         INNER JOIN ccm_asset_types ON cold_chain.ccm_asset_type_id = ccm_asset_types.pk_id
                         INNER JOIN ccm_status_history ON cold_chain.ccm_status_history_id = ccm_status_history.pk_id
-                INNER JOIN locations ON warehouses.district_id = locations.pk_id
-                INNER JOIN locations AS Province ON warehouses.province_id = Province.pk_id
+                        INNER JOIN locations ON warehouses.district_id = locations.pk_id
+                        INNER JOIN locations AS Province ON warehouses.province_id = Province.pk_id
                     WHERE
-                      ccm_asset_types.pk_id = " . Model_CcmAssetTypes::COLDROOM . "
+                      (ccm_asset_types.pk_id = " . Model_CcmAssetTypes::COLDROOM . " OR ccm_asset_types.parent_id = " . Model_CcmAssetTypes::COLDROOM . ")
                       and warehouses.status = 1
                       " . $str_where . "
                     GROUP BY
@@ -945,7 +962,7 @@ LIMIT 0,10
                         INNER JOIN ccm_asset_types ON cold_chain.ccm_asset_type_id = ccm_asset_types.pk_id
                         INNER JOIN ccm_status_history ON cold_chain.ccm_status_history_id = ccm_status_history.pk_id
                     WHERE
-                            ccm_asset_types.pk_id = " . Model_CcmAssetTypes::COLDROOM . "
+                            (ccm_asset_types.pk_id = " . Model_CcmAssetTypes::COLDROOM . " OR ccm_asset_types.parent_id = " . Model_CcmAssetTypes::COLDROOM . ")
                             and warehouses.status = 1
                     " . $str_where . "
                     GROUP BY
@@ -966,10 +983,10 @@ LIMIT 0,10
         if (!empty($this->form_values['facility_type'])) {
             $where[] = "warehouse_types.pk_id = " . $this->form_values['facility_type'];
         }
-        if (!empty($this->form_values['combo1']) && $this->form_values['office'] == 2) {
+        if (!empty($this->form_values['combo1'])) {
             $where[] = "warehouses.province_id = " . $this->form_values['combo1'];
         }
-        if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
+        if (!empty($this->form_values['combo2'])) {
             $where[] = "warehouses.district_id = " . $this->form_values['combo2'];
         }
         if (count($where) > 0) {
@@ -1001,7 +1018,10 @@ LIMIT 0,10
                         INNER JOIN ccm_makes ON ccm_models.ccm_make_id = ccm_makes.pk_id
                         INNER JOIN ccm_asset_types ON cold_chain.ccm_asset_type_id = ccm_asset_types.pk_id
                     WHERE
-                        ccm_asset_types.pk_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
+                        (
+                            ccm_asset_types.pk_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
+                            OR ccm_asset_types.parent_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
+                        )
                         and warehouses.status = 1    
                     " . $str_where . "
                     GROUP BY
@@ -1029,45 +1049,54 @@ LIMIT 0,10
             $str_where .= " AND " . implode(" AND ", $where);
         }
 
-        $str_qry = "
-            SELECT FacilityType, 
-           sum(b.workingQuantity) as workingQuantity,
-           sum(b.notWorkingQuantity) as notWorkingQuantity
-           from (
-           SELECT
-                     warehouse_types.warehouse_type_name AS FacilityType,
-                     ccm_models.ccm_model_name,
-                     ccm_makes.ccm_make_name,
-                     ccm_asset_types.asset_type_name,
-                     SUM(cold_chain.quantity) AS workingQuantity,
-                     (SELECT
-                       ccm_history.quantity
-                      FROM
-                       ccm_history
-                      WHERE
-                       ccm_history.warehouse_id = warehouses.pk_id
-                      ORDER BY
-                       ccm_history.created_date DESC
-                      LIMIT 1
-                     ) AS notWorkingQuantity                     
+        $str_qry = "SELECT
+                        b.FacilityType,
+                        b.pk_id,
+                        sum(b.workingQuantity) AS workingQuantity,
+                        sum(b.notWorkingQuantity) AS notWorkingQuantity
                     FROM
-                     warehouses
+                        (
+                            SELECT
+                                warehouse_types.pk_id,
+                                warehouse_types.warehouse_type_name AS FacilityType,
+                                ccm_models.ccm_model_name,
+                                ccm_makes.ccm_make_name,
+                                ccm_asset_types.asset_type_name,
+                                SUM(cold_chain.quantity) AS workingQuantity,
+                                (
+                                    SELECT
+                                        ccm_history.quantity
+                                    FROM
+                                        ccm_history
+                                    WHERE
+                                        ccm_history.warehouse_id = warehouses.pk_id
+                                    ORDER BY
+                                        ccm_history.created_date DESC
+                                    LIMIT 1
+                                ) AS notWorkingQuantity
+                        FROM
+                            warehouses
                         INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
                         INNER JOIN cold_chain ON cold_chain.warehouse_id = warehouses.pk_id
                         INNER JOIN ccm_models ON cold_chain.ccm_model_id = ccm_models.pk_id
                         INNER JOIN ccm_makes ON ccm_models.ccm_make_id = ccm_makes.pk_id
                         INNER JOIN ccm_asset_types ON cold_chain.ccm_asset_type_id = ccm_asset_types.pk_id
-                    WHERE
-                        ccm_asset_types.pk_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
-                      and warehouses.status = 1      
-                    " . $str_where . "
+                        WHERE
+                        (
+                            ccm_asset_types.pk_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
+                            OR ccm_asset_types.parent_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
+                        )
+                        AND warehouses. STATUS = 1 " . $str_where . "
+                        GROUP BY
+                            warehouse_types.pk_id,
+                            ccm_models.pk_id,
+                            ccm_makes.pk_id,
+                            ccm_asset_types.pk_id
+                        ) b
                     GROUP BY
-                        warehouse_types.pk_id,
-                        ccm_models.pk_id,
-                        ccm_makes.pk_id,
-                        ccm_asset_types.pk_id
-                 ) b group by FacilityType
-                    ";
+                        FacilityType
+                    ORDER BY
+                        b.pk_id";
         $row = $this->_em->getConnection()->prepare($str_qry);
         $row->execute();
         return $row->fetchAll();
@@ -1080,10 +1109,10 @@ LIMIT 0,10
         if (!empty($this->form_values['facility_type'])) {
             $where[] = "warehouse_types.pk_id = " . $this->form_values['facility_type'];
         }
-        if (!empty($this->form_values['combo1']) && $this->form_values['office'] == 2) {
+        if (!empty($this->form_values['combo1'])) {
             $where[] = "warehouses.province_id = " . $this->form_values['combo1'];
         }
-        if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
+        if (!empty($this->form_values['combo2'])) {
             $where[] = "warehouses.district_id = " . $this->form_values['combo2'];
         }
         if (count($where) > 0) {
@@ -1102,9 +1131,13 @@ LIMIT 0,10
                         INNER JOIN stakeholders ON warehouses.stakeholder_office_id = stakeholders.pk_id
                         INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
                         INNER JOIN cold_chain ON warehouses.pk_id = cold_chain.warehouse_id
+                        INNER JOIN ccm_asset_types ON cold_chain.ccm_asset_type_id = ccm_asset_types.pk_id
                     WHERE
-                        cold_chain.ccm_asset_type_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
-                        and warehouses.status = 1
+                        (
+                            ccm_asset_types.pk_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
+                            OR ccm_asset_types.parent_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
+                        )
+                        AND warehouses.status = 1
                     " . $str_where . "
                     GROUP BY
                         warehouse_types.pk_id
@@ -1140,8 +1173,12 @@ LIMIT 0,10
                         INNER JOIN stakeholders ON warehouses.stakeholder_office_id = stakeholders.pk_id
                         INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
                         INNER JOIN cold_chain ON warehouses.pk_id = cold_chain.warehouse_id
+                        INNER JOIN ccm_asset_types ON cold_chain.ccm_asset_type_id = ccm_asset_types.pk_id
                     WHERE
-                        cold_chain.ccm_asset_type_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
+                        (
+                            ccm_asset_types.pk_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
+                            OR ccm_asset_types.parent_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
+                        )
                         and warehouses.status = 1
                     " . $str_where . "
                     GROUP BY
@@ -1159,10 +1196,10 @@ LIMIT 0,10
         if (!empty($this->form_values['facility_type'])) {
             $where[] = "warehouse_types.pk_id = " . $this->form_values['facility_type'];
         }
-        if (!empty($this->form_values['combo1']) && $this->form_values['office'] == 2) {
+        if (!empty($this->form_values['combo1'])) {
             $where[] = "warehouses.province_id = " . $this->form_values['combo1'];
         }
-        if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
+        if (!empty($this->form_values['combo2'])) {
             $where[] = "warehouses.district_id = " . $this->form_values['combo2'];
         }
         if (count($where) > 0) {
@@ -1187,14 +1224,18 @@ LIMIT 0,10
                         warehouses
                         INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
                         INNER JOIN cold_chain ON cold_chain.warehouse_id = warehouses.pk_id
+                        INNER JOIN ccm_asset_types ON cold_chain.ccm_asset_type_id = ccm_asset_types.pk_id
                         INNER JOIN ccm_models ON cold_chain.ccm_model_id = ccm_models.pk_id
                         INNER JOIN ccm_makes ON ccm_models.ccm_make_id = ccm_makes.pk_id
                         INNER JOIN ccm_status_history ON cold_chain.ccm_status_history_id = ccm_status_history.pk_id
-                    INNER JOIN locations ON warehouses.district_id = locations.pk_id
-                    INNER JOIN locations AS Province ON warehouses.province_id = Province.pk_id
+                        INNER JOIN locations ON warehouses.district_id = locations.pk_id
+                        INNER JOIN locations AS Province ON warehouses.province_id = Province.pk_id
                     WHERE
-                        cold_chain.ccm_asset_type_id = " . Model_CcmAssetTypes::GENERATOR . "
-                            and warehouses.status = 1
+                        (
+                            ccm_asset_types.pk_id = " . Model_CcmAssetTypes::GENERATOR . "
+                            OR ccm_asset_types.parent_id = " . Model_CcmAssetTypes::GENERATOR . "
+                        )
+                    AND warehouses.status = 1
                     " . $str_where . "
                     GROUP BY
                         warehouse_types.pk_id
@@ -1212,19 +1253,20 @@ LIMIT 0,10
             $where[] = "warehouses.province_id = " . $this->form_values['combo1'];
         }
         if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
-            $where[] = " .district_id = " . $this->form_values['combo2'];
+            $where[] = "warehouses.district_id = " . $this->form_values['combo2'];
         }
         if (count($where) > 0) {
             $str_where .= " AND " . implode(" AND ", $where);
         }
 
-        $str_qry = "
+       $str_qry = "
         SELECT  warehouse_type_name,
            sum(b.working) as working,
            sum(b.needs_service) as needs_service,
            sum(b.not_working) as not_working
            from (            
                     SELECT
+                        warehouse_types.pk_id,
                         warehouse_types.warehouse_type_name,
                         Sum(IF(ccm_status_history.ccm_status_list_id = 1, 1, 0)) AS working,
                         Sum(IF(ccm_status_history.ccm_status_list_id = 2, 1, 0)) AS needs_service,
@@ -1233,19 +1275,21 @@ LIMIT 0,10
                         warehouses
                         INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
                         INNER JOIN cold_chain ON cold_chain.warehouse_id = warehouses.pk_id
+                        INNER JOIN ccm_asset_types ON cold_chain.ccm_asset_type_id = ccm_asset_types.pk_id
                         INNER JOIN ccm_models ON cold_chain.ccm_model_id = ccm_models.pk_id
                         INNER JOIN ccm_makes ON ccm_models.ccm_make_id = ccm_makes.pk_id
                         INNER JOIN ccm_status_history ON cold_chain.ccm_status_history_id = ccm_status_history.pk_id
-                    INNER JOIN locations ON warehouses.district_id = locations.pk_id
-                    INNER JOIN locations AS Province ON warehouses.province_id = Province.pk_id
+                        INNER JOIN locations ON warehouses.district_id = locations.pk_id
+                        INNER JOIN locations AS Province ON warehouses.province_id = Province.pk_id
                     WHERE
-                        cold_chain.ccm_asset_type_id = " . Model_CcmAssetTypes::GENERATOR . "
+                        (ccm_asset_types.pk_id = " . Model_CcmAssetTypes::GENERATOR . "
+                            OR ccm_asset_types.parent_id = " . Model_CcmAssetTypes::GENERATOR . ")
                         and warehouses.status = 1
                     " . $str_where . "
                     GROUP BY
                         warehouse_types.pk_id
                ) b group by warehouse_type_name
-                    ";
+                   ORDER BY b.pk_id ";
         $row = $this->_em->getConnection()->prepare($str_qry);
         $row->execute();
         return $row->fetchAll();
@@ -1258,10 +1302,10 @@ LIMIT 0,10
         if (!empty($this->form_values['facility_type'])) {
             $where[] = "warehouse_types.pk_id = " . $this->form_values['facility_type'];
         }
-        if (!empty($this->form_values['combo1']) && $this->form_values['office'] == 2) {
+        if (!empty($this->form_values['combo1'])) {
             $where[] = "warehouses.province_id = " . $this->form_values['combo1'];
         }
-        if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
+        if (!empty($this->form_values['combo2'])) {
             $where[] = "warehouses.district_id = " . $this->form_values['combo2'];
         }
         if (count($where) > 0) {
@@ -1293,10 +1337,9 @@ LIMIT 0,10
                         INNER JOIN ccm_status_history ON cold_chain.ccm_status_history_id = ccm_status_history.pk_id
                     INNER JOIN locations ON warehouses.district_id = locations.pk_id
                     INNER JOIN locations AS Province ON warehouses.province_id = Province.pk_id
-                    LEFT JOIN ccm_asset_types AS sub_asset ON ccm_asset_types.pk_id = sub_asset.parent_id
                     WHERE
                     
-                       ( ccm_asset_types.pk_id = " . Model_CcmAssetTypes::VOLTAGEREGULATOR . " OR sub_asset.parent_id = " . Model_CcmAssetTypes::VOLTAGEREGULATOR . "
+                       ( ccm_asset_types.pk_id = " . Model_CcmAssetTypes::VOLTAGEREGULATOR . " OR ccm_asset_types.parent_id = " . Model_CcmAssetTypes::VOLTAGEREGULATOR . "
 )
 and warehouses.status = 1
 " . $str_where . "
@@ -1319,10 +1362,10 @@ and warehouses.status = 1
             $where[] = "warehouse_types.pk_id = " . $this->form_values['facility_type'];
         }
 
-        if (!empty($this->form_values['combo1']) && $this->form_values['office'] == 2) {
+        if (!empty($this->form_values['combo1'])) {
             $where[] = "Province.province_id = " . $this->form_values['combo1'];
         }
-        if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
+        if (!empty($this->form_values['combo2'])) {
             $where[] = "District.district_id = " . $this->form_values['combo2'];
         }
         if (count($where) > 0) {
@@ -1333,8 +1376,7 @@ and warehouses.status = 1
                    SELECT
                         warehouses.ccem_id AS FacilityCode,
                         Province.location_name AS Province,
-                        District.location_name AS Distirct,
-                       
+                        District.location_name AS Distirct,                       
                         warehouses.warehouse_name AS FacilityName,
                         warehouse_types.warehouse_type_name AS FacilityType,
                         ccm_models.catalogue_id AS LibraryID,
@@ -1349,7 +1391,6 @@ and warehouses.status = 1
                     FROM
                         locations AS Province
                         INNER JOIN locations AS District ON Province.pk_id = District.province_id
-
                         INNER JOIN warehouses ON District.pk_id = warehouses.location_id
                         INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
                         INNER JOIN cold_chain ON cold_chain.warehouse_id = warehouses.pk_id
@@ -1358,18 +1399,15 @@ and warehouses.status = 1
                         INNER JOIN ccm_status_history ON cold_chain.ccm_status_history_id = ccm_status_history.pk_id
                         LEFT JOIN ccm_status_list ON ccm_status_history.ccm_status_list_id = ccm_status_list.pk_id
                         LEFT JOIN ccm_status_list AS Utilization ON ccm_status_history.utilization_id = Utilization.pk_id
-                       INNER JOIN ccm_asset_types AS Asset_Type ON Asset_Type.pk_id = ccm_models.ccm_asset_type_id              
-                                         
-                      WHERE
+                        INNER JOIN ccm_asset_types AS Asset_Type ON Asset_Type.pk_id = ccm_models.ccm_asset_type_id                                         
+                        WHERE
                         (
-                    Asset_Type.pk_id = " . Model_CcmAssetTypes::REFRIGERATOR . "
-                    OR Asset_Type.parent_id = " . Model_CcmAssetTypes::REFRIGERATOR . "
+                            Asset_Type.pk_id = " . Model_CcmAssetTypes::REFRIGERATOR . "
+                            OR Asset_Type.parent_id = " . Model_CcmAssetTypes::REFRIGERATOR . "
                         )
                         and warehouses.status = 1
                         and ccm_status_list.pk_id > 1  
-                        " . $str_where . "
-                    
-                    ";
+                        " . $str_where . " ORDER BY Province.pk_id, District.location_name";
         //  echo $str_qry;
         $row = $this->_em->getConnection()->prepare($str_qry);
         $row->execute();
@@ -1383,10 +1421,10 @@ and warehouses.status = 1
         if (!empty($this->form_values['facility_type'])) {
             $where[] = "warehouse_types.pk_id = " . $this->form_values['facility_type'];
         }
-        if (!empty($this->form_values['combo1']) && $this->form_values['office'] == 2) {
+        if (!empty($this->form_values['combo1'])) {
             $where[] = "Province.province_id = " . $this->form_values['combo1'];
         }
-        if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
+        if (!empty($this->form_values['combo2'])) {
             $where[] = "District.district_id = " . $this->form_values['combo2'];
         }
         if (count($where) > 0) {
@@ -1409,7 +1447,7 @@ and warehouses.status = 1
                     FROM
                         locations AS Province
                         INNER JOIN locations AS District ON Province.pk_id = District.province_id
-                        INNER JOIN warehouses ON District.pk_id = warehouses.location_id
+                        INNER JOIN warehouses ON District.pk_id = warehouses.district_id
                         INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
                         INNER JOIN cold_chain ON cold_chain.warehouse_id = warehouses.pk_id
                         INNER JOIN ccm_models ON cold_chain.ccm_model_id = ccm_models.pk_id
@@ -1424,7 +1462,7 @@ and warehouses.status = 1
                         )
                        and warehouses.status = 1
                        and ccm_status_list.pk_id in (9,10,14)
-                    " . $str_where . " ";
+                    " . $str_where . " ORDER BY Province.pk_id, District.location_name, FacilityName ";
 
         $row = $this->_em->getConnection()->prepare($str_qry);
         $row->execute();
@@ -1488,14 +1526,13 @@ and warehouses.status = 1
         if (!empty($this->form_values['facility_type'])) {
             $where[] = "warehouse_types.pk_id = " . $this->form_values['facility_type'];
         }
-        if (!empty($this->form_values['combo1']) && $this->form_values['office'] == 2) {
+        if (!empty($this->form_values['combo1'])) {
             $where[] = "Province.province_id = " . $this->form_values['combo1'];
         }
-        if (!empty($this->form_values['combo2']) && $this->form_values['office'] == 6) {
+        if (!empty($this->form_values['combo2'])) {
             $where[] = "District.district_id = " . $this->form_values['combo2'];
         }
-
-
+        
         if (count($where) > 0) {
             $str_where .= " AND " . implode(" AND ", $where);
         }
@@ -1508,7 +1545,15 @@ and warehouses.status = 1
                         warehouse_types.warehouse_type_name AS FacilityType,
                         SUM(ccm_status_history.working_quantity) AS QuantityPresent,
                         round(SUM(ccm_models.net_capacity_4),1) AS NetStorage ,
-                        SUM(ccm_history.quantity) AS QuantityNotWorking,
+                        (SELECT
+                            ccm_history.quantity
+                         FROM
+                            ccm_history
+                         WHERE
+                            ccm_history.ccm_id = cold_chain.pk_id
+                         ORDER BY
+                            ccm_history.pk_id DESC
+                        LIMIT 1) AS QuantityNotWorking,
                         warehouses.ccem_id AS FacilityCode
                     FROM
                     locations AS Province
@@ -1517,20 +1562,19 @@ and warehouses.status = 1
                     INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
                     INNER JOIN cold_chain ON cold_chain.warehouse_id = warehouses.pk_id
                     INNER JOIN ccm_models ON cold_chain.ccm_model_id = ccm_models.pk_id
-                    INNER JOIN ccm_history ON cold_chain.pk_id = ccm_history.ccm_id
                     INNER JOIN ccm_status_history ON cold_chain.ccm_status_history_id = ccm_status_history.pk_id
                     INNER JOIN ccm_asset_types AS Asset_Type ON Asset_Type.pk_id = ccm_models.ccm_asset_type_id
-                    INNER JOIN ccm_asset_types AS AssetMainType ON cold_chain.ccm_asset_type_id = AssetMainType.pk_id
-                          
-                                         
+                    INNER JOIN ccm_asset_types AS AssetMainType ON cold_chain.ccm_asset_type_id = AssetMainType.pk_id               
                     WHERE
-              (
-            AssetMainType.pk_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
-            OR AssetMainType.parent_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
-            )  and warehouses.status = 1 
+                    (
+                        AssetMainType.pk_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
+                        OR AssetMainType.parent_id = " . Model_CcmAssetTypes::VACCINECARRIER . "
+                    )  and warehouses.status = 1 
                         " . $str_where . "
                     GROUP BY
                         warehouses.pk_id
+                        ORDER BY 
+                   Province.pk_id, District.location_name
                     ";
         //    echo $str_qry;
         $row = $this->_em->getConnection()->prepare($str_qry);

@@ -33,6 +33,7 @@
     }
 </style>
 <?php
+
 foreach ($this->result as $row) {
     $transaction_number = $row['transactionNumber'];
     $transaction_date = $row['transactionDate'];
@@ -85,18 +86,20 @@ foreach ($this->result as $row) {
                     <td><?php echo number_format($val['quantity'] * $val['description']); ?></td>
 
                     <td><?php echo '&nbsp;' . $val['vvmTypeName']; ?></td>
-                    <td><?php echo '&nbsp;' . $val['vvmStage']; ?></td>
-                    <td><?php if (!empty($val['productionDate'])) {
-            echo date("m/d/Y", strtotime($val['productionDate']));
-        } else {
-            echo "   -";
-        } ?></td>
+                    <td><?php echo (!empty($val['vvmStage']) ? $val['vvmStage'] : 'NA'); ?></td>
+                    <td><?php
+                        if (!empty($val['productionDate'])) {
+                            echo date("m/d/Y", strtotime($val['productionDate']));
+                        } else {
+                            echo "   -";
+                        }
+                        ?></td>
                     <td> <?php echo date("m/d/Y", strtotime($val['expiryDate'])); ?></td>
                 </tr>
-        <?php
-    }
-}
-?>
+                <?php
+            }
+        }
+        ?>
     </tbody>
 
 </table>

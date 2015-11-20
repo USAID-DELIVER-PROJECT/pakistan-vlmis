@@ -1,11 +1,13 @@
-$(function() {
+$(function () {
     $("#transfer_stock").validate({
         rules: {
             non_ccm_location_id: {
                 required: true
             },
             quantity: {
-                required: true
+                required: true,
+                min: 1,
+                max: $("#totqty").val()
             }
         },
         messages: {
@@ -17,34 +19,36 @@ $(function() {
             }
         }
     });
+    
+//    $('#quantity').keyup(function (e) {
+//        var ava_qty = $("#totqty").val();
+//
+//        ava_qty = parseInt(ava_qty.replace(/,/g, ""), 10);
+//
+//        var qty = $(this).val();
+//        qty = parseInt(qty.replace(/,/g, ""), 10);
+//
+//        if (qty > ava_qty) {
+//            alert("Quantity should not be greater than " + ava_qty + ".");
+//            // $('#error').show();
+//            $(this).focus();
+//        }
+//
+//    });
 
-    $('#quantity').keyup(function(e) {
-        var ava_qty = $("#totqty").val();
-
-        ava_qty = parseInt(ava_qty.replace(/,/g, ""), 10);
-
-        var qty = $(this).val();
-        qty = parseInt(qty.replace(/,/g, ""), 10);
-
-        if (qty > ava_qty) {
-            alert("Quantity should not be greater than " + ava_qty +".");
-            // $('#error').show();
-            $(this).focus();
-        }
-
-
-    });
-
-    $('#non_ccm_location_id').change(function() {
+    $('#non_ccm_location_id').change(function () {
         var non_ccm_id = $("#non_ccm_id").val();
         if ($('#non_ccm_location_id').val() == non_ccm_id)
         {
             alert("Already on this location, please choose another");
+            $(this).prop('selectedIndex', 0);
             $(this).focus();
         }
 
     });
 });
+
+
 
 /*$("#btn-transfer").click(function() {
  // $("#transfer").click(function() {  

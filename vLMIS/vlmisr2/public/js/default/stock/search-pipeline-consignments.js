@@ -1,8 +1,56 @@
-$("#from_date, #to_date").datepicker({
+/*$("#from_date, #to_date").datepicker({
     dateFormat: 'dd/mm/yy',
     changeMonth: true,
     changeYear: true,
     defaultDate: 'dd/mm/yy'
+});
+*/
+$(function () {
+    var startDateTextBox = $('#from_date');
+    var endDateTextBox = $('#to_date');
+
+    startDateTextBox.datepicker({
+        minDate: "-5Y",
+        maxDate: "+5Y",
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        onClose: function (dateText, inst) {
+            if (endDateTextBox.val() != '') {
+                var testStartDate = startDateTextBox.datepicker('getDate');
+                var testEndDate = endDateTextBox.datepicker('getDate');
+                if (testStartDate > testEndDate)
+                    endDateTextBox.datepicker('setDate', testStartDate);
+            }
+            else {
+                endDateTextBox.val(dateText);
+            }
+        },
+        onSelect: function (selectedDateTime) {
+            endDateTextBox.datepicker('option', 'minDate', startDateTextBox.datepicker('getDate'));
+        }
+    });
+    endDateTextBox.datepicker({
+        minDate: "-5Y",
+        maxDate: "+5Y",
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        onClose: function (dateText, inst) {
+            if (startDateTextBox.val() != '') {
+                var testStartDate = startDateTextBox.datepicker('getDate');
+                var testEndDate = endDateTextBox.datepicker('getDate');
+                if (testStartDate > testEndDate)
+                    startDateTextBox.datepicker('setDate', testEndDate);
+            }
+            else {
+                startDateTextBox.val(dateText);
+            }
+        },
+        onSelect: function (selectedDateTime) {
+            startDateTextBox.datepicker('option', 'maxDate', endDateTextBox.datepicker('getDate'));
+        }
+    });
 });
 
 $('.future_arrival_details').click(function () {
@@ -96,40 +144,40 @@ $('.future_arrival_details').click(function () {
             notification['confirm'] = 'Do you want to continue?';
 
             /*$("td[id$='-editable']").dblclick(function (e) {
-                e.stopPropagation();      //<-------stop the bubbling of the event here
-                var attr_id = $(this).attr("id");
-                var id = attr_id.replace("-editable", "");
-
-                /*var currentEle = $(this);
-                var value = $.trim($(this).html());
-                value = value.replace(",", "");
-                updateVal(currentEle, value, id);*/
+             e.stopPropagation();      //<-------stop the bubbling of the event here
+             var attr_id = $(this).attr("id");
+             var id = attr_id.replace("-editable", "");
+             
+             /*var currentEle = $(this);
+             var value = $.trim($(this).html());
+             value = value.replace(",", "");
+             updateVal(currentEle, value, id);*/
             //});
 
             /*function updateVal(currentEle, value, id) {
-                $(currentEle).html('<input id="' + id + '" class="form-control" type="text" value="' + value + '" />');
-                $('#' + id).focus();
-                $('#' + id).keyup(function (event) {
-                    if (event.keyCode == 13) {
-                        $(currentEle).html($('#' + id).val().trim());
-                    }
-                });
-
-                $(document).click(function (event) {
-                    if (event.target.id == id) {
-                        return;
-                    }
-
-                    if ($(event.target).closest('#' + id).length) {
-                        return;
-                    }
-
-                    if ($('#' + id).val() != '') {
-                        $(currentEle).html($('#' + id).val().trim());
-                        $('#' + id + '-received').val($('#' + id + '-editable').html().trim());
-                    }
-                });
-            }*/
+             $(currentEle).html('<input id="' + id + '" class="form-control" type="text" value="' + value + '" />');
+             $('#' + id).focus();
+             $('#' + id).keyup(function (event) {
+             if (event.keyCode == 13) {
+             $(currentEle).html($('#' + id).val().trim());
+             }
+             });
+             
+             $(document).click(function (event) {
+             if (event.target.id == id) {
+             return;
+             }
+             
+             if ($(event.target).closest('#' + id).length) {
+             return;
+             }
+             
+             if ($('#' + id).val() != '') {
+             $(currentEle).html($('#' + id).val().trim());
+             $('#' + id + '-received').val($('#' + id + '-editable').html().trim());
+             }
+             });
+             }*/
         }
     });
 });

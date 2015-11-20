@@ -47,6 +47,26 @@ HfDataMasterDraft:
       type: datetime
       nullable: true
       column: reporting_start_date
+    childrenLiveBirth:
+      type: integer
+      unsigned: false
+      nullable: true
+      column: children_live_birth
+    survivingChildren011:
+      type: integer
+      unsigned: false
+      nullable: true
+      column: surviving_children_0_11
+    childrenAged1223:
+      type: integer
+      unsigned: false
+      nullable: true
+      column: children_aged_12_23
+    pregnantWomen:
+      type: integer
+      unsigned: false
+      nullable: true
+      column: pregnant_women  
     nearestExpiry:
       type: datetime
       nullable: true
@@ -59,6 +79,16 @@ HfDataMasterDraft:
       type: datetime
       nullable: false
       column: modified_date
+    itemAmc:
+      type: integer
+      unsigned: false
+      nullable: true
+      column: item_amc
+    cbas:
+      type: integer
+      unsigned: false
+      nullable: true
+      column: cbas   
   oneToOne:
     createdBy:
       targetEntity: Users

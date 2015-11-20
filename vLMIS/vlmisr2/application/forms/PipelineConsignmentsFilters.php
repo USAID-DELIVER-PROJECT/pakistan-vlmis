@@ -22,6 +22,7 @@ class Form_PipelineConsignmentsFilters extends Zend_Form {
         //Generate WareHouses Combo
         $warehouse = new Model_Warehouses();
         $result1 = $warehouse->getSupplierWarehouses();
+        $this->_list["from_warehouse_id"][""] = 'Select';
         foreach ($result1 as $wh) {
             $this->_list["from_warehouse_id"][$wh['pk_id']] = $wh['warehouse_name'];
         }
@@ -37,15 +38,28 @@ class Form_PipelineConsignmentsFilters extends Zend_Form {
             }
         }
 
+        $from_date = date('01/m/Y');
+        $to_date = date('d/m/Y');
+        
         foreach ($this->_fields as $col => $name) {
             switch ($col) {
                 case "from_date":
+                    $this->addElement("text", $col, array(
+                        "attribs" => array("class" => "form-control", 'readonly' => 'true'),
+                        "allowEmpty" => false,
+                        "filters" => array("StringTrim", "StripTags"),
+                        "validators" => array(),
+                        "value" => $from_date
+                    ));
+                    $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
+                    break;
                 case "to_date":
                     $this->addElement("text", $col, array(
                         "attribs" => array("class" => "form-control", 'readonly' => 'true'),
                         "allowEmpty" => false,
                         "filters" => array("StringTrim", "StripTags"),
-                        "validators" => array()
+                        "validators" => array(),
+                        "value" => $to_date
                     ));
                     $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
                     break;

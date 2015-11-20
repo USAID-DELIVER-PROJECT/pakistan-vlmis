@@ -1,11 +1,12 @@
 $(function () {
+    
     var startDateTextBox = $('#date_from');
     var endDateTextBox = $('#date_to');
 
     startDateTextBox.datepicker({
         minDate: "-10Y",
         maxDate: 0,
-        dateFormat: 'yy-mm-dd',
+        dateFormat: 'dd/mm/yy',
         changeMonth: true,
         changeYear: true,
         onClose: function (dateText, inst) {
@@ -25,7 +26,7 @@ $(function () {
     });
     endDateTextBox.datepicker({
         maxDate: 0,
-        dateFormat: 'yy-mm-dd',
+        dateFormat: 'dd/mm/yy',
         changeMonth: true,
         changeYear: true,
         onClose: function (dateText, inst) {
@@ -34,8 +35,7 @@ $(function () {
                 var testEndDate = endDateTextBox.datepicker('getDate');
                 if (testStartDate > testEndDate)
                     startDateTextBox.datepicker('setDate', testEndDate);
-            }
-            else {
+            } else {
                 startDateTextBox.val(dateText);
             }
         },
@@ -64,13 +64,11 @@ $(function () {
     });
 });
 
-$('#print_stock').click(
-        function () {
-            var product, date_from, date_to, all_arguments;
-            adjustment_type = $('#adjustment_type').val();
-            date_from = $('#date_from').val();
-            date_to = $('#date_to').val();
-            all_arguments = "?adjustment_type=" + adjustment_type + "&date_from=" + date_from + "&date_to=" + date_to;
-            window.open('expired-stock-print' + all_arguments, '_blank', 'scrollbars=1,width=860,height=595');
-        }
-);
+$('#print_stock').click(function () {
+    var product, date_from, date_to, all_arguments;
+    adjustment_type = $('#adjustment_type').val();
+    date_from = $('#date_from').val();
+    date_to = $('#date_to').val();
+    all_arguments = "?adjustment_type=" + adjustment_type + "&date_from=" + date_from + "&date_to=" + date_to;
+    window.open('expired-stock-print' + all_arguments, '_blank', 'scrollbars=1,width=860,height=595');
+});

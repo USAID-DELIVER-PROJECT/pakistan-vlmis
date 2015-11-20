@@ -22,7 +22,8 @@ class Model_StakeholderActivities extends Model_Base {
     public function getAllStakeholderActivities() {
         $str_sql = $this->_em->createQueryBuilder()
                 ->select("sa.pkId, sa.activity")
-                ->from('StakeholderActivities', 'sa');
+                ->from('StakeholderActivities', 'sa')
+                ->where('sa.pkId <> 5');
         $row = $str_sql->getQuery()->getResult();
         if (!empty($row) && count($row) > 0) {
             return $row;
@@ -34,7 +35,8 @@ class Model_StakeholderActivities extends Model_Base {
     public function getAllStakeholderActivitiesIssues() {
         $str_sql = $this->_em->createQueryBuilder()
                 ->select("sa.pkId, sa.activity")
-                ->from('StakeholderActivities', 'sa');
+                ->from('StakeholderActivities', 'sa')
+                ->where('sa.pkId <> 5');
         $row = $str_sql->getQuery()->getResult();
         if (!empty($row) && count($row) > 0) {
             return $row;

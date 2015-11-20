@@ -16,22 +16,25 @@ StockDetail:
     temporary:
       type: boolean
       nullable: true
-    vvmStage:
-      type: string
-      length: 100
-      fixed: false
-      nullable: true
-      column: vvm_stage
     isReceived:
       type: integer
       unsigned: false
       nullable: true
       column: is_received
     adjustmentType:
-      type: boolean
+      type: integer
       nullable: true
       column: adjustment_type
   oneToOne:
+    vvmStage:
+      targetEntity: VvmStages
+      cascade: {  }
+      mappedBy: null
+      inversedBy: null
+      joinColumns:
+        vvm_stage:
+          referencedColumnName: pk_id
+      orphanRemoval: false
     itemUnit:
       targetEntity: ItemUnits
       cascade: {  }

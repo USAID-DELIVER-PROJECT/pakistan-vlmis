@@ -54,7 +54,8 @@ $(window).load(function() {
                 })
             }),
             strategies: [new OpenLayers.Strategy.Fixed()],
-            styleMap: province_style_label
+            styleMap: province_style_label,
+            isBaseLayer: true
         });
 
 
@@ -68,7 +69,8 @@ $(window).load(function() {
                 })
             }),
             strategies: [new OpenLayers.Strategy.Fixed()],
-            styleMap: province_style_label
+            styleMap: province_style_label,
+            isBaseLayer: true
         });
 
     district = new OpenLayers.Layer.Vector(
@@ -98,12 +100,10 @@ $(window).load(function() {
         });
 
     vLMIS1 = new OpenLayers.Layer.Vector("vLMIS", {
-        styleMap: vlMIS_style,
-        isBaseLayer: true
+        styleMap: vlMIS_style
     });
     vLMIS2 = new OpenLayers.Layer.Vector("vLMIS2", {
-        styleMap: vlMIS_style,
-        isBaseLayer: true
+        styleMap: vlMIS_style
     });
 
     map.addLayers([vLMIS1, province, district]);
@@ -162,12 +162,14 @@ function getData() {
     $("#wastagesTitle").html("");
     $("#reportingTitle").html("");
 
-    var year = $("#year").val();
-    var month = $("#month").val();
-    var region = $("#province").val();
-    var product = $("#product").val();
+    year = $("#year").val();
+    month = $("#month").val();
+    region = $("#province").val();
+    product = $("#product").val();
     product_name = $("#product option:selected").text();
-    FormData();
+    provinceName = $("#province option:selected").text();
+            
+    mapTitle();
 
     $.ajax({
         url: appName + "/api/geo/get-wastages-vs-reporting",
@@ -181,9 +183,9 @@ function getData() {
         dataType: "json",
         success: callback,
         error: function(response) {
-            alert("No Data Available");
-            $("#loader2").css("display", "none");
+             /* Failure of ajax call,Stop the loader and enable the submit button */
             $("#loader").css("display", "none");
+            $("#submit").attr("disabled", false);
             return;
         }
     });
@@ -205,9 +207,11 @@ function getData() {
             return;
         }
 
-        for (var i = 0; i < data.length; i++) {
-            chkeArray(data[i].district_id, Number(data[i].wastages_rate));
-            chkeArray2(data[i].district_id, Number(data[i].reporting_rate));
+        for (var i = 0; i < data[0].length; i++) {
+            chkeArray(data[0][i].districtId, Number(data[0][i].wastages_rate));  
+        }
+         for (var i = 0; i < data[1].length; i++) {
+            chkeArray2(data[1][i].district_id, Number(data[1][i].reporting_rate));
         }
     }
 }
@@ -269,7 +273,7 @@ function vLMISWastagesLayer(wkt, province, product, district_id, district_name, 
 function vLMISReportingLayer(wkt, province, product, district_id, district_name, reporting_rate) {
     var feature = new OpenLayers.Feature.Vector(wkt);
 
-   if (reporting_rate == reportingClassesArray[0].start_value && reporting_rate == reportingClassesArray[0].end_value) {
+    if (reporting_rate == reportingClassesArray[0].start_value && reporting_rate == reportingClassesArray[0].end_value) {
         color = reportingClassesArray[0].color_code;
     }
     if (reporting_rate > reportingClassesArray[1].start_value && reporting_rate <= reportingClassesArray[1].end_value) {
@@ -287,6 +291,7 @@ function vLMISReportingLayer(wkt, province, product, district_id, district_name,
     if (reporting_rate > reportingClassesArray[5].start_value && reporting_rate <= reportingClassesArray[5].end_value) {
         color = reportingClassesArray[5].color_code;
     }
+    
     feature.attributes = {
         district: district_name,
         province: province,
@@ -317,7 +322,7 @@ function onReportingFeatureUnselect(e) {
     $("#info2").html("");
 }
 
-function FormData() {
+function mapTitle() {
     prov_name = $("#province option:selected").text();
     year_name = $("#year option:selected").text();
     month_value = ($("#month").val()) - 1;

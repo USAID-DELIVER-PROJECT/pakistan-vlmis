@@ -1,21 +1,24 @@
 <?php
 $param = $this->param;
 
-$districtId = $param[0];
-$month = $param[1];
-$year = $param[2];
-$query = $this->reports()->getReportedUc($districtId);
+$wh_type = $param[0];
+$districtId = $param[1];
+$month = $param[2];
+$year = $param[3];
+$query = $this->reports()->getReportedUc($districtId, $wh_type);
 
 $ucInfo = array();
 foreach ($query as $row) {
     array_push($ucInfo, $row);
     $districtName = $row['District'];
 }
-$query_1 = $this->reports()->getReportedUc1($districtId, $month, $year);
+$query_1 = $this->reports()->getReportedUc1($districtId, $month, $year, $wh_type);
 
 $reportedUcArr = array();
+
 foreach ($query_1 as $row) {
     array_push($reportedUcArr, $row['PkLocID']);
+    $reportedUcDate[$row['PkLocID']] = $row['reported_date'];
 }
 
 $title = "Consumption Data Reporting Status For $districtName ($month/$year)";
@@ -50,9 +53,10 @@ $title = "Consumption Data Reporting Status For $districtName ($month/$year)";
         $xml_store = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         $xml_store .="<rows>";
         for ($i = 0; $i < sizeof($ucInfo); $i++) {
+            $r_date = $reportedUcDate[$ucInfo[$i]['PkLocID']];//"01/".$month."/".$year;
             $color = (in_array($ucInfo[$i]['PkLocID'], $reportedUcArr)) ? 'color:#008000;' : 'color:#FF0000;';
             $reported = (in_array($ucInfo[$i]['PkLocID'], $reportedUcArr)) ? '--' : 'NR';
-
+            $reported_date = (in_array($ucInfo[$i]['PkLocID'], $reportedUcArr)) ? $r_date : 'NR';
             $ucId = $ucInfo[$i]['PkLocID'];
             $param1 = base64_encode("$ucId|$month|$year");
 
@@ -68,6 +72,7 @@ $title = "Consumption Data Reporting Status For $districtName ($month/$year)";
             $xml_store .="<cell style=\"$color\"><![CDATA[" . App_Controller_Functions::clearString($ucInfo[$i]['Address']) . "]]></cell>";
             $xml_store .="<cell style=\"$color\"><![CDATA[" . $ucInfo[$i]['Phone'] . "]]></cell>";
             $xml_store .="<cell style=\"$color\">$reported</cell>";
+            $xml_store .="<cell style=\"$color\">$reported_date</cell>";
             $xml_store .="</row>";
         }
         $xml_store .="</rows>";
@@ -83,19 +88,19 @@ $title = "Consumption Data Reporting Status For $districtName ($month/$year)";
         mygrid.selMultiRows = true;
         mygrid.setImagePath("<?php echo $this->baseUrl(); ?>/common/reports/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
         //mygrid.setHeader("Province,Consumption,AMC,On Hand,MOS,#cspan");
-        mygrid.setHeader("<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'><?php echo $title; ?> </div>,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan");
-        mygrid.attachHeader("S.No.,UC Name,Health Facility,Operator,Address,Phone,Status");
-        mygrid.setInitWidths("50,160,160,130,*,150,50");
+        mygrid.setHeader("<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'><?php echo $title; ?> </div>,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan");
+        mygrid.attachHeader("S.No.,UC Name,Health Facility,Operator,Address,Phone,Status,Reported Date");
+        mygrid.setInitWidths("50,160,160,130,130,150,50,*");
         //mygrid.setColAlign("left,right,right,right,right,right,right,right,right,right,right,right,right");
         //mygrid.setColSorting("str,int");
-        mygrid.setColTypes("ro,ro,ro,ro,ro,ro,ro");
+        mygrid.setColTypes("ro,ro,ro,ro,ro,ro,ro,ro");
         mygrid.setColumnHidden(0, true);
         //mygrid.enableLightMouseNavigation(true);
         mygrid.enableRowsHover(true, 'onMouseOver'); // `onMouseOver` is the css class name.
         mygrid.setSkin("light");
         mygrid.init();
         mygrid.clearAll();
-        $('body').append('<textarea id="xml_string" style="display:none;"><?php echo addslashes($xml_store);?></textarea>');
+        $('body').append('<textarea id="xml_string" style="display:none;"><?php echo addslashes($xml_store); ?></textarea>');
         mygrid.loadXMLString(document.getElementById('xml_string').value);
     }
     window.onload = function() {
@@ -108,5 +113,6 @@ $title = "Consumption Data Reporting Status For $districtName ($month/$year)";
         var y = (screen.height / 2) - (height / 2);
         window.open('popup-data-entry?param=' + param + '&byUC=1', '_blank', 'scrollbars=1,width=' + width + ',height=' + height + ',left=' + x + ',top=' + y);
     }
+  
 </script>
 

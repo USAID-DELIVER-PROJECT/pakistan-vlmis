@@ -245,7 +245,7 @@ class Iadmin_ManageRolesController extends App_Controller_Base {
 
         $resource_id = $this->_request->getParam('resource_id');
         $role_id = $this->_request->getParam('role_id');
-        
+
         $rr = $this->_em->getRepository("RoleResources")->findBy(array("role" => $role_id, "resource" => $resource_id));
 
         if (count($rr) > 0) {
@@ -253,6 +253,112 @@ class Iadmin_ManageRolesController extends App_Controller_Base {
         } else {
             echo "true";
         }
+    }
+
+    public function roleResourcesAction() {
+        $form = new Form_Iadmin_RoleComboSearch();
+        $form_add = new Form_Iadmin_RoleResource();
+        $params = array();
+
+        $rr = new Model_Resources();
+        $roles = new Model_Roles();
+
+        if ($this->_request->isPost()) {
+            if ($form->isValid($this->_request->getPost())) {
+                $role_name = $form->getValue('role');
+                $description = $form->getValue('description');
+                $resource_name = $form->getValue('resource_name');
+                $resource_type = $form->getValue('resource_type');
+
+                if (!empty($role_name)) {
+                    $params['role'] = $role_name;
+                }
+                if (!empty($description)) {
+                    $params['description'] = $description;
+                }
+                if (!empty($resource_name)) {
+                    $params['resourceName'] = $resource_name;
+                }
+                if (!empty($resource_type)) {
+                    $params['resourceType'] = $resource_type;
+                }
+            }
+        } else {
+            $role_name = $this->_getParam('role', '');
+            $description = $this->_getParam('description');
+            $resource_name = $this->_getParam('resource_name');
+            $resource_type = $this->_getParam('resource_type');
+
+            if (!empty($role_name)) {
+                $params['role'] = $role_name;
+                $form->role->setValue($role_name);
+            }
+            if (!empty($description)) {
+                $params['description'] = $description;
+                $form->description->setValue($description);
+            }
+            if (!empty($resource_name)) {
+                $params['resourceName'] = $resource_name;
+                $form->resource_name->setValue($resource_name);
+            }
+            if (!empty($resource_type)) {
+                $params['resourceType'] = $resource_type;
+                $form->resource_type->setValue($resource_type);
+            }
+        }
+
+
+
+      //App_Controller_Functions::pr($params);
+        $rr->form_values = $params;
+      //  var_dump($params);
+        $result = $rr->getAllResources();
+
+        $roles->form_values['role'] = $params['role'];
+        $role_result = $roles->getAllRolesResources();
+
+        $this->view->roles = $role_result;
+        $this->view->form = $form;
+        $this->view->form_add = $form_add;
+        $this->view->paginator = $result;
+        $this->view->pagination_params = $params;
+    }
+
+    public function ajaxAddRoleResourceAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender(TRUE);
+
+        $rr_id = $this->_request->getParam("role_resource_id");
+        $role_resource_id = explode("-", $rr_id);
+        // echo $role_resource_id[0];
+        // echo $role_resource_id[1];
+        // exit;
+
+        $rr = new RoleResources();
+        $role_id = $this->_em->find('Roles', $role_resource_id[1]);
+        $rr->setRole($role_id);
+        $resource_id = $this->_em->find('Resources', $role_resource_id[0]);
+        $rr->setResource($resource_id);
+        $rr->setPermission('ALLOW');
+        $this->_em->persist($rr);
+        $this->_em->flush();
+    }
+
+    public function ajaxDeleteRoleResourceAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender(TRUE);
+
+        $rr_id = $this->_request->getParam("role_resource_id");
+        $role_r_id = explode("-", $rr_id);
+        // echo $role_r_id[1];
+        // echo $role_r_id[0];
+        // exit;
+        $role_resource_tbl = $this->_em->getRepository("RoleResources")->findBy(array('role' => $role_r_id[1], 'resource' => $role_r_id[0]));
+
+        $role_resource = $this->_em->getRepository("RoleResources")->find($role_resource_tbl[0]->getPkId());
+        $this->_em->remove($role_resource);
+
+        return $this->_em->flush();
     }
 
 }

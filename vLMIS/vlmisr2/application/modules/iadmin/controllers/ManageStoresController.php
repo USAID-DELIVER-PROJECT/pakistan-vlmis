@@ -41,16 +41,16 @@ class Iadmin_ManageStoresController extends App_Controller_Base {
             $warehouses->form_values['office_type'] = '6';
             $warehouses->form_values['stakeholder'] = '6';
             $result = $warehouses->getAllWarehouses($order, $sort);
-
+            $this->view->result = $result;
             //Paginate the contest results
-            $paginator = Zend_Paginator::factory($result);
-            $page = $this->_getParam("page", 1);
-            $counter = $this->_getParam("counter", 10);
-            $paginator->setCurrentPageNumber((int) $page);
-            $paginator->setItemCountPerPage((int) $counter);
+            //$paginator = Zend_Paginator::factory($result);
+            //$page = $this->_getParam("page", 1);
+            //$counter = $this->_getParam("counter", 10);
+            //$paginator->setCurrentPageNumber((int) $page);
+            //$paginator->setItemCountPerPage((int) $counter);
             $this->view->combos_1 = 'routine';
             $this->view->form = $form;
-            $this->view->paginator = $paginator;
+            //$this->view->paginator = $paginator;
             $this->view->sort = $sort;
             $this->view->order = $order;
             $this->view->counter = $counter;
@@ -62,24 +62,29 @@ class Iadmin_ManageStoresController extends App_Controller_Base {
             $params = $this->_request->getParams();
             $this->view->combos = $this->_request->getParams();
             // App_Controller_Functions::pr($this->_request->getPost());
-            $form->province_id->setValue($this->_getParam('combo1'));
-            $form->district_id->setValue($this->_getParam('combo2'));
-            $form->tehsil_id->setValue($this->_getParam('combo3'));
-            $form->parent_id->setValue($this->_getParam('combo4'));
+            $form->province_id->setValue(1);
+            $form->district_id->setValue(33);
+            $form->tehsil_id->setValue(194);
+            $form->parent_id->setValue(543);
 
             $warehouses->form_values['office_type'] = '6';
             $warehouses->form_values['stakeholder'] = '6';
+            $warehouses->form_values['combo1'] = 1;
+            $warehouses->form_values['combo2'] = 33;
+            $warehouses->form_values['combo3'] = 194;
+            $warehouses->form_values['combo4'] = 543;
             $result = $warehouses->getAllWarehouses($order, $sort);
-
+            $this->view->result = $result;
+            
             //Paginate the contest results
-            $paginator = Zend_Paginator::factory($result);
-            $page = $this->_getParam("page", 1);
-            $counter = $this->_getParam("counter", 10);
-            $paginator->setCurrentPageNumber((int) $page);
-            $paginator->setItemCountPerPage((int) $counter);
+            //$paginator = Zend_Paginator::factory($result);
+            //$page = $this->_getParam("page", 1);
+            //$counter = $this->_getParam("counter", 10);
+            //$paginator->setCurrentPageNumber((int) $page);
+            //$paginator->setItemCountPerPage((int) $counter);
             $this->view->combos_1 = 'routine';
             $this->view->form = $form;
-            $this->view->paginator = $paginator;
+            //$this->view->paginator = $paginator;
             $this->view->sort = $sort;
             $this->view->order = $order;
             $this->view->counter = $counter;
@@ -448,6 +453,7 @@ class Iadmin_ManageStoresController extends App_Controller_Base {
                 $warehouse_type = $this->_em->find('WarehouseTypes', $form_values['warehouse_type']);
                 $warehouses->setWarehouseType($warehouse_type);
                 $warehouses->setCcemId($form_values['ccm_warehouse_id']);
+                $warehouses->setStatus(1);
 
                 $this->_em->persist($warehouses);
                 $this->_em->flush();
@@ -691,12 +697,23 @@ class Iadmin_ManageStoresController extends App_Controller_Base {
         $this->_helper->viewRenderer->setNoRender(TRUE);
 
         $warehouse_id = $this->_request->getParam("warehouse_id");
+        $warehouse_status = $this->_request->getParam("status");
 
 
         $warehouses = $this->_em->getRepository("Warehouses")->find($warehouse_id);
 
-        $this->_em->remove($warehouses);
+        //$this->_em->remove($warehouses
+        $msg = "";
+        if ($warehouse_status == 1) {
+            $warehouses->setStatus(0);
+            $msg = 'Store has been de-activated!';
+        } else if ($warehouse_status == 0) {
+            $warehouses->setStatus(1);
+            $msg = 'Store has been activated!';
+        }
 
+        $this->_em->persist($warehouses);
+        echo $msg;
         return $this->_em->flush();
     }
 

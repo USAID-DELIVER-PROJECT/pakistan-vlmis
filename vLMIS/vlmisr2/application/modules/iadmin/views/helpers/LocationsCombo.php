@@ -24,7 +24,7 @@ class Zend_View_Helper_LocationsCombo extends Zend_View_Helper_Abstract {
         ?> <span class="red">*</span></label>
             <div class="controls">
                 <select name="location_level" id="location_level" class="form-control">
-                    <option value=""><?php echo $translate->translate("Select"); ?></option>
+                    <!-- <option value=""><?php //echo $translate->translate("Select"); ?></option>  -->
                     <?php
                     foreach ($arr_location_level as $key => $value) {
                         ?>

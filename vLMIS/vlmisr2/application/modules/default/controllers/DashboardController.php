@@ -7,7 +7,7 @@ class DashboardController extends App_Controller_Base {
     }
 
     public function indexAction() {
-
+        
         $auth = App_Auth::getInstance();
         $role_id = $auth->getRoleId();
 
@@ -15,7 +15,7 @@ class DashboardController extends App_Controller_Base {
         $location = new Model_Locations();
 
         // National Level
-        if ($role_id == 3 || $role_id == 23) {
+        if ($role_id == 3 || $role_id == 23 || $role_id == 26 || $role_id == 27) {
             $this->view->level = 1;
         }
 
@@ -25,10 +25,8 @@ class DashboardController extends App_Controller_Base {
             $province = $this->_identity->getProvinceId();
             $this->view->province = $province;
         }
-
-
         // 6 - District Level, 20 - Policy District User
-        if ($role_id == 6 || $role_id == 20 || $role_id == 21 || $role_id == 23) {
+        if ($role_id == 6 || $role_id == 7 || $role_id == 20 || $role_id == 21 || $role_id == 23) {
             $this->view->level = 6;
             $province = $this->_identity->getProvinceId();
             $district = $this->_identity->getDistrictId();
@@ -54,14 +52,36 @@ class DashboardController extends App_Controller_Base {
             $this->view->province = $province;
             $this->view->district = $district;
         }
-        if ($role_id == 17 || $role_id == 18 || $role_id == 23 || $role_id == 25) {
+        if ($role_id == 17 || $role_id == 18 || $role_id == 23 || $role_id == 25 || $role_id == 26 || $role_id == 28 || $role_id == 29) {
             $province = 1;
             $district = 33;
             $this->view->province = $province;
             $this->view->district = $district;
             $this->view->level = 1;
         }
+        if ($role_id == 27) {
+            $province = 2;
+            $district = 87;
+            $this->view->province = $province;
+            $this->view->district = $district;
+            $this->view->level = 1;
+        }
+        if ($role_id == 30) {
 
+            $province = $this->_identity->getProvinceId();
+            $district = $this->_identity->getDistrictId();
+            $this->view->province = $province;
+            $this->view->district = $district;
+            $this->view->level = 1;
+        }
+
+        if ($role_id == 31) {
+            $province = 4;
+            $district = 80;
+            $this->view->province = $province;
+            $this->view->district = $district;
+            $this->view->level = 1;
+        }
         $sel_lvl = $this->_request->getParam("office");
         if (!empty($sel_lvl)) {
             $level = $sel_lvl;
@@ -177,7 +197,7 @@ class DashboardController extends App_Controller_Base {
         $base_url = Zend_Registry::get('baseurl');
         $this->view->inlineScript()->appendFile($base_url . '/js/all_level_area_combo.js');
 
-        if ($role_id == 6 || $role_id == 7) {
+        if ($role_id == 4 || $role_id == 5 || $role_id == 6 || $role_id == 7) {
             $stock_master = new Model_StockMaster();
             $this->view->pending_receive = $stock_master->getPendingReceive();
             $this->view->warehouse_name = $auth->getWarehouseName();
@@ -185,9 +205,10 @@ class DashboardController extends App_Controller_Base {
 
         $this->view->id = $this->_request->getParam("id", $dashboards[0]->getResource()->getPkId());
 
-        if ($role_id == 7) {
-            $this->renderScript("dashboard/user-tehsil.phtml");
-        }
+        /* if ($role_id == 7) {
+          $this->view->province = $this->_identity->getProvinceId();
+          $this->renderScript("dashboard/user-tehsil.phtml");
+          } */
     }
 
     public function provinceAction() {

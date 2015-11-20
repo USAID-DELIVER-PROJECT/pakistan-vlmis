@@ -1,6 +1,5 @@
 <div class="page-content-wrapper">
     <div class="page-content">
-
         <div class="row">
             <h3 class="col-md-8">
                <?php echo $this->warehousename; ?> <small>dashboard & statistics</small>
@@ -47,8 +46,8 @@
                                     </div>
                                 </a>
                             </li>
-                            <li class="">
-                                <a href="<?php echo $this->baseUrl(); ?>/reports/dashlet/cold-chain-capacity-vvm?to_date=<?php echo $this->to_date; ?>">
+                            <!-- <li class="">
+                                <a href="<?php //echo $this->baseUrl(); ?>/reports/dashlet/cold-chain-capacity-vvm?to_date=<?php //echo $this->to_date; ?>">
                                     <div class="dashboard-stat_custom">
                                         <div style="width: auto;" class="visual">
                                             <i class="fa fa-cold-chain"></i>
@@ -59,7 +58,7 @@
                                         </div>
                                     </div>
                                 </a>
-                            </li>
+                            </li> -->
 
                         </ul>
                     </div>
@@ -85,7 +84,7 @@
                                                 <th>Cold Room</th>
                                                 <th class="right">Gross (In Litres)</th>
                                                 <th class="right">Net Usable (In Litres)</th>
-                                                <th class="right">Being Used (In Litres)</th>
+                                                <th class="right" colspan="2">Being Used (In Litres)</th>
                                             </tr>
                                             <?php foreach ($this->data as $row) { ?>
                                                 <tr>
@@ -93,6 +92,7 @@
                                                     <td class="right"><?php echo number_format($row['gross']); ?></td>
                                                     <td class="right"><?php echo number_format($row['net_usable']); ?></td>
                                                     <td class="right"><?php echo number_format($row['being_used']); ?></td>
+                                                    <td class="right"><?php echo ROUND($row['being_used'] * 100 / $row['net_usable']); ?>%</td>
                                                 </tr>
                                             <?php } ?>
                                         </table>
@@ -100,11 +100,9 @@
                                         <div class="right"><input onclick="javascript: window.open('<?php echo $this->baseUrl(); ?>/reports/dashlet/cold-chain-capacity-print?to_date=<?php echo $this->to_date; ?>', '_blank', 'scrollbars=1,width=860,height=595')" type="button" class="btn btn-success" value="Print Table Data"/></div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <!-- // Tabs END -->                
             </div>

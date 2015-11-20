@@ -21,6 +21,15 @@ ItemSchedule:
       nullable: true
       column: starting_no
   oneToOne:
+    stakeholderActivity:
+      targetEntity: StakeholderActivities
+      cascade: {  }
+      mappedBy: null
+      inversedBy: null
+      joinColumns:
+        stakeholder_activity_id:
+          referencedColumnName: pk_id
+      orphanRemoval: false   
     itemPackSize:
       targetEntity: ItemPackSizes
       cascade: {  }
@@ -30,4 +39,5 @@ ItemSchedule:
         item_pack_size_id:
           referencedColumnName: pk_id
       orphanRemoval: false
+      
   lifecycleCallbacks: {  }

@@ -26,7 +26,7 @@ $(function() {
         },
         messages: {
             login_id: {
-                required: "Please enter Username",
+                required: "Please enter username",
                 remote: jQuery.validator.format("Username is already taken!")
             },
             role: "Please select user role",
@@ -39,12 +39,12 @@ $(function() {
             },
             confirm_password: {
                 required: "Please enter confirm password",
-                equalTo: "Confirm password should equal to password"
+                equalTo: "Confirm password should be equal to password"
             },
             phone: "Please enter phone",
             office: "Please select office",
             combo1: "Please select province",
-            warehouse: "Please select warehouse"
+            warehouse: "Please select store"
         }
     });
 

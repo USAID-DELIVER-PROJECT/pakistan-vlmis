@@ -4,8 +4,10 @@ $sel_year = $this->year_sel;
 $counter = 1;
 
 $sel_stk = $this->in_stk;
-$sel_prov = $this->prov_sel;
-$sel_dist = $this->in_dist;
+$sel_prov = $this->province;
+$sel_dist = $this->district;
+$sel_tehsil = $this->tehsil;
+$wh_type = $this->wh_type;
 $sel_indicator = $this->sel_indicator;
 $in_col = $this->in_col;
 $in_rg = $this->in_rg;
@@ -52,7 +54,7 @@ foreach ($period as $date) {
     $header1 .= ',<span>RR</span>, <span>Wastages</span>';
     $str_date = $startDate = $endDate = $date->format("Y-m");
 
-    $query_vals = $this->reports()->getWastagesReport($str_date, $sel_prov, $sel_prod,$sel_level);
+    $query_vals = $this->reports()->getWastagesReport($wh_type,$str_date, $sel_prov,$sel_dist, $sel_prod, $sel_level);
 
     foreach ($query_vals as $row) {
         $data_arr[$row['districtId']][$count] = $row['RptPer'];
@@ -62,7 +64,7 @@ foreach ($period as $date) {
     $count = $count + 2;
 }
 
-$query_vals_1 = $this->reports()->getItemPackSizesWastagesRateAllowed($sel_prod,$sel_level);
+$query_vals_1 = $this->reports()->getItemPackSizesWastagesRateAllowed($sel_prod, $sel_level);
 //print_r($query_vals_1);
 $accpLimit = $query_vals_1[0]['wastage_rate_allowed'];
 $itemName = $query_vals_1[0]['item_name'];
@@ -93,18 +95,7 @@ foreach ($data_arr as $dis_id => $sub_arr) {
     $xml_store .="</row>";
 }
 
-// To show Total
-$xml_store .= "<row>";
-$xml_store .= "<cell></cell>";
-$xml_store .= "<cell style=\"font-weight:bold\">Total</cell>";
-foreach ($sum_arr as $key => $value) {
-    if ($key > 1) {
-        $totalPer = $value / $num;
-        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . number_format($totalPer) . " %</cell>";
-    }
-}
 
-$xml_store .="</row>";
 
 $xml_store .="</rows>";
 
@@ -118,9 +109,9 @@ $xml_store .="</rows>";
 $count1 = 1;
 foreach ($period as $date) {
     if ($count1 == 1) {
-$month_strt = $date->format('m');
+        $month_strt = $date->format('m');
 
-$month_year = $date->format('Y');
+        $month_year = $date->format('Y');
     }
     $count1++;
 }
@@ -152,7 +143,7 @@ $title = "Reporting and Wastage Rate";
                     mygrid.selMultiRows = true;
                     mygrid.setImagePath("<?php echo $this->baseUrl(); ?>/common/reports/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
                     //mygrid.setHeader("Province,Consumption,AMC,On Hand,MOS,#cspan");
-                    mygrid.setHeader(",<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'><?php echo "'$itemName' $title for ($month_strt-$month_year to  " . date('F', mktime(0, 0, 0, $this->month_sel)) . '-' . $this->year_sel; ?>)</div>,<?php echo substr($cspan, 0, -14); ?>");
+                    mygrid.setHeader(",<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'><?php echo "'$itemName' $title for '$this->loc_name' ($month_strt-$month_year to  " . date('F', mktime(0, 0, 0, $this->month_sel)) . '-' . $this->year_sel; ?>)</div>,<?php echo substr($cspan, 0, -14); ?>");
                     mygrid.attachHeader("<?php echo $header; ?>");
                     mygrid.attachHeader("<?php echo $header1; ?>");
                     mygrid.setInitWidths("<?php echo $width; ?>");
@@ -167,7 +158,7 @@ $title = "Reporting and Wastage Rate";
                 }
             </script>
             <table width="99%">
-                  <tr>
+                <tr>
                     <td colspan="2">
                         <?php
                         echo App_Controller_Functions::getPageNarrative(Zend_Registry::get('resource'));
@@ -179,7 +170,7 @@ $title = "Reporting and Wastage Rate";
                         <?php echo $this->render('inventory-management/reports-header.phtml') ?>
                     </td>
                 </tr>
-              
+
                 <tr>
                     <td style="padding-bottom:10px;">
                         RR: Reporting Rate<br />
@@ -205,4 +196,9 @@ $title = "Reporting and Wastage Rate";
     </div>
 </div>
 
-
+<script>
+ var whType = <?php echo $wh_type; ?>;
+    var province = <?php echo $sel_prov; ?>;
+    var district = <?php echo $sel_dist; ?>;
+    var tehsil = <?php echo $sel_tehsil; ?>;
+</script>

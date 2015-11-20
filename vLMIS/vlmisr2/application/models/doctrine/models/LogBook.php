@@ -25,6 +25,11 @@ class LogBook
     private $fatherName;
 
     /**
+     * @var string $gender
+     */
+    private $gender;
+
+    /**
      * @var string $age
      */
     private $age;
@@ -45,9 +50,9 @@ class LogBook
     private $vaccinationDate;
 
     /**
-     * @var string $refferTo
+     * @var datetime $reportingStartDate
      */
-    private $refferTo;
+    private $reportingStartDate;
 
     /**
      * @var string $remarks
@@ -78,6 +83,11 @@ class LogBook
      * @var Warehouses
      */
     private $warehouse;
+
+    /**
+     * @var Warehouses
+     */
+    private $referToWarehouse;
 
     /**
      * @var Users
@@ -133,6 +143,26 @@ class LogBook
     public function getFatherName()
     {
         return $this->fatherName;
+    }
+
+    /**
+     * Set gender
+     *
+     * @param string $gender
+     */
+    public function setGender($gender)
+    {
+        $this->gender = $gender;
+    }
+
+    /**
+     * Get gender
+     *
+     * @return string 
+     */
+    public function getGender()
+    {
+        return $this->gender;
     }
 
     /**
@@ -216,23 +246,23 @@ class LogBook
     }
 
     /**
-     * Set refferTo
+     * Set reportingStartDate
      *
-     * @param string $refferTo
+     * @param datetime $reportingStartDate
      */
-    public function setRefferTo($refferTo)
+    public function setReportingStartDate($reportingStartDate)
     {
-        $this->refferTo = $refferTo;
+        $this->reportingStartDate = $reportingStartDate;
     }
 
     /**
-     * Get refferTo
+     * Get reportingStartDate
      *
-     * @return string 
+     * @return datetime 
      */
-    public function getRefferTo()
+    public function getReportingStartDate()
     {
-        return $this->refferTo;
+        return $this->reportingStartDate;
     }
 
     /**
@@ -353,6 +383,26 @@ class LogBook
     public function getWarehouse()
     {
         return $this->warehouse;
+    }
+
+    /**
+     * Set referToWarehouse
+     *
+     * @param Warehouses $referToWarehouse
+     */
+    public function setReferToWarehouse(\Warehouses $referToWarehouse)
+    {
+        $this->referToWarehouse = $referToWarehouse;
+    }
+
+    /**
+     * Get referToWarehouse
+     *
+     * @return Warehouses 
+     */
+    public function getReferToWarehouse()
+    {
+        return $this->referToWarehouse;
     }
 
     /**

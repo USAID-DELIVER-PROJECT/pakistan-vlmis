@@ -20,11 +20,6 @@ class PhysicalStockTakingDetail
     private $batchNumber;
 
     /**
-     * @var integer $vvmStage
-     */
-    private $vvmStage;
-
-    /**
      * @var integer $stakeholderItemPackSize
      */
     private $stakeholderItemPackSize;
@@ -53,6 +48,11 @@ class PhysicalStockTakingDetail
      * @var datetime $createdDate
      */
     private $createdDate;
+
+    /**
+     * @var VvmStages
+     */
+    private $vvmStage;
 
     /**
      * @var PhysicalStockTaking
@@ -113,26 +113,6 @@ class PhysicalStockTakingDetail
     public function getBatchNumber()
     {
         return $this->batchNumber;
-    }
-
-    /**
-     * Set vvmStage
-     *
-     * @param integer $vvmStage
-     */
-    public function setVvmStage($vvmStage)
-    {
-        $this->vvmStage = $vvmStage;
-    }
-
-    /**
-     * Get vvmStage
-     *
-     * @return integer 
-     */
-    public function getVvmStage()
-    {
-        return $this->vvmStage;
     }
 
     /**
@@ -253,6 +233,26 @@ class PhysicalStockTakingDetail
     public function getCreatedDate()
     {
         return $this->createdDate;
+    }
+
+    /**
+     * Set vvmStage
+     *
+     * @param VvmStages $vvmStage
+     */
+    public function setVvmStage(\VvmStages $vvmStage)
+    {
+        $this->vvmStage = $vvmStage;
+    }
+
+    /**
+     * Get vvmStage
+     *
+     * @return VvmStages 
+     */
+    public function getVvmStage()
+    {
+        return $this->vvmStage;
     }
 
     /**

@@ -11,11 +11,14 @@ class Form_TransferStockVaccines extends Zend_Form {
     private $_list = array(
         'asset_id' => array()
     );
+  
     private $_hidden = array(
-        "id" => ""
+        "id" => "",
+       // "asset_name" => "asset_name",
     );
-
+    
     public function init() {
+
         $cold_chain = new Model_ColdChain();
         $result3 = $cold_chain->getLocationsName();
 
@@ -62,6 +65,19 @@ class Form_TransferStockVaccines extends Zend_Form {
                     )
                 ));
                 $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
+            }
+        }
+        
+         foreach ($this->_hidden as $col => $name) {
+            switch ($col) {
+
+//                case "asset_name":
+//               
+//                    $this->addElement("hidden", $col);
+//                    $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
+//                    break;
+                default:
+                    break;
             }
         }
     }

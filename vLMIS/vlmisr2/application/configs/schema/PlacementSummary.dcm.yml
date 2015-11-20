@@ -22,11 +22,6 @@ PlacementSummary:
       fixed: false
       nullable: true
       column: batch_number
-    vvmStage:
-      type: integer
-      unsigned: false
-      nullable: true
-      column: vvm_stage
     quantity:
       type: decimal
       nullable: true
@@ -35,6 +30,15 @@ PlacementSummary:
       unsigned: false
       nullable: true
   oneToOne:
+    vvmStage:
+      targetEntity: VvmStages
+      cascade: {  }
+      mappedBy: null
+      inversedBy: null
+      joinColumns:
+        vvm_stage:
+          referencedColumnName: pk_id
+      orphanRemoval: false
     stockBatch:
       targetEntity: StockBatch
       cascade: {  }

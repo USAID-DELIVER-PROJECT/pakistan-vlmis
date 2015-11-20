@@ -138,6 +138,30 @@ class ItemPackSizesProxy extends \ItemPackSizes implements \Doctrine\ORM\Proxy\P
         return parent::getColor();
     }
 
+    public function setVvmGroup($vvmGroup)
+    {
+        $this->__load();
+        return parent::setVvmGroup($vvmGroup);
+    }
+
+    public function getVvmGroup()
+    {
+        $this->__load();
+        return parent::getVvmGroup();
+    }
+
+    public function setStakeholderActivity(\StakeholderActivities $stakeholderActivity)
+    {
+        $this->__load();
+        return parent::setStakeholderActivity($stakeholderActivity);
+    }
+
+    public function getStakeholderActivity()
+    {
+        $this->__load();
+        return parent::getStakeholderActivity();
+    }
+
     public function setItemCategory(\ItemCategories $itemCategory)
     {
         $this->__load();
@@ -177,7 +201,7 @@ class ItemPackSizesProxy extends \ItemPackSizes implements \Doctrine\ORM\Proxy\P
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'pkId', 'itemName', 'description', 'numberOfDoses', 'status', 'listRank', 'multiplier', 'wastageRateAllowed', 'color', 'itemCategory', 'item', 'itemUnit');
+        return array('__isInitialized__', 'pkId', 'itemName', 'description', 'numberOfDoses', 'status', 'listRank', 'multiplier', 'wastageRateAllowed', 'color', 'vvmGroup', 'stakeholderActivity', 'itemCategory', 'item', 'itemUnit');
     }
 
     public function __clone()

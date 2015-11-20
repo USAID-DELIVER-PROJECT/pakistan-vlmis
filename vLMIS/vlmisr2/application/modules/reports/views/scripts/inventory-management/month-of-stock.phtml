@@ -60,15 +60,20 @@ foreach ($this->item_name as $row) {
 
         foreach ($query3 as $row3) {
             if ($row3['AMC'] > 0) {
+              // echo $data_arr_cb[$row3['prov_id']]."<br>";
                 $data_arr[$row['pkId']][$count] = number_format($data_arr_cb[$row3['prov_id']] / $row3['AMC'], 1);
-                $count++;
+              
             } else {
+              // echo $data_arr_cb[$row3['prov_id']]."<br>";
                 $data_arr[$row['pkId']][$count] = 0;
             }
+              $count++;
         }
+      
     }
 }
 
+//App_Controller_Functions::pr($data_arr);
 $xml_store = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 $xml_store .= "<rows>";
 

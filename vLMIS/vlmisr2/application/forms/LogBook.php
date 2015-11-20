@@ -9,8 +9,12 @@ class Form_LogBook extends Zend_Form {
         "contact" => "contact",
         "address" => "address",
         "contact" => "contact",
+        "province" => "province",
+        "entry_type" => "Entry type",
         "district" => "district",
+        "tehsil" => "tehsil",
         "uc" => "uc",
+        "wh" => "wh",
         "vaccination_date_from" => "vaccination_date_from",
         "vaccination_date_to" => "vaccination_date_to",
         "item_1" => "item_1",
@@ -25,13 +29,32 @@ class Form_LogBook extends Zend_Form {
         "id" => "ID"
     );
     private $_list = array(
+        'province' => array(),
         'district' => array(),
-        'uc' => array()
+        'tehsil' => array(),
+        'uc' => array(),
+        'wh' => array()
+    );
+    private $_radio = array(
+        'entry_type' => array(
+            "1" => "My Entries",
+            "2" => "Referrals"
+        )
     );
     private $_childlist = array(
     );
 
     public function init() {
+
+        $locations = new Model_Locations();
+        $result = $locations->getAllProvinces();
+
+        if ($result) {
+            $this->_list["province"][''] = "Select";
+            foreach ($result as $row) {
+                $this->_list["province"][$row['pkId']] = $row['locationName'];
+            }
+        }
 
         //Generate 
         $locations = new Model_Locations();
@@ -77,7 +100,7 @@ class Form_LogBook extends Zend_Form {
                 case "vaccination_date_from":
 
                     $this->addElement("text", $col, array(
-                        "attribs" => array("class" => "form-control", 'readonly' => 'true'),
+                        "attribs" => array("class" => "form-control", 'readonly' => 'true', 'style' => 'position: relative; z-index: 100000;'),
                         "allowEmpty" => false,
                         "filters" => array("StringTrim", "StripTags"),
                         "validators" => array(),
@@ -88,7 +111,7 @@ class Form_LogBook extends Zend_Form {
 
                 case "vaccination_date_to":
                     $this->addElement("text", $col, array(
-                        "attribs" => array("class" => "form-control", 'readonly' => 'true'),
+                        "attribs" => array("class" => "form-control", 'readonly' => 'true', 'style' => 'position: relative; z-index: 100000;'),
                         "allowEmpty" => false,
                         "filters" => array("StringTrim", "StripTags"),
                         "validators" => array(),
@@ -120,6 +143,19 @@ class Form_LogBook extends Zend_Form {
                     )
                 ));
                 $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag");
+            }
+
+            if (in_array($col, array_keys($this->_radio))) {
+                $this->addElement("radio", $col, array(
+                    "attribs" => array(),
+                    "allowEmpty" => true,
+                    'separator' => '',
+                    "filters" => array("StringTrim", "StripTags"),
+                    "validators" => array(),
+                    "multiOptions" => $this->_radio[$col],
+                    'value' => '1'
+                ));
+                $this->getElement($col)->removeDecorator("Label")->removeDecorator("HtmlTag")->removeDecorator("<br>");
             }
         }
     }

@@ -54,6 +54,7 @@ class ErrorController extends App_Controller_Base {
     }
     
     public function forbiddenAction() {
+        $this->_helper->layout->disableLayout();
         $base_url = Zend_Registry::get('baseurl');
         $this->view->headLink()->appendStylesheet($base_url . '/common/assets/admin/pages/css/error.css');
     }

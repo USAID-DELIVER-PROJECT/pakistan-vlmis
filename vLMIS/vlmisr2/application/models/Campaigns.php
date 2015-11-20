@@ -292,7 +292,6 @@ class Model_Campaigns extends Model_Base {
 			l.pk_id as pkId,l.location_name as locationName
 			FROM
 			locations l
-			INNER JOIN pilot_districts ON pilot_districts.district_id = l.pk_id
 			WHERE
 			l.geo_level_id = 4 "
                 . "ORDER BY locationName";

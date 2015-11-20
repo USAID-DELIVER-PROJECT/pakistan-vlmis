@@ -114,6 +114,18 @@ class WarehousesProxy extends \Warehouses implements \Doctrine\ORM\Proxy\Proxy
         return parent::getStatus();
     }
 
+    public function setIsPlacementEnable($isPlacementEnable)
+    {
+        $this->__load();
+        return parent::setIsPlacementEnable($isPlacementEnable);
+    }
+
+    public function getIsPlacementEnable()
+    {
+        $this->__load();
+        return parent::getIsPlacementEnable();
+    }
+
     public function setWarehouseType(\WarehouseTypes $warehouseType)
     {
         $this->__load();
@@ -189,7 +201,7 @@ class WarehousesProxy extends \Warehouses implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'pkId', 'warehouseName', 'population', 'ccemId', 'startingOn', 'fromEdit', 'status', 'warehouseType', 'district', 'province', 'stakeholder', 'location', 'stakeholderOffice');
+        return array('__isInitialized__', 'pkId', 'warehouseName', 'population', 'ccemId', 'startingOn', 'fromEdit', 'status', 'isPlacementEnable', 'warehouseType', 'district', 'province', 'stakeholder', 'location', 'stakeholderOffice');
     }
 
     public function __clone()

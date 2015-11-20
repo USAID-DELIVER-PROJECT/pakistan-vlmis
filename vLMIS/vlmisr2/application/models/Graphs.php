@@ -74,7 +74,7 @@ class Model_Graphs extends Model_Base {
                 $graph_subcaption = "District " . $compare_options . " for " . $loc_name;
             }
 
-            $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption='" . $graph_caption . "' subCaption='" . $graph_subcaption . "' exportFileName='" . $title . " - " . date('Y-m-d H:i:s') . " - " . $loc_name . " - " . $product_name . "' yAxisName='Doses' numberSuffix='' showValues='1' formatNumberScale='0'>";
+            $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption='" . $graph_caption . "' subCaption='" . $graph_subcaption . "' exportFileName='" . $title . " - " . date('Y-m-d H:i:s') . " - " . $loc_name . " - " . $product_name . "' yAxisName='Doses' numberSuffix='' showValues='1' formatNumberScale='0' theme='fint'>";
             $xmlstore .= "<categories>";
             for ($i = $months->getBeginMonth(); $i <= $months->getEndMonth(); $i++) {
 
@@ -182,104 +182,86 @@ class Model_Graphs extends Model_Base {
             'report_id' => 'GAMC',
             'report_comp' => $optvals
         );
-        //print_r($rep_option->form_values);
+
         $query2 = $rep_option->getReportDataSql();
 
-        for ($k = 0; $k < sizeof($products); $k++) {
-            $product_obj = new Model_ItemPackSizes();
-            $product_obj->form_values['pk_id'] = $products[$k];
-            $product_name = $product_obj->getProductName();
+        $cache = Zend_Registry::get('cacheManager')->getCache('file');
+        $vaccinationvsamc = "VACCVSAMC_$post[period]$yearcomp[0]$products[0]$all_provinces$optvals";
 
-            $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption='$product_name $title' exportFileName='" . $title . " - " . date('Y-m-d H:i:s') . " - " . $product_name . "' yAxisName='Doses' numberSuffix='' showValues='1' formatNumberScale='0' theme='fint'>";
-            $xmlstore .= "<categories>";
-            for ($i = $months->getBeginMonth(); $i <= $months->getEndMonth(); $i++) {
+        if (!$xmlstore_array = $cache->load($vaccinationvsamc)) {
 
-                $month_name = $monthval[$i - 1];
-                $xmlstore .= "<category label='$month_name' />";
+            for ($k = 0; $k < sizeof($products); $k++) {
+                $product_obj = new Model_ItemPackSizes();
+                $product_obj->form_values['pk_id'] = $products[$k];
+                $product_name = $product_obj->getProductName();
 
-                for ($j = sizeof($yearcomp) - 1; $j >= 0; $j--) {
+                $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption='$product_name $title' exportFileName='" . $title . " - " . date('Y-m-d H:i:s') . " - " . $product_name . "' yAxisName='Doses' numberSuffix='' showValues='1' formatNumberScale='0' theme='fint'>";
+                $xmlstore .= "<categories>";
+                for ($i = $months->getBeginMonth(); $i <= $months->getEndMonth(); $i++) {
 
-                    $sql = "select " . str_replace("\$i", $i, $query->getReportDataSql()) . " as xyz  from dual ";
-                    $sql = str_replace("\$yearcomp[\$j]", $yearcomp[$j], $sql);
-                    $sql = str_replace("'\$products[\$k]'", "'" . $products[$k] . "'", $sql);
-                    $sql = str_replace("\$seluser", 1, $sql);
-                    $sql = str_replace("\$all_provinces", $all_provinces, $sql);
-                    $sql = str_replace("\$all_districts", "'" . $all_districts . "'", $sql);
-                    $dbg_sql.=$sql . '<br>';
-                    //echo $sql."<br>";
-                    //exit;
-                    $str_sql = $this->_em->getConnection()->prepare($sql);
-                    $str_sql->execute();
-                    $row = $str_sql->fetchAll();
+                    $month_name = $monthval[$i - 1];
+                    $xmlstore .= "<category label='$month_name' />";
 
-                    if (!empty($row)) {
-                        $res = explode('*', $row[0]['xyz']);
-                        $row_data = $res[$query->getReportDataPosition()] / 1;
-                        //echo $row_data."<br/>";
-                        $filedata1[$yearcomp[$j]][$monthval[$i - 1]] = $row_data;
+                    for ($j = sizeof($yearcomp) - 1; $j >= 0; $j--) {
+                        $sql = "select " . str_replace("\$i", $i, $query->getReportDataSql()) . " as xyz  from dual ";
+                        $sql = str_replace("\$yearcomp[\$j]", $yearcomp[$j], $sql);
+                        $sql = str_replace("'\$products[\$k]'", "'" . $products[$k] . "'", $sql);
+                        $sql = str_replace("\$seluser", 1, $sql);
+                        $sql = str_replace("\$all_provinces", $all_provinces, $sql);
+                        $sql = str_replace("\$all_districts", "'" . $all_districts . "'", $sql);
+
+                        $str_sql = $this->_em->getConnection()->prepare($sql);
+                        $str_sql->execute();
+                        $row = $str_sql->fetchAll();
+
+                        if (!empty($row)) {
+                            $res = explode('*', $row[0]['xyz']);
+                            $row_data = $res[$query->getReportDataPosition()] / 1;
+                            $filedata1[$yearcomp[$j]][$monthval[$i - 1]] = $row_data;
+                        }
+
+                        $sql = "select " . str_replace("\$i", $i, $query2->getReportDataSql()) . " as xyz  from dual ";
+                        $sql = str_replace("\$yearcomp[\$j]", $yearcomp[$j], $sql);
+                        $sql = str_replace("'\$products[\$k]'", "'" . $products[$k] . "'", $sql);
+                        $sql = str_replace("\$seluser", 1, $sql);
+                        $sql = str_replace("\$all_provinces", $all_provinces, $sql);
+                        $sql = str_replace("\$all_districts", "'" . $all_districts . "'", $sql);
+
+                        $str_sql = $this->_em->getConnection()->prepare($sql);
+                        $str_sql->execute();
+                        $row = $str_sql->fetchAll();
+
+                        if (!empty($row)) {
+                            $res = explode('*', $row[0]['xyz']);
+                            $row_data = $res[$query2->getReportDataPosition()] / 1;
+                            $filedata2[$yearcomp[$j]][$monthval[$i - 1]] = $row_data;
+                        }
                     }
+                }
 
-                    $sql = "select " . str_replace("\$i", $i, $query2->getReportDataSql()) . " as xyz  from dual ";
-                    $sql = str_replace("\$yearcomp[\$j]", $yearcomp[$j], $sql);
-                    $sql = str_replace("'\$products[\$k]'", "'" . $products[$k] . "'", $sql);
-                    $sql = str_replace("\$seluser", 1, $sql);
-                    $sql = str_replace("\$all_provinces", $all_provinces, $sql);
-                    $sql = str_replace("\$all_districts", "'" . $all_districts . "'", $sql);
-                    $dbg_sql.=$sql . '<br>';
-                    //echo $sql . "<br>";
-                    //exit;
-                    $str_sql = $this->_em->getConnection()->prepare($sql);
-                    $str_sql->execute();
-                    $row = $str_sql->fetchAll();
+                $xmlstore .= "</categories>";
 
-                    if (!empty($row)) {
-                        $res = explode('*', $row[0]['xyz']);
-                        $row_data = $res[$query2->getReportDataPosition()] / 1;
-                        //echo $row_data."<br/>";
-                        $filedata2[$yearcomp[$j]][$monthval[$i - 1]] = $row_data;
+                foreach ($filedata1 as $key1 => $value1) {
+                    $xmlstore .= "<dataset seriesName='Consumption'>";
+                    foreach ($value1 as $val2) {
+                        $xmlstore .= "<set value='" . round($val2) . "' />";
                     }
+                    $xmlstore .= "</dataset>";
                 }
 
-                //$filedata1 = substr($filedata1, 0, -1);
-                //$filedata.=$monthval[$i - 1] . "," . round($filedata1, 2) . "\n";
-            }
-
-            //echo "<pre>";
-            //print_r($filedata1);
-            //exit;
-
-            $xmlstore .= "</categories>";
-
-            foreach ($filedata1 as $key1 => $value1) {
-                $xmlstore .= "<dataset seriesName='Consumption'>";
-                foreach ($value1 as $val2) {
-                    $xmlstore .= "<set value='" . round($val2) . "' />";
+                foreach ($filedata2 as $key1 => $value1) {
+                    $xmlstore .= "<dataset seriesName='Average Monthly Consumption*'>";
+                    foreach ($value1 as $val2) {
+                        $xmlstore .= "<set value='" . round($val2) . "' />";
+                    }
+                    $xmlstore .= "</dataset>";
                 }
-                $xmlstore .= "</dataset>";
+
+                $xmlstore .="</chart>";
+                $xmlstore_array[] = $xmlstore;
             }
 
-            foreach ($filedata2 as $key1 => $value1) {
-                $xmlstore .= "<dataset seriesName='Average Monthly Consumption*'>";
-                foreach ($value1 as $val2) {
-                    $xmlstore .= "<set value='" . round($val2) . "' />";
-                }
-                $xmlstore .= "</dataset>";
-            }
-
-
-            $xmlstore .="</chart>";
-
-//            $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption='Test' exportFileName='Test " . date('Y-m-d H:i:s') . "' yAxisName='test' numberSuffix='' showValues='1' formatNumberScale='0'>";
-//            foreach ($filedata1 as $key=>$row) {
-//                $monthfd = $monthval[$key - 1];
-//                $datafd = round($row, 2);
-//            
-//                $xmlstore .= "<set label='$monthfd' value='$datafd' />";
-//            }
-//            $xmlstore .="</chart>";
-            //var_dump($xmlstore);
-            //exit;
-            $xmlstore_array[] = $xmlstore;
+            $cache->save($xmlstore_array, $vaccinationvsamc);
         }
 
         return $xmlstore_array;
@@ -427,9 +409,25 @@ class Model_Graphs extends Model_Base {
         $to_date = "$y-$m-$d";
 
         $is_return = $type;
-        if ($type == 17) {
-            $type = '15,16';
+        if ($type == 2) {
+            $where = " AND (
+                        (
+                                cold_chain.ccm_asset_type_id = 3
+                                OR AssetMainType.pk_id = 3
+                        )
+                        OR (
+                                cold_chain.ccm_asset_type_id = 1
+                                OR AssetMainType.pk_id = 1
+                        )
+                )";
+        } else {
+            $where = " AND (
+                        (
+                                cold_chain.ccm_asset_type_id = $type
+                                OR AssetMainType.pk_id = $type
+                        ) )";
         }
+
         $warehouse_id = $this->_identity->getWarehouseId();
         //AND MainAsset.pk_id IN (" . Model_CcmAssetTypes::REFRIGERATOR . ", " . Model_CcmAssetTypes::COLDROOM . ")
         $str_sql = "SELECT DISTINCT
@@ -454,9 +452,8 @@ LEFT JOIN stock_batch ON placements.stock_batch_id = stock_batch.pk_id
 INNER JOIN stakeholder_item_pack_sizes ON stock_batch.stakeholder_item_pack_size_id = stakeholder_item_pack_sizes.pk_id
 WHERE
 	cold_chain.warehouse_id = $warehouse_id
-AND cold_chain.ccm_asset_type_id IN ( $type )
-AND placement_locations.location_type = " . Model_PlacementLocations::LOCATIONTYPE_CCM . " AND
-DATE_FORMAT(placements.created_date,'%Y-%m-%d') <= '$to_date'
+$where
+AND placement_locations.location_type = " . Model_PlacementLocations::LOCATIONTYPE_CCM . "
 GROUP BY
 	cold_chain.auto_asset_id
 ORDER BY
@@ -468,14 +465,14 @@ ORDER BY
         $rec->execute();
         $result = $rec->fetchAll();
 
-        if ($is_return == 17) {
+        if ($is_return == 2) {
             return $result;
         }
 
-        if ($type == 16) {
+        if ($type == 3) {
             $title = "+2-8C Cold Rooms (In Litres)";
         }
-        if ($type == 15) {
+        if ($type == 1) {
             $title = "-20C Cold Rooms (In Litres)";
         }
 
@@ -497,7 +494,7 @@ ORDER BY
             $xmlstore .= "<set value='" . round($row['being_used']) . "' />";
         }
         $xmlstore .= "</dataset>";
-        
+
         $xmlstore .="</chart>";
 
         return $xmlstore;
@@ -529,86 +526,73 @@ ORDER BY
 
         $title = "Reporting Rate and Wastage Comparison  (" . $location_name . "-" . $yearcomp[0] . ")";
 
-        for ($k = 0; $k < sizeof($products); $k++) {
-            $product_obj = new Model_ItemPackSizes();
-            $product_obj->form_values['pk_id'] = $products[$k];
-            $product_name = $product_obj->getProductName();
+        $cache = Zend_Registry::get('cacheManager')->getCache('file');
+        $reportedwastages = "REPORTEDWASTAGES_$post[period]$yearcomp[0]$products[0]$all_provinces";
 
-            $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption= '$product_name $title ' exportFileName='" . $title . " - " . date('Y-m-d H:i:s') . " - " . $product_name . "' yAxisName='Percentage' numberSuffix='%' showValues='1' formatNumberScale='0' theme='fint'>";
-            $xmlstore .= "<categories>";
-            for ($i = $months->getBeginMonth(); $i <= $months->getEndMonth(); $i++) {
+        if (!$xmlstore_array = $cache->load($reportedwastages)) {
+            for ($k = 0; $k < sizeof($products); $k++) {
+                $product_obj = new Model_ItemPackSizes();
+                $product_obj->form_values['pk_id'] = $products[$k];
+                $product_name = $product_obj->getProductName();
 
-                $month_name = $monthval[$i - 1];
-                $xmlstore .= "<category label='$month_name' />";
-            }
+                $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption= '$product_name $title ' exportFileName='" . $title . " - " . date('Y-m-d H:i:s') . " - " . $product_name . "' yAxisName='Percentage' numberSuffix='%' showValues='1' formatNumberScale='0' theme='fint'>";
+                $xmlstore .= "<categories>";
+                for ($i = $months->getBeginMonth(); $i <= $months->getEndMonth(); $i++) {
 
-            $start_date = $yearcomp[0] . '-' . $months->getBeginMonth() . "-01";
-            $end_date = $yearcomp[0] . '-' . $months->getEndMonth() . "-01";
+                    $month_name = $monthval[$i - 1];
+                    $xmlstore .= "<category label='$month_name' />";
+                }
 
-            $sql = "select REPgetWastage('P','$start_date','$end_date',1,'$products[$k]',$all_provinces,0) as xyz  from dual ";
-            //echo $sql."<br>";
-            //exit;
-            $str_sql = $this->_em->getConnection()->prepare($sql);
-            $str_sql->execute();
-            $row = $str_sql->fetchAll();
+                $start_date = $yearcomp[0] . '-' . $months->getBeginMonth() . "-01";
+                $end_date = $yearcomp[0] . '-' . $months->getEndMonth() . "-01";
 
-            if (!empty($row)) {
-                $filedata1 = explode('*', $row[0]['xyz']);
-            }
+                $sql = "select REPgetWastage('P','$start_date','$end_date',1,'$products[$k]',$all_provinces,0) as xyz  from dual ";
+                $str_sql = $this->_em->getConnection()->prepare($sql);
+                $str_sql->execute();
+                $row = $str_sql->fetchAll();
 
-            $sql = "select REPgetRR('P','$start_date','$end_date',1,'$products[$k]',$all_provinces,0) as xyz  from dual ";
-            //echo $sql."<br>";
-            //exit;
-            $str_sql = $this->_em->getConnection()->prepare($sql);
-            $str_sql->execute();
-            $row = $str_sql->fetchAll();
+                if (!empty($row)) {
+                    $filedata1 = explode('*', $row[0]['xyz']);
+                }
 
-            if (!empty($row)) {
-                $filedata2 = explode('*', $row[0]['xyz']);
-            }
+                $sql = "select REPgetRR('P','$start_date','$end_date',1,'$products[$k]',$all_provinces,0) as xyz  from dual ";
+                $str_sql = $this->_em->getConnection()->prepare($sql);
+                $str_sql->execute();
+                $row = $str_sql->fetchAll();
 
-            //$filedata1 = substr($filedata1, 0, -1);
-            //$filedata.=$monthval[$i - 1] . "," . round($filedata1, 2) . "\n";
-            //echo "<pre>";
-            //print_r($filedata1);
-            //exit;
+                if (!empty($row)) {
+                    $filedata2 = explode('*', $row[0]['xyz']);
+                }
 
-            $xmlstore .= "</categories>";
+                $xmlstore .= "</categories>";
 
-            $xmlstore .= "<dataset seriesName='Wastage'>";
-            foreach ($filedata1 as $val2) {
-                $xmlstore .= "<set value='" . round($val2) . "' />";
-            }
-            $xmlstore .= "</dataset>";
+                $xmlstore .= "<dataset seriesName='Wastage'>";
+                foreach ($filedata1 as $val2) {
+                    $xmlstore .= "<set value='" . round($val2) . "' />";
+                }
+                $xmlstore .= "</dataset>";
 
-            $xmlstore .= "<dataset seriesName='Reporting Rate'>";
-            foreach ($filedata2 as $val2) {
-                $xmlstore .= "<set value='" . round($val2) . "' />";
-            }
-            $xmlstore .= "</dataset>";
+                $xmlstore .= "<dataset seriesName='Reporting Rate'>";
+                foreach ($filedata2 as $val2) {
+                    $xmlstore .= "<set value='" . round($val2) . "' />";
+                }
+                $xmlstore .= "</dataset>";
 
-            $obj_product = new Model_ItemPackSizes();
-            $prod_result = $obj_product->getProductById($products[0]);
+                $obj_product = new Model_ItemPackSizes();
+                $prod_result = $obj_product->getProductById($products[0]);
 
-            $xmlstore .="<trendlines>
+                $xmlstore .="<trendlines>
                 <line startvalue='" . $prod_result->getWastageRateAllowed() . "' color='EE2000' displayvalue='Wastage Allowed:" . $prod_result->getWastageRateAllowed() . "%' valueonright='1' />
                 </trendlines>";
 
+                $xmlstore .="</chart>";
 
-            $xmlstore .="</chart>";
-
-//            $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption='Test' exportFileName='Test " . date('Y-m-d H:i:s') . "' yAxisName='test' numberSuffix='' showValues='1' formatNumberScale='0'>";
-//            foreach ($filedata1 as $key=>$row) {
-//                $monthfd = $monthval[$key - 1];
-//                $datafd = round($row, 2);
-//            
-//                $xmlstore .= "<set label='$monthfd' value='$datafd' />";
-//            }
-//            $xmlstore .="</chart>";
-            //var_dump($xmlstore);
-            //exit;
-            $xmlstore_array[] = $xmlstore;
+                $xmlstore_array[] = $xmlstore;
+            }
+            
+            $cache->save($xmlstore_array, $reportedwastages);
         }
+
 
         return $xmlstore_array;
     }
@@ -652,6 +636,11 @@ ORDER BY
             'report_comp' => $optvals
         );
         //print_r($rep_option->form_values);
+        if ($post['indicators'] == 'GMOS') {
+            $yaxis = "Months";
+        } else {
+            $yaxis = "Doses";
+        }
 
         $query = $rep_option->getReportDataSql();
         $title = $query->getReportTitleSql();
@@ -672,7 +661,7 @@ ORDER BY
                 $graph_subcaption = "" . $compare_options . " for " . $location_name;
             }
 
-            $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption='" . $graph_caption . "' subCaption='" . $graph_subcaption . "' exportFileName='" . $title . " - " . date('Y-m-d H:i:s') . " - " . $loc_name . " - " . $product_name . "' yAxisName='Doses' numberSuffix='' showValues='1' formatNumberScale='0'>";
+            $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption='" . $graph_caption . "' subCaption='" . $graph_subcaption . "' exportFileName='" . $title . " - " . date('Y-m-d H:i:s') . " - " . $loc_name . " - " . $product_name . "' yAxisName='$yaxis' numberSuffix='' showValues='1' formatNumberScale='0'>";
             $xmlstore .= "<categories>";
 
             for ($i = $months->getBeginMonth(); $i <= $months->getEndMonth(); $i++) {
@@ -773,7 +762,7 @@ ORDER BY
                 $graph_subcaption = "" . $compare_options . " for " . $location_name;
             }
 
-            $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption='" . $graph_caption . "' subcaption='" . $graph_subcaption . "' exportFileName='" . $title . " - " . date('Y-m-d H:i:s') . " - " . $location_name . " - " . $product_name . "' yAxisName='Doses' numberSuffix='' showValues='1' formatNumberScale='0'>";
+            $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption='" . $graph_caption . "' subcaption='" . $graph_subcaption . "' exportFileName='" . $title . " - " . date('Y-m-d H:i:s') . " - " . $location_name . " - " . $product_name . "' yAxisName='Doses' numberSuffix='' showValues='1' formatNumberScale='0' theme='fint'>";
             $xmlstore .= "<categories>";
 
             for ($i = $months->getBeginMonth(); $i <= $months->getEndMonth(); $i++) {
@@ -885,7 +874,7 @@ ORDER BY
                 $graph_subcaption = "" . $compare_options . " for " . $province_name . "(" . $location_name . ")";
             }
 
-            $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption='" . $graph_caption . "' subCaption='" . $graph_subcaption . "' exportFileName='" . $title . " - " . date('Y-m-d H:i:s') . " - " . $location_name . " - " . $product_name . "' yAxisName='Doses' numberSuffix='' showValues='1' formatNumberScale='0'>";
+            $xmlstore = "<chart exportEnabled='1' labelDisplay='rotate' slantLabels='1' yAxisMaxValue='100' exportAction='Download' caption='" . $graph_caption . "' subCaption='" . $graph_subcaption . "' exportFileName='" . $title . " - " . date('Y-m-d H:i:s') . " - " . $location_name . " - " . $product_name . "' yAxisName='Doses' numberSuffix='' showValues='1' formatNumberScale='0' theme='fint'>";
             $xmlstore .= "<categories>";
 
             for ($i = $months->getBeginMonth(); $i <= $months->getEndMonth(); $i++) {
@@ -947,8 +936,23 @@ ORDER BY
         $to_date = "$y-$m-$d";
 
         $is_return = $type;
-        if ($type == 17) {
-            $type = '15,16';
+        if ($type == 2) {
+            $where = " AND (
+                        (
+                                cold_chain.ccm_asset_type_id = 3
+                                OR AssetMainType.pk_id = 3
+                        )
+                        OR (
+                                cold_chain.ccm_asset_type_id = 1
+                                OR AssetMainType.pk_id = 1
+                        )
+                )";
+        } else {
+            $where = " AND (
+                        (
+                                cold_chain.ccm_asset_type_id = $type
+                                OR AssetMainType.pk_id = $type
+                        ) )";
         }
         $warehouse_id = $this->_identity->getWarehouseId();
         //AND MainAsset.pk_id IN (" . Model_CcmAssetTypes::REFRIGERATOR . ", " . Model_CcmAssetTypes::COLDROOM . ")
@@ -967,7 +971,7 @@ ORDER BY
                         round(
 		Sum(
 			
-				p0_.quantity * stakeholder_item_pack_sizes.volum_per_vial
+				p0_.quantity
 			
 		)
 	) AS quantityvials,
@@ -979,10 +983,11 @@ ORDER BY
                 INNER JOIN stakeholder_item_pack_sizes ON s1_.stakeholder_item_pack_size_id = stakeholder_item_pack_sizes.pk_id
                 INNER JOIN placement_locations ON p0_.placement_location_id = placement_locations.pk_id
                 INNER JOIN cold_chain ON placement_locations.location_id = cold_chain.pk_id
+                INNER JOIN ccm_asset_types AS AssetSubtype ON cold_chain.ccm_asset_type_id = AssetSubtype.pk_id
+                LEFT JOIN ccm_asset_types AS AssetMainType ON AssetSubtype.parent_id = AssetMainType.pk_id
                 WHERE
                         s1_.warehouse_id = $warehouse_id
-                 AND cold_chain.ccm_asset_type_id IN ($type) AND
-                DATE_FORMAT(p0_.created_date,'%Y-%m-%d') <= '$to_date' AND 
+                 $where AND 
                 i2_.item_category_id = 1
                 GROUP BY
                         cold_chain.asset_id,
@@ -997,14 +1002,14 @@ ORDER BY
         $rec->execute();
         $result = $rec->fetchAll();
 
-        if ($is_return == 17) {
+        if ($is_return == 2) {
             return $result;
         }
 
-        if ($type == 16) {
+        if ($type == 3) {
             $title = "+2-8C Cold Rooms Capacity (In Litres)";
         }
-        if ($type == 15) {
+        if ($type == 1) {
             $title = "-20C Cold Rooms Capacity (In Litres)";
         }
 
@@ -1043,10 +1048,10 @@ ORDER BY
         $categories .= '</categories>';
 
         foreach ($data_arr as $item => $sub) {
-            $dataset .= '<dataset seriesname="' . $item . '" color="'.$data_arr[$item]['color'].'" >';
+            $dataset .= '<dataset seriesname="' . $item . '" color="' . $data_arr[$item]['color'] . '" >';
             foreach ($sub as $key => $val) {
-                echo $data_arr[$item][$key]['color'];
-                $dataset .= '<set color="'.$data_arr[$item]['color'].'" value="' . $data_arr[$item][$key]['quantity'] . '" />';
+                //echo $data_arr[$item][$key]['color'];
+                $dataset .= '<set color="' . $data_arr[$item]['color'] . '" value="' . $data_arr[$item][$key]['quantity'] . '" />';
             }
             $dataset .='</dataset>';
         }
@@ -1057,15 +1062,30 @@ ORDER BY
         // App_Controller_Functions::pr($xmlstore);
         return $xmlstore;
     }
-    
+
     public function coldChainCapacityProductSummary($type) {
         $date = $this->form_values['to_date'];
         list($d, $m, $y) = explode("/", $date);
         $to_date = "$y-$m-$d";
-        
+
         $is_return = $type;
-        if ($type == 17) {
-            $type = '15,16';
+        if ($type == 2) {
+            $where = " AND (
+                        (
+                                cold_chain.ccm_asset_type_id = 3
+                                OR AssetMainType.pk_id = 3
+                        )
+                        OR (
+                                cold_chain.ccm_asset_type_id = 1
+                                OR AssetMainType.pk_id = 1
+                        )
+                )";
+        } else {
+            $where = " AND (
+                        (
+                                cold_chain.ccm_asset_type_id = $type
+                                OR AssetMainType.pk_id = $type
+                        ) )";
         }
         $warehouse_id = $this->_identity->getWarehouseId();
         //AND MainAsset.pk_id IN (" . Model_CcmAssetTypes::REFRIGERATOR . ", " . Model_CcmAssetTypes::COLDROOM . ")
@@ -1088,14 +1108,12 @@ ORDER BY
                 INNER JOIN stakeholder_item_pack_sizes ON s1_.stakeholder_item_pack_size_id = stakeholder_item_pack_sizes.pk_id
                 INNER JOIN placement_locations ON p0_.placement_location_id = placement_locations.pk_id
                 INNER JOIN cold_chain ON placement_locations.location_id = cold_chain.pk_id
+                INNER JOIN ccm_asset_types AS AssetSubtype ON cold_chain.ccm_asset_type_id = AssetSubtype.pk_id
+LEFT JOIN ccm_asset_types AS AssetMainType ON AssetSubtype.parent_id = AssetMainType.pk_id
                 INNER JOIN items ON i2_.item_id = items.pk_id
                 WHERE
                         s1_.warehouse_id = $warehouse_id
-                AND cold_chain.ccm_asset_type_id IN ($type)
-                AND DATE_FORMAT(
-                        p0_.created_date,
-                        '%Y-%m-%d'
-                ) <= '$to_date'
+                $where
                 GROUP BY
                 cold_chain.asset_id,
                 items.description
@@ -1110,14 +1128,14 @@ ORDER BY
         $rec->execute();
         $result = $rec->fetchAll();
 
-        if ($is_return == 17) {
+        if ($is_return == 2) {
             return $result;
         }
 
-        if ($type == 16) {
+        if ($type == 3) {
             $title = "+2-8C Cold Rooms Capacity (In Litres)";
         }
-        if ($type == 15) {
+        if ($type == 1) {
             $title = "-20C Cold Rooms Capacity (In Litres)";
         }
 
@@ -1156,10 +1174,10 @@ ORDER BY
         $categories .= '</categories>';
 
         foreach ($data_arr as $item => $sub) {
-            $dataset .= '<dataset seriesname="' . $item . '" color="'.$data_arr[$item]['color'].'" >';
+            $dataset .= '<dataset seriesname="' . $item . '" color="' . $data_arr[$item]['color'] . '" >';
             foreach ($sub as $key => $val) {
                 echo $data_arr[$item][$key]['color'];
-                $dataset .= '<set color="'.$data_arr[$item]['color'].'" value="' . $data_arr[$item][$key]['quantity'] . '" />';
+                $dataset .= '<set color="' . $data_arr[$item]['color'] . '" value="' . $data_arr[$item][$key]['quantity'] . '" />';
             }
             $dataset .='</dataset>';
         }
@@ -1177,8 +1195,23 @@ ORDER BY
         $to_date = "$y-$m-$d";
 
         $is_return = $type;
-        if ($type == 17) {
-            $type = '15,16';
+        if ($type == 2) {
+            $where = " AND (
+                        (
+                                cold_chain.ccm_asset_type_id = 3
+                                OR AssetMainType.pk_id = 3
+                        )
+                        OR (
+                                cold_chain.ccm_asset_type_id = 1
+                                OR AssetMainType.pk_id = 1
+                        )
+                )";
+        } else {
+            $where = " AND (
+                        (
+                                cold_chain.ccm_asset_type_id = $type
+                                OR AssetMainType.pk_id = $type
+                        ) )";
         }
         $warehouse_id = $this->_identity->getWarehouseId();
         //AND MainAsset.pk_id IN (" . Model_CcmAssetTypes::REFRIGERATOR . ", " . Model_CcmAssetTypes::COLDROOM . ")
@@ -1187,7 +1220,8 @@ ORDER BY
                         i2_.item_name AS item_name,
                          s1_.item_pack_size_id,
                          cold_chain.pk_id as location_id,
-                         p0_.vvm_stage,
+                         vvm_stages.pk_id as vvm_stage,
+                         vvm_stages.vvm_stage_value,
                         round(
                                 Sum(
                                         (
@@ -1202,10 +1236,12 @@ ORDER BY
                 INNER JOIN stakeholder_item_pack_sizes ON s1_.stakeholder_item_pack_size_id = stakeholder_item_pack_sizes.pk_id
                 INNER JOIN placement_locations ON p0_.placement_location_id = placement_locations.pk_id
                 INNER JOIN cold_chain ON placement_locations.location_id = cold_chain.pk_id
+                INNER JOIN ccm_asset_types AS AssetSubtype ON cold_chain.ccm_asset_type_id = AssetSubtype.pk_id
+                LEFT JOIN ccm_asset_types AS AssetMainType ON AssetSubtype.parent_id = AssetMainType.pk_id
+                INNER JOIN vvm_stages ON p0_.vvm_stage = vvm_stages.pk_id
                 WHERE
                         s1_.warehouse_id = $warehouse_id
-                 AND cold_chain.ccm_asset_type_id IN ($type) AND
-                DATE_FORMAT(p0_.created_date,'%Y-%m-%d') <= '$to_date' AND 
+                 $where AND 
                 i2_.item_category_id = 1
                 GROUP BY
                         p0_.vvm_stage,
@@ -1214,20 +1250,21 @@ ORDER BY
                         quantity > 0
                 ORDER BY
                         p0_.vvm_stage,i2_.item_name ASC";
+//echo $str_sql;
 
         $rec = $this->_em->getConnection()->prepare($str_sql);
 
         $rec->execute();
         $result = $rec->fetchAll();
 
-        if ($is_return == 17) {
+        if ($is_return == 2) {
             return $result;
         }
 
-        if ($type == 16) {
+        if ($type == 3) {
             $title = "+2-8C Cold Rooms Capacity (In Litres)";
         }
-        if ($type == 15) {
+        if ($type == 1) {
             $title = "-20C Cold Rooms Capacity (In Litres)";
         }
 
@@ -1238,8 +1275,8 @@ ORDER BY
         $vvm_stage = array();
         $item_name = array();
         foreach ($result as $row) {
-            if (!in_array($row['vvm_stage'], $vvm_stage)) {
-                $vvm_stage[] = $row['vvm_stage'];
+            if (!in_array($row['vvm_stage_value'], $vvm_stage)) {
+                $vvm_stage[] = $row['vvm_stage_value'];
             }if (!in_array($row['item_name'], $item_name)) {
                 $item_name[] = $row['item_name'];
             }
@@ -1253,7 +1290,7 @@ ORDER BY
 
         //App_Controller_Functions::pr($data_arr);
         foreach ($result as $row) {
-            $data_arr[$row['vvm_stage']][$row['item_name']]['quantity'] = $row['quantity'];
+            $data_arr[$row['vvm_stage_value']][$row['item_name']]['quantity'] = $row['quantity'];
         }
 
         $dataset = "";

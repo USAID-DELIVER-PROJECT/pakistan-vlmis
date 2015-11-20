@@ -55,6 +55,11 @@ class Users
     private $department;
 
     /**
+     * @var integer $country
+     */
+    private $country;
+
+    /**
      * @var string $photo
      */
     private $photo;
@@ -68,6 +73,11 @@ class Users
      * @var string $phoneNumber
      */
     private $phoneNumber;
+
+    /**
+     * @var string $organization
+     */
+    private $organization;
 
     /**
      * @var boolean $status
@@ -286,6 +296,26 @@ class Users
     }
 
     /**
+     * Set country
+     *
+     * @param integer $country
+     */
+    public function setCountry($country)
+    {
+        $this->country = $country;
+    }
+
+    /**
+     * Get country
+     *
+     * @return integer 
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    /**
      * Set photo
      *
      * @param string $photo
@@ -343,6 +373,26 @@ class Users
     public function getPhoneNumber()
     {
         return $this->phoneNumber;
+    }
+
+    /**
+     * Set organization
+     *
+     * @param string $organization
+     */
+    public function setOrganization($organization)
+    {
+        $this->organization = $organization;
+    }
+
+    /**
+     * Get organization
+     *
+     * @return string 
+     */
+    public function getOrganization()
+    {
+        return $this->organization;
     }
 
     /**

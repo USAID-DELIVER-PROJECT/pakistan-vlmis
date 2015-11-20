@@ -12,7 +12,18 @@
                 <?php echo $this->form->stock_batch_id; ?>
             </div>
         </div>
-        <div class="col-md-6"></div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="vvm"><?php echo $this->translate("VVM Stage"); ?></label>
+                <input class="form-control right" value="<?php echo $this->vvm; ?>" readonly="" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="available_qty"><?php echo $this->translate("Available Quantity"); ?></label>
+                <input class="form-control right" name="available_qty" id="available_qty" value="<?php echo $this->available_qty; ?>" readonly="" />
+            </div>
+        </div>        
     </div>  
     <div class="row">  
         <div class="col-md-3">
@@ -36,11 +47,7 @@
             </div>
         </div>
     </div>
-
     <input type="hidden" id="bin_id" name="bin_id" value="<?php echo $this->bin_id; ?>">
-    <input type="hidden" id="quantity_per_pack" name="quantity_per_pack" value="<?php echo $this->quantity_per_pack; ?>">
-    <input type="hidden" id="totqty" name="totqty" value="<?php echo $this->totqty; ?>">
-    <input type="hidden" id="non_ccm_id" name="non_ccm_id" value="<?php echo $this->non_ccm_id; ?>"> 
-    <input type="hidden" id="asset_name" name="asset_name" value="<?php echo $this->asset_name; ?>"> 
+    <input type="hidden" id="bin_location_id" name="bin_location_id" value="<?php echo $this->bin_location_id; ?>">
     <?php echo $this->form->id; ?>
 </form>

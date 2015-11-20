@@ -4,7 +4,7 @@
         <h3 class="page-title">
             <?php echo $this->translate("Stock Issue"); ?>
         </h3>
-        <!-- <p class="red"><b>Important!</b> Please use Ctrl + R before using this form.</p> -->
+        <p class="red">Please email <a href="mailto:support@lmis.gov.pk" class="red">support@lmis.gov.pk</a> OR contact <a href="#" class="red" >051-2655425/2655426</a> in case of any problem/question.</p>
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet box green">
@@ -149,17 +149,25 @@
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label" for="number">
-                                                    <?php echo $this->translate("Batch"); ?> | <?php echo $this->translate("Quantity"); ?> <span class="red">*</span>
+                                                    <?php echo $this->translate("Batch"); ?> | <?php echo $this->translate("Quantity"); ?> <span id="priority_div">| <?php echo $this->translate("Priority"); ?></span><span class="red">*</span>
                                                 </label>
                                                 <?php echo $this->form->number; ?>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-3" id="vvm-stage-issue">
                                             <div class="form-group">
-                                                <label class="control-label" for="vvm_stage">
-                                                    <?php echo $this->translate("VVM Stage"); ?>
-                                                </label>
-                                                <?php echo $this->form->vvm_stage; ?>
+                                                <div id="vvm_stage_lable">
+                                                    <?php if ($this->role == 3) { ?>
+                                                        <label class="control-label" for="vvm_stage">
+                                                            <?php echo $this->translate("Location"); ?> | <?php echo $this->translate("VVM Stage"); ?> | <?php echo $this->translate("Quantity"); ?>
+                                                        </label>
+                                                    <?php } else { ?>
+                                                        <label class="control-label" for="vvm_stage">
+                                                            <?php echo $this->translate("VVM Stage"); ?>
+                                                        </label>
+                                                    <?php } ?>
+                                                    <?php echo $this->form->vvm_stage; ?>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -181,7 +189,7 @@
                                         <div id="itembatches">
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label for="available_quantity" class="control-label"><?php echo $this->translate("Available"); ?></label>
+                                                    <label for="available_quantity" class="control-label"><?php echo $this->translate("Total available batch quantity"); ?></label>
 
                                                     <?php echo $this->form->available_quantity; ?>
                                                     <?php echo $this->form->hdn_available_quantity; ?>
@@ -335,11 +343,11 @@
                                                     <td><?php echo $row['number']; ?></td>
                                                     <td><?php echo App_Controller_Functions::dateToUserFormat($row['expiry_date']); ?></td>
                                                     <td>
-                                                        <!-- <a href="delete_issue.php?id=<?php //echo $row->pk_stock_detail_id;                                      ?>"> -->
+                                                        <!-- <a href="delete_issue.php?id=<?php //echo $row->pk_stock_detail_id;                                             ?>"> -->
                                                         <span data-toggle="notyfy" id="<?php echo $row['stock_detail_id']; ?>" data-type="confirm"
                                                               data-layout="top" class="fa fa-times cursor-hand"></span>
                                                         <!-- </a> -->
-        <!--  <span class="fa fa-edit cursor-hand" id="<?php // echo $row['stock_detail_id'];                   ?>-stockedit"></span>-->
+        <!--  <span class="fa fa-edit cursor-hand" id="<?php // echo $row['stock_detail_id'];                          ?>-stockedit"></span>-->
                                                     </td>
                                                 </tr>
                                                 <?php

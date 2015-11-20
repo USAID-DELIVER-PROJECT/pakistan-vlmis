@@ -82,16 +82,19 @@ class Model_Warehouses extends Model_Base {
         $qry = "SELECT DISTINCT
                     warehouses.warehouse_type_id,
                     warehouse_types.warehouse_type_name
-            FROM
+                FROM
                     warehouses
-            INNER JOIN cold_chain ON cold_chain.warehouse_id = warehouses.pk_id
-            INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
-            INNER JOIN ccm_asset_types ON cold_chain.ccm_asset_type_id = ccm_asset_types.pk_id
-            WHERE
-                ccm_asset_types.parent_id = 1 
-                and warehouses.status = 1
-                    " . $str_where . "
-                    ";
+                INNER JOIN cold_chain ON cold_chain.warehouse_id = warehouses.pk_id
+                INNER JOIN warehouse_types ON warehouses.warehouse_type_id = warehouse_types.pk_id
+                INNER JOIN ccm_asset_types ON cold_chain.ccm_asset_type_id = ccm_asset_types.pk_id
+                WHERE
+                (
+                    ccm_asset_types.parent_id = 1
+                    OR ccm_asset_types.pk_id = 1
+                )
+                AND warehouses.`status` = 1
+                ORDER BY
+                warehouse_types.pk_id ASC ";
         //print $qry."<hr>";
         //die;
         $row = $this->_em->getConnection()->prepare($qry);
@@ -105,8 +108,9 @@ class Model_Warehouses extends Model_Base {
                 ->from("Warehouses", "wh")
                 ->where("wh.pkId = " . $wh_id)
                 ->andWhere("wh.status = 1");
+        $row = $str_sql->getQuery()->getResult();
         if (!empty($row) && count($row) > 0) {
-            return $row['warehouse_name'];
+            return $row[0]['warehouse_name'];
         } else {
             return FALSE;
         }
@@ -421,7 +425,8 @@ class Model_Warehouses extends Model_Base {
                 ->orderBy("w.warehouseName");
         $rs = $str_sql->getQuery()->getResult();
         //}
-        //   echo $str_sql->getQuery()->getSql();
+        // echo $str_sql->getQuery()->getSql();
+        //  exit;
         //   $rs = $str_sql->getQuery()->getResult();
         if ($rs != false) {
             $data = array();
@@ -479,7 +484,6 @@ class Model_Warehouses extends Model_Base {
 
     public function getAllWarehouses($order, $sort) {
         $form_values = $this->form_values;
-
         if (!empty($form_values['stakeholder'])) {
             $where[] = "so.pkId = '" . $form_values['stakeholder'] . "'";
         }
@@ -499,6 +503,9 @@ class Model_Warehouses extends Model_Base {
         if (!empty($form_values['combo3']) && $form_values['office_type'] == 5) {
             $where[] = "l.pkId = '" . $form_values['combo3'] . "'";
         }
+        if (!empty($form_values['combo3']) && $form_values['office_type'] == 6 && empty($form_values['combo4'])) {
+            $where[] = "l.parent = '" . $form_values['combo3'] . "'";
+        }
         if (!empty($form_values['combo4']) && $form_values['office_type'] == 6) {
             $where[] = "l.pkId = '" . $form_values['combo4'] . "'";
         }
@@ -507,7 +514,7 @@ class Model_Warehouses extends Model_Base {
         }
 
         $str_sql = $this->_em->createQueryBuilder()
-                ->select('w.pkId,w.warehouseName,so.pkId as stakeholderOfficeId,'
+                ->select('w.pkId,w.warehouseName,w.status,so.pkId as stakeholderOfficeId,'
                         . 's.stakeholderName,p.locationName as provinceName,'
                         . 'd.locationName as districtName,l.locationName as UC')
                 ->from("Warehouses", "w")
@@ -517,11 +524,11 @@ class Model_Warehouses extends Model_Base {
                 ->join("w.province", "p")
                 ->join("w.district", "d")
                 ->join("w.location", "l")
-                ->where($where_s)
-                ->andWhere('w.status=1');
-        // echo $str_sql->getQuery()->getSql();
-        //  exit;
+                ->where($where_s);
+
+        //        ->andWhere('w.status=1');
         $rs = $str_sql->getQuery()->getResult();
+        //echo $str_sql->getQuery()->getSql();
         return $rs;
     }
 
@@ -961,7 +968,9 @@ class Model_Warehouses extends Model_Base {
                 ->join('wu.user', 'u')
                 ->join('w.location', 'l')
                 ->where('u.pkId=' . $this->_user_id)
+                ->andWhere('w.stakeholderOffice=6')
                 ->andWhere('w.status=1');
+//echo $sub_sql_w->getQuery()->getSql();
         return $row_sub = $sub_sql_w->getQuery()->getResult();
     }
 
@@ -1010,6 +1019,111 @@ class Model_Warehouses extends Model_Base {
         $row = $this->_em->getConnection()->prepare($qry);
         $row->execute();
         return $row->fetchAll();
+    }
+
+    public function getUcWarehousesofTehsil() {
+
+        $str_sql = $this->_em->createQueryBuilder()
+                ->select('w.pkId,w.warehouseName')
+                ->from("Warehouses", "w")
+                ->innerJoin("w.stakeholderOffice", "st")
+                ->innerJoin("w.location", "l")
+                ->where("l.parent =  " . $this->form_values['parent_id'])
+                ->andWhere("st.geoLevel = 6")
+                ->andWhere("w.status=1")
+                ->andWhere("w.stakeholderOffice = 6")
+                ->orderBy("w.warehouseName");
+
+        $rs = $str_sql->getQuery()->getResult();
+        //   echo $str_sql->getQuery()->getSql();
+        //   exit;
+        if ($rs != false) {
+            $data = array();
+            foreach ($rs as $row) {
+                $data[] = array(
+                    'key' => $row['pkId'],
+                    'value' => $row['warehouseName']
+                );
+            }
+            return $data;
+        } else {
+            return false;
+        }
+    }
+
+    public function tehsilLocations() {
+        if (!empty($this->form_values['province_id'])) {
+            $where[] = "l.province = '" . $this->form_values['province_id'] . "'";
+        }
+        if (!empty($this->form_values['district_id'])) {
+            $where[] = "l.district = '" . $this->form_values['district_id'] . "'";
+        }
+        if (is_array($where)) {
+            $where_s = implode(" AND ", $where);
+        }
+        $str_sql = $this->_em->createQueryBuilder()
+                ->select('l.pkId as pkId,l.locationName as warehouseName')
+                ->from("Locations", "l")
+                ->where("l.geoLevel = 5 ")
+                ->andWhere($where_s)
+                ->orderBy("l.locationName");
+
+        $rs = $str_sql->getQuery()->getResult();
+        if ($rs != false) {
+            $data = array();
+            foreach ($rs as $row) {
+                $data[] = array(
+                    'key' => $row['pkId'],
+                    'value' => $row['warehouseName']
+                );
+            }
+            return $data;
+        } else {
+            return false;
+        }
+    }
+
+    public function getAmcWarehouses() {
+
+        if (!empty($this->form_values['stakeholder_id'])) {
+            $stk_id = $this->form_values['stakeholder_id'];
+        }
+        if (!empty($this->form_values['province_id'])) {
+            $pr_id = $this->form_values['province_id'];
+        }
+        $str_sql = "SELECT DISTINCT
+                        w0_.pk_id AS pk_id0,
+                        w0_.warehouse_name AS warehouse_name1
+                    FROM
+                        warehouses AS w0_
+                        INNER JOIN stakeholders AS s1_ ON w0_.stakeholder_office_id = s1_.pk_id
+                        INNER JOIN epi_amc ON epi_amc.warehouse_id = w0_.pk_id
+                    WHERE
+                        w0_.stakeholder_id = $stk_id
+                        AND w0_.province_id = $pr_id
+                        AND w0_. STATUS = 1
+                    ORDER BY
+                    w0_.warehouse_name ASC";
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $rs = $this->_em->getConnection()->prepare($str_sql);
+        $rs->execute();
+        $result = $rs->fetchAll();
+
+
+        if ($result != false) {
+            $data = array();
+            foreach ($result as $row) {
+                $data[] = array(
+                    'key' => $row['pk_id0'],
+                    'value' => $row['warehouse_name1']
+                );
+            }
+
+            return $data;
+        } else {
+            return false;
+        }
     }
 
 }

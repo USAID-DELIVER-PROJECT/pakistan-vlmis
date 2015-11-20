@@ -23,6 +23,7 @@ class Form_Iadmin_RoleResource extends Zend_Form {
 
         $roles = new Model_Roles();
         $result = $roles->getRoles();
+       
         if ($result) {
             foreach ($result as $row) {
                 $this->_list["role"][$row->getPkId()] = $row->getRoleName();
@@ -35,8 +36,8 @@ class Form_Iadmin_RoleResource extends Zend_Form {
             foreach ($result2 as $row2) {
                 $resource = $row2->getResourceName();
                 $arr_resources = explode("/", $resource);
-                $second_name = (!empty($arr_resources[1]))? ucfirst($arr_resources[1])." - " : "";
-                $this->_list["resource"][$row2->getPkId()] = ucfirst($arr_resources[0])." - ".$second_name . $row2->getDescription();
+                $second_name = (!empty($arr_resources[1])) ? ucfirst($arr_resources[1]) . " - " : "";
+                $this->_list["resource"][$row2->getPkId()] = ucfirst($arr_resources[0]) . " - " . $second_name . $row2->getDescription();
             }
         }
 

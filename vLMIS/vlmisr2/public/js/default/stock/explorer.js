@@ -103,29 +103,15 @@ $(document).on("click", "#print_explorer", function() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 $(document).on("click", "#print-monthly-consumption", function() {
 
     var monthly_report = $('#monthly_report').val();
     window.open('print-monthly-consumption?do=' + monthly_report, '_blank', 'scrollbars=1,width=860,height=595');
+
+});
+$(document).on("click", "#print-monthly-consumption2", function() {
+
+    var monthly_report = $('#monthly_report').val();
+    window.open('print-monthly-consumption2?do=' + monthly_report, '_blank', 'scrollbars=1,width=860,height=595');
 
 });

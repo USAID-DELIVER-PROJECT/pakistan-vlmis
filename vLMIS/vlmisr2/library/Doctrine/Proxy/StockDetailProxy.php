@@ -66,18 +66,6 @@ class StockDetailProxy extends \StockDetail implements \Doctrine\ORM\Proxy\Proxy
         return parent::getTemporary();
     }
 
-    public function setVvmStage($vvmStage)
-    {
-        $this->__load();
-        return parent::setVvmStage($vvmStage);
-    }
-
-    public function getVvmStage()
-    {
-        $this->__load();
-        return parent::getVvmStage();
-    }
-
     public function setIsReceived($isReceived)
     {
         $this->__load();
@@ -100,6 +88,18 @@ class StockDetailProxy extends \StockDetail implements \Doctrine\ORM\Proxy\Proxy
     {
         $this->__load();
         return parent::getAdjustmentType();
+    }
+
+    public function setVvmStage(\VvmStages $vvmStage)
+    {
+        $this->__load();
+        return parent::setVvmStage($vvmStage);
+    }
+
+    public function getVvmStage()
+    {
+        $this->__load();
+        return parent::getVvmStage();
     }
 
     public function setItemUnit(\ItemUnits $itemUnit)
@@ -141,7 +141,7 @@ class StockDetailProxy extends \StockDetail implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'pkId', 'quantity', 'temporary', 'vvmStage', 'isReceived', 'adjustmentType', 'itemUnit', 'stockBatch', 'stockMaster');
+        return array('__isInitialized__', 'pkId', 'quantity', 'temporary', 'isReceived', 'adjustmentType', 'vvmStage', 'itemUnit', 'stockBatch', 'stockMaster');
     }
 
     public function __clone()

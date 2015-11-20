@@ -9,8 +9,8 @@ var batchManagement = function () {
             var iTotalDoses = 0;
             for (var i = 0; i < aaData.length; i++)
             {
-                iTotalVials += aaData[i][5].replace(/[^0-9]/gi, '') * 1;
-                iTotalDoses += aaData[i][6].replace(/[^0-9]/gi, '') * 1;
+                iTotalVials += aaData[i][6].replace(/[^0-9]/gi, '') * 1;
+                iTotalDoses += aaData[i][7].replace(/[^0-9]/gi, '') * 1;
             }
 
             /* Calculate the batch quantity for browsers on this page */
@@ -18,16 +18,16 @@ var batchManagement = function () {
             var iPageDoses = 0;
             for (var i = iStart; i < iEnd; i++)
             {
-                iPageVials += aaData[aiDisplay[i]][5].replace(/[^0-9]/gi, '') * 1;
-                iPageDoses += aaData[aiDisplay[i]][6].replace(/[^0-9]/gi, '') * 1;
+                iPageVials += aaData[aiDisplay[i]][6].replace(/[^0-9]/gi, '') * 1;
+                iPageDoses += aaData[aiDisplay[i]][7].replace(/[^0-9]/gi, '') * 1;
             }
 
             /* Modify the footer row to match what we want */
             var nCells = nRow.getElementsByTagName('th');
             /*nCells[1].innerHTML = numberWithCommas(parseInt(iPageVials)) + " <br>" + numberWithCommas(parseInt(iTotalVials));
-            nCells[2].innerHTML = numberWithCommas(parseInt(iPageDoses)) + " <br>" + numberWithCommas(parseInt(iTotalDoses));*/
-            nCells[1].innerHTML = numberWithCommas(parseInt(iPageVials));
-            nCells[2].innerHTML = numberWithCommas(parseInt(iPageDoses));
+             nCells[2].innerHTML = numberWithCommas(parseInt(iPageDoses)) + " <br>" + numberWithCommas(parseInt(iTotalDoses));*/
+            nCells[6].innerHTML = numberWithCommas(parseInt(iPageVials));
+            nCells[7].innerHTML = numberWithCommas(parseInt(iPageDoses));
         },
         "aoColumnDefs": [
             {"sType": 'date-uk', "aTargets": [0]},
@@ -39,14 +39,15 @@ var batchManagement = function () {
         ],
         "aaSorting": [[0, 'asc']],
         "aLengthMenu": [
-            [5, 15, 20, -1],
-            [5, 15, 20, "All"] // change per page values here
+            [20, 50, 100, -1],
+            [20, 50, 100, "All"] // change per page values here
         ],
-        "sDom": "<'row'<'col-md-4 col-sm-12'l><'col-md-4 col-sm-12'T><'col-md-4 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+        "sDom": "<'row'<'col-md-4 col-sm-12'l><'col-md-4 col-sm-12'T><'col-md-4 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>",
+        //
         //"sDom ": 'T<"clear ">lfrtip',
         // set the initial value
         "bDestroy": true,
-        "iDisplayLength": 10,
+        "iDisplayLength": 20,
         "oTableTools": {
             "sSwfPath": appName + "/common/theme/scripts/plugins/tables/DataTables/extras/TableTools/media/swf/copy_csv_xls_pdf.swf",
             "aButtons": [{
@@ -80,13 +81,19 @@ function numberWithCommas(x) {
 $(function () {
     batchManagement();
 
-    $('#item_pack_size_id').change(function () {
-        batchDetail();
-    });
+    /*$('#item_pack_size_id').change(function() {
+     batchDetail();
+     });*/
+    searchInputFtn($("#searchby").val());
 
     if ($('#item_pack_size_id').val() != '') {
         batchDetail();
+        checkProductCat();
     }
+
+    $('#item_pack_size_id').change(function () {
+        checkProductCat();
+    });
 
     $(".detail-batch").click(function () {
         $.ajax({
@@ -126,12 +133,34 @@ $(function () {
         });
     });
 });
-
+function checkProductCat() {
+    $.ajax({
+        type: "POST",
+        url: appName + "/stock-batch/ajax-product-category",
+        data: {item_id: $('#item_pack_size_id').val()},
+        dataType: 'html',
+        success: function (data) {
+            if (data == 1) {
+                $("input[type=radio][value=1]").attr("disabled", false);
+                $("input[type=radio][value=2]").attr("disabled", false);
+                $("input[type=radio][value=3]").attr("disabled", false);
+                $("input[type=radio][value=7]").attr("disabled", false);
+            } else {
+                $("input[type=radio][value=1]").attr("disabled", true);
+                $("input[type=radio][value=2]").attr("disabled", true);
+                $("input[type=radio][value=3]").attr("disabled", true);
+                $("input[type=radio][value=7]").attr("disabled", true);
+            }
+        }
+    });
+}
 function batchDetail() {
     if ($('#item_pack_size_id').val() != '') {
         $("#printSummary").hide();
+        //   $('#priorityBatches').show();
     } else {
         $("#printSummary").show();
+        //    $('#priorityBatches').hide();
     }
 
     $.ajax({
@@ -146,17 +175,51 @@ function batchDetail() {
     });
 }
 
+function searchInputFtn(val) {
+    switch (val) {
+        case 'expired_before':
+        case 'expired_after':
+            $("#searchinput").attr('readonly', 'readonly');
+            $("#searchinput").datepicker({
+                minDate: 0,
+                maxDate: "+10Y",
+                dateFormat: 'dd/mm/yy',
+                changeMonth: true,
+                changeYear: true
+            });
+            break;
+        default:
+            $("#searchinput").removeProp('readonly');
+            $("#searchinput").datepicker("destroy");
+            break;
+    }
+}
+
 $('#print_vaccine_placement').click(function () {
     var form_name, status, number, transaction_refernece, item_id, all_arguments;
     form_name = $('#batch_search');
     status = form_name.find('input[name=status]:checked').val();
-    number = $('#number').val();
+    searchby = $('#searchby').val();
     item_id = $('#item_pack_size_id').val();
-    transaction_refernece = $('#transaction_refernece').val();
-    all_arguments = "?type=1&item_pack_size_id=" + item_id + "&status=" + status + "&number=" + number + "&transaction_refernece=" + transaction_refernece;
+    searchinput = $('#searchinput').val();
+    all_arguments = "?type=1&item_pack_size_id=" + item_id + "&status=" + status + "&searchby=" + searchby + "&searchinput=" + searchinput;
     window.open(appName + '/stock-batch/batch-summary' + all_arguments, '_blank', 'scrollbars=1,width=860,height=595');
-}
-);
+});
+
+$('#priorityBatches').click(function () {
+
+    Metronic.startPageLoading('Please wait...');
+    $.ajax({
+        type: "POST",
+        url: appName + "/stock-batch/ajax-run-priority-batches",
+        data: {product_id: $('#item_pack_size_id').val()},
+        dataType: 'html',
+        success: function (data) {
+            Metronic.stopPageLoading();
+            location.href = appName + '/stock-batch/index?item_pack_size_id=' + $('#item_pack_size_id').val() + '&status=' + $('input[name=status]:checked').val();
+        }
+    });
+});
 
 $.inlineEdit({
     expiry: appName + '/stock-batch/ajax-expiry-edit/type/expiry/id/'
@@ -181,5 +244,15 @@ $(".placement-history").click(function () {
         }
     });
 });
-
 //$('input:radio[id=status-1]').prop('checked', true);
+
+var search_by = $("#searchby").val();
+if (search_by != '') {
+    $("#searchby").trigger("change");
+}
+$("#searchby").change(function () {
+    $("#searchinput").val('');
+    var val = $(this).val();
+
+    searchInputFtn(val);
+});

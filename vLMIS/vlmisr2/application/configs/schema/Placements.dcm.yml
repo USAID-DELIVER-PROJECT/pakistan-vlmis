@@ -14,10 +14,6 @@ Placements:
       type: integer
       unsigned: false
       nullable: true
-    vvmStage:
-      type: integer
-      nullable: true
-      column: vvm_stage
     isPlaced:
       type: boolean
       nullable: true
@@ -27,6 +23,15 @@ Placements:
       nullable: true
       column: created_date
   oneToOne:
+    vvmStage:
+      targetEntity: VvmStages
+      cascade: {  }
+      mappedBy: null
+      inversedBy: null
+      joinColumns:
+        vvm_stage:
+          referencedColumnName: pk_id
+      orphanRemoval: false
     createdBy:
       targetEntity: Users
       cascade: {  }

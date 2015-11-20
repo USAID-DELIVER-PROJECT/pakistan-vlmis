@@ -250,7 +250,7 @@ class Reports_CcemController extends App_Controller_Base {
 
         $this->view->main_heading = "CCEM Reports";
         $this->view->report_title = "Capacity Shortages -20c by area";
-        $this->view->headers = 'Province,District,Facility Type,Net Storage (Ltr) Actual,Net Storage (Ltr) Required,Net Storage (Ltr) Difference, Surplus > 30%, Surplus 10-30%,Match +/- 10%, Shortage 10-30%,Storage >30%';
+        $this->view->headers = 'Province,District,Facility Type,Net Storage (Ltr) Actual,Net Storage (Ltr) Required,Net Storage (Ltr) Difference, Surplus > 30%, Surplus 10-30%,Match +/- 10%, Shortage 10-30%,Shortage >30%';
         $this->view->rspan = '';
         $this->view->cspan = '#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan';
         $this->view->width = '*,*,*,*,*,*,*,*,*,*,*';
@@ -1575,7 +1575,7 @@ class Reports_CcemController extends App_Controller_Base {
             // $xmlstore .= "<cell><![CDATA[" . $sub_arr['UC'] . "]]></cell>";
             $xmlstore .= "<cell><![CDATA[" . $sub_arr['FacilityName'] . "]]></cell>";
             $xmlstore .= "<cell>" . $sub_arr['FacilityType'] . "</cell>";
-            $xmlstore .= "<cell>" . $sub_arr['Catalog ID'] . "</cell>";
+            $xmlstore .= "<cell>" . $sub_arr['LibraryID'] . "</cell>";
             $xmlstore .= "<cell><![CDATA[" . $sub_arr['Model'] . "]]></cell>";
             $xmlstore .= "<cell><![CDATA[" . $sub_arr['Make'] . "]]></cell>";
             $xmlstore .= "<cell>" . $sub_arr['SerialNumber'] . "</cell>";

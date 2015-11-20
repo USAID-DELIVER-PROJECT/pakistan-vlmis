@@ -11,17 +11,17 @@ $year = $dateArr[1];
 
 if ($type == 'Issue') {
     $qry = $this->reports()->getShipmentTransactionIssue($whId, $date);
+    $geo_level_type = $this->reports()->getWarehouseLevel($whId);
     $whHead = 'to';
     $voucherLink = $this->baseUrl() . '/stock/print-issue-shipment';
 } else if ($type == 'Receive') {
     $qry = $this->reports()->getShipmentTransactionReceive($whId, $date);
-
+    $geo_level_type = "";
     $whHead = 'from';
     $voucherLink = $this->baseUrl() . '/stock/print-receive-shipment';
-}
-else if ($type == 'Pending') {
+} else if ($type == 'Pending') {
     $qry = $this->reports()->getShipmentTransactionPending($whId, $date);
-
+    $geo_level_type = "";
     $whHead = 'from';
     $voucherLink = $this->baseUrl() . '/stock/print-pending-shipment';
 }
@@ -44,12 +44,10 @@ $title = $type . " Transaction Details for $whName($month/$year)";
     }
 </style>
 <!-- Content -->
-<?php 
-if ($type == 'Pending')
-{
+<?php
+if ($type == 'Pending') {
     $type = 'Issue';
-}
-else {
+} else {
     $type = $type;
 }
 ?>
@@ -65,6 +63,7 @@ else {
                     <th><?php echo $type . ' ' . $whHead; ?></th>
                     <?php if ($type == 'Issue') { ?>
                         <th>Status</th>
+                        <th>Received Date</th>
                     <?php } ?>
                 </tr>
             </thead>
@@ -79,7 +78,23 @@ else {
                         <td><a href="javascript:void(0);" onclick="window.open('<?php echo $voucherLink; ?>?id=<?php echo $row['PkStockID']; ?>&warehouse_id=<?php echo $whId; ?>', '_blank', 'scrollbars=1,width=842,height=595');"><?php echo $row['TranNo']; ?></a></td>
                         <td><?php echo $row['wh_name']; ?></td>
                         <?php if (isset($row['IsReceived'])) { ?>
-                            <td><?php echo ($row['IsReceived'] != 0 && $row['adjustmentType'] == 2) ? '<b style="color:#08B825">Received</b>' : '<b style="color:#C84535">'.$this->isPartialReceived($row['PkStockID']).'</b>'; ?></td>
+                            <?php if ($geo_level_type == 5 && $row['adjustmentType'] == 2) { ?>
+                                <td><b style="color:#08B825">Received</b></td>   
+                                <td align="center"><?php echo $row['TranDate']; ?></td>
+                            <?php } else { ?>
+                                <td><?php echo ($row['IsReceived'] != 0 && $row['adjustmentType'] == 2) ? '<b style="color:#08B825">Received</b>' : '<b style="color:#C84535">' . $this->isPartialReceived($row['PkStockID']) . '</b>'; ?></td>
+
+                                <?php if ($row['IsReceived'] != 0 && $row['adjustmentType'] == 2) { ?>
+                                    <td align="center"><?php echo $this->reports()->receivedDate($row['PkStockID']); ?></td>
+                                <?php } else if ($this->isPartialReceived($row['PkStockID']) == 'Partial Received') { ?>
+
+                                    <td align="center"><?php echo $this->reports()->receivedDate($row['PkStockID']); ?></td>
+
+                                <?php } else { ?>
+                                    <td align="center">-</td>
+
+                                <?php } ?>
+                            <?php } ?>
                         <?php } ?>
                     </tr>
                     <?php

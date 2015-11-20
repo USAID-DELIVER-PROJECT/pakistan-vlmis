@@ -41,6 +41,15 @@ foreach ($this->params as $key=>$value){
 }
 ?>
 <div class="row">
+    <div class="col-md-12">
+        <table style="width:100%;">
+            <tr>
+                <td class="center" colspan="4"><b style="font-size: 16px;"><?php echo $this->print_title; ?></b></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="row">
     <div class="col-md-12 right"><a title="Export to Excel" href="<?php echo $this->baseUrl(); ?>/stock/export-excel?<?php echo $params; ?>"><img src="<?php echo $this->baseUrl(); ?>/images/excel-32.png" /></a></div>
 </div>
 <?php } ?>
@@ -91,10 +100,10 @@ if ($this->val != 'none') {
 
                         <tr>
                             <td style="text-align:right;"><?php echo $i; ?></td>
-                            <td style="text-align:center;"><?php echo date("d/m/y", strtotime($val['transactionDate'])); ?></td>
+                            <td style="text-align:center;"><?php echo date("d/m/Y", strtotime($val['transactionDate'])); ?></td>
                             <td style="text-align:left;"><?php echo $val['warehouseName']; ?> </td>
                             <td style="text-align:left;"><?php echo $val['number']; ?></td>
-                            <td style="text-align:center;"><?php echo date("d/m/y", strtotime($val['expiryDate'])); ?></td>
+                            <td style="text-align:center;"><?php echo date("d/m/Y", strtotime($val['expiryDate'])); ?></td>
                             <td style="text-align:right;"><?php echo abs($val['quantity']); ?></td>
                             <td style="text-align:right;"><?php echo $val['description'] ?></td>
                             <td style="text-align:right;"><?php echo number_format(($val['description'] * abs($val['quantity']))); ?></td>
@@ -152,10 +161,10 @@ if ($this->val != 'none') {
 
                         <tr>
                             <td style="text-align:right;"><?php echo $i; ?></td>
-                            <td style="text-align:center;"><?php echo date("d/m/y", strtotime($val['transactionDate'])); ?></td>
+                            <td style="text-align:center;"><?php echo date("d/m/Y", strtotime($val['transactionDate'])); ?></td>
                             <td style="text-align:left;"><?php echo $val['itemName']; ?></td>
                             <td style="text-align:left;"><?php echo $val['number']; ?></td>
-                            <td style="text-align:center;"><?php echo date("d/m/y", strtotime($val['expiryDate'])); ?></td>
+                            <td style="text-align:center;"><?php echo date("d/m/Y", strtotime($val['expiryDate'])); ?></td>
                             <td style="text-align:right;"><?php echo number_format($val['quantity']); ?></td>
                             <td style="text-align:right;"><?php echo $val['description'] ?></td>
                             <td style="text-align:right;"><?php echo number_format(($val['description'] * abs($val['quantity']))); ?></td>
@@ -210,15 +219,15 @@ if ($this->val != 'none') {
 
                     <tr>
                         <td style="text-align:right;"><?php echo $i; ?></td>
-                        <td style="text-align:center;"><?php echo date("m/d/y", strtotime($data['transactionDate'])); ?></td>
+                        <td style="text-align:center;"><?php echo date("d/m/Y", strtotime($data['transactionDate'])); ?></td>
                         <td><?php echo $data['itemName']; ?></td>
                         <td><?php echo $data['warehouseName']; ?> </td>
                         <td style="text-align:left;"><?php echo $data['number']; ?></td>
-                        <td style="text-align:center;"><?php echo date("d/m/y", strtotime($data['expiryDate'])); ?></td>
+                        <td style="text-align:center;"><?php echo date("d/m/Y", strtotime($data['expiryDate'])); ?></td>
                         <td style="text-align:right;"><?php echo number_format($data['quantity']); ?></td>
                         <td style="text-align:right;"><?php echo $data['description'] ?></td>
                         <td style="text-align:right;"><?php echo number_format(($data['description'] * abs($data['quantity']))); ?></td>
-                        <td style="text-align:right;"><?php echo !empty($val['vvmStage']) ? $val['vvmStage'] : 'N/A' ; ?></td>
+                        <td style="text-align:right;"><?php echo !empty($data['vvmStage']) ? $data['vvmStage'] : 'N/A' ; ?></td>
                     </tr>
                     <?php
                 }
@@ -237,8 +246,10 @@ if ($this->val != 'none') {
 }
 ?>
 <div style="float:left;">
-
-    <b>Print Date:</b> <?php echo date('d/m/y') . ' <b>by</b> ' . $this->username; ?>
+    <div class="col-md-12 left">
+        <b>Printed By:</b> <?php echo $this->username ?><br> 
+        <b>Print Date:</b> <?php echo date("d/m/Y"); ?>
+    </div>
 </div> 
 <div class="col-md-12" class="widget">
     <div class="widget-body right">

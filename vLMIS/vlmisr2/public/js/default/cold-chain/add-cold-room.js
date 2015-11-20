@@ -78,6 +78,9 @@ $(function() {
 
 
 });
+$.validator.addMethod("custom_alphanumeric", function (value, element) {
+    return this.optional(element) || value === "NA" || value.match(/^[a-zA-Z0-9-_]+$/);
+}, "Letters, numbers, hyphen and underscores only please");
 
 // validate signup form on keyup and submit
 $("#add_cold_room").validate({
@@ -86,7 +89,7 @@ $("#add_cold_room").validate({
           required: true  }
         ,
          asset_id:{
-         alphanumeric: true   
+         custom_alphanumeric: true   
         },
         ccm_status_list_id: {
             required: true
@@ -163,7 +166,7 @@ $("#add_cold_room").validate({
             required: "Please enter gross capacity"
         },
         'net_capacity': {
-            required: "Please enter gross capacity"
+            required: "Please enter net capacity"
         }
     }
 });

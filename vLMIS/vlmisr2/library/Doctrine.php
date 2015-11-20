@@ -49,7 +49,6 @@ if (APPLICATION_ENV == "development") {
 $config->setMetadataCacheImpl($cache);
 $config->setQueryCacheImpl($cache);
 
-
 $connectionOptions = array(
     'driver'   => 'pdo_mysql',
     'host'     => '192.168.1.72',

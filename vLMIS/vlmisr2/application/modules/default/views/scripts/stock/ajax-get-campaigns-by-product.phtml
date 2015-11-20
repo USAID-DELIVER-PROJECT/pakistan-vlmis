@@ -6,10 +6,10 @@ if ($this->data != false) {
     foreach ($this->data as $row) {
         ?>
         <option value="<?php echo $row['pk_id']; ?>"><?php echo $row['campaign_name']; ?></option>
-                <?php
-            }
-        } else {
-            ?>
+        <?php
+    }
+} else {
+    ?>
     <option value=""><?php echo $this->translate("Select"); ?></option>
     <?php
 }

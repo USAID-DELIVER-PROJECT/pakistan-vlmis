@@ -19,7 +19,7 @@ var lookup = {
 }
 province_style.addUniqueValueRules("default", "class", lookup);
 
- var province_style_label = new OpenLayers.StyleMap();
+var province_style_label = new OpenLayers.StyleMap();
 var lookup = {
     "0": {
         fillColor: "#E6E7E9",
@@ -50,7 +50,7 @@ province_style_label.addUniqueValueRules("default", "class", lookup);
 
  var district_style = new OpenLayers.StyleMap({
     'default': {
-        strokeColor: "grey",
+        strokeColor: "black",
         strokeWidth: 0.5,
         fillColor: "white",
         cursor: "pointer",
@@ -63,7 +63,7 @@ province_style_label.addUniqueValueRules("default", "class", lookup);
 
 var district_style_label = new OpenLayers.StyleMap({
     'default': {
-        strokeColor: "grey",
+        strokeColor: "black",
         strokeWidth: 0.5,
         fillColor: "white",
         cursor: "pointer",
@@ -72,6 +72,59 @@ var district_style_label = new OpenLayers.StyleMap({
         fontSize: "11px",
         fontWeight: "bold",
         label: "${district_name}"
+    }
+});
+
+ var district = new OpenLayers.StyleMap({
+    'default': {
+        strokeColor: "black",
+        strokeWidth: 1,
+        fillColor: "white",
+        cursor: "pointer",
+        fillOpacity: 0,
+        fontColor: "black",
+        fontSize: "11px",
+        fontWeight: "bold"
+    }
+});
+
+var district_label = new OpenLayers.StyleMap({
+    'default': {
+        strokeColor: "black",
+        strokeWidth: 1,
+        fillColor: "white",
+        cursor: "pointer",
+        fillOpacity: 0,
+        fontColor: "black",
+        fontSize: "11px",
+        fontWeight: "bold"
+    }
+});
+
+var tehsil_style = new OpenLayers.StyleMap({
+    'default': {
+        strokeColor: "#606060",
+        strokeWidth: 0.5,
+        fillColor: "white",
+        cursor: "pointer",
+        fillOpacity: 0,
+        fontColor: "black",
+        fontSize: "11px",
+        fontWeight: "bold"
+    }
+});
+
+var tehsil_style_label = new OpenLayers.StyleMap({
+    'default': {
+        strokeColor: "#606060",
+        strokeWidth: 0.5,
+        fillColor: "white",
+        cursor: "pointer",
+        fillOpacity: 0,
+        fontColor: "black",
+        fontSize: "11px",
+        fontWeight: "bold",
+        label: "${tehsil_name}"
     }
 });
 
@@ -132,4 +185,4 @@ var data = [];
 var maxValue = [];
 var minMaxArray = [];
 
-var map, province, district, vLMIS, product_name, handler, selectfeature, min, max,type_name,month_year,maximum,ext,download,acceptable_limit;
+var map, province, district, vLMIS, product_name, handler, selectfeature, min, max,type_name,month_year,maximum,ext,download,acceptable_limit,month,year,product,region,dist,level,provinceName,districtName,type;

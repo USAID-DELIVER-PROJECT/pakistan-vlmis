@@ -5,6 +5,7 @@ class Form_TransferStock extends Zend_Form {
     private $_fields = array(
         "item_pack_size_id" => "Product",
         "stock_batch_id" => "Batch No",
+        "totqty" => "Available Quantity",
         "non_ccm_location_id" => "Location",
         "quantity" => "Quantity"
     );
@@ -30,6 +31,7 @@ class Form_TransferStock extends Zend_Form {
             switch ($col) {
                 case "item_pack_size_id":
                 case "stock_batch_id":
+                case "totqty";
                 case "quantity":
                     $this->addElement("text", $col, array(
                         "attribs" => array("class" => "form-control"),
@@ -69,6 +71,7 @@ class Form_TransferStock extends Zend_Form {
     public function readFields() {
         $this->getElement('item_pack_size_id')->setAttrib("readonly", "true");
         $this->getElement('stock_batch_id')->setAttrib("readonly", "true");
+        $this->getElement('totqty')->setAttrib("readonly", "true");
     }
 
     public function addHidden() {

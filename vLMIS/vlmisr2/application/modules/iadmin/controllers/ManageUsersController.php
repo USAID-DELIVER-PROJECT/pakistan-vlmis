@@ -1083,4 +1083,21 @@ class Iadmin_ManageUsersController extends App_Controller_Base {
         }
     }
 
+    public function userFeedbackAction() {
+        $users = new Model_Users();
+        $user_feeadback = $users->getUserFeedback();
+        $this->view->result = $user_feeadback;
+    }
+
+    public function editUserProfileAction(){
+
+    }
+
+    public function userLoginLogAction() {
+        //$this->_helper->layout->setLayout('main');
+        $users = new Model_Users();
+        $doc_user_log = $users->getUserLoginLog();
+        $this->view->result = $doc_user_log;
+    }
+
 }

@@ -34,13 +34,7 @@
                             <?php if (isset($this->status) && $this->status == false) { ?>
                                 <div class="alert alert-danger">
                                     <button data-dismiss="alert" class="close" type="button"> × </button>
-                                    <strong>Quantity</strong> should not be less than zero for negative adjustments.
-                                </div>
-                            <?php } ?>
-                            <?php if (isset($this->status2) && $this->status2 == false) { ?>
-                                <div class="alert alert-danger">
-                                    <button data-dismiss="alert" class="close" type="button"> × </button>
-                                    <strong>Pick Quantity</strong> should not be greater than placed quantity.
+                                    <?php echo $this->msg; ?>
                                 </div>
                             <?php } ?>
                             <!-- Row -->
@@ -80,40 +74,50 @@
                                         <?php echo $this->form->product; ?>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <label class="control-label" for="batch_no">
-                                            <?php echo $this->translate("Batch No") ?> | Quantity <span class="red">*</span>
-                                        </label>
-                                        <?php echo $this->form->batch_no; ?>
+                                <?php //if ($this->role == '3' || $this->province == '2') { ?>
+                                    <div class="col-md-3" id="batch_no_div">
+                                        <div class="form-group">
+                                            <label class="control-label" for="batch_no">
+                                                <?php echo $this->translate("Batch No") ?> | Quantity <span class="red">*</span>
+                                            </label>
+                                            <?php echo $this->form->batch_no; ?>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        <label class="control-label">
-                                            &nbsp;
-                                        </label>
-                                        <a class="btn btn-success" data-toggle="modal" href="#new-batch"><?php echo $this->translate("New") ?></a>
+                                    <div class="col-md-1" id="batch_button_div" style="display: none;">
+                                        <div class="form-group">
+                                            <label class="control-label">
+                                                &nbsp;
+                                            </label>
+                                            <a id="btn-new-batch" class="btn btn-success" data-toggle="modal" href="#new-batch"><?php echo $this->translate("New") ?></a>
+                                        </div>
+                                    </div>
+                                <?php //} else { ?>
+                                    <!-- <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="batch_no">
+                                                <?php //echo $this->translate("Batch No") ?> | Quantity <span class="red">*</span>
+                                            </label>
+                                            <?php //echo $this->form->batch_no; ?>
+                                        </div>
+                                    </div> -->
 
-                                    </div>
-                                </div>
+                                <?php //} ?>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label class="control-label" for="location_id">
-                                            <?php echo $this->translate("Location | VVM | Quantity") ?> <span class="red" id="location_vvm_quantity">*</span>
+                                            <span id="loc_vvm_qty"><?php echo $this->translate("Location | VVM | Quantity") ?></span> <span class="red" id="location_vvm_quantity">*</span>
                                         </label>
                                         <?php echo $this->form->location_id; ?>
                                     </div>
-                                </div>
-                                <div class="col-md-3">
+                                </div>                                
+                                <!-- <div class="col-md-3">
                                     <div class="form-group">
                                         <label class="control-label">
                                             &nbsp;
                                         </label>
                                         <button type="button" id="show_locations" class="form-control">Show locations with this product</button>
                                     </div>
-                                </div>
-
+                                </div> -->
                             </div>
                             <div class="row">
                                 <div class="col-md-3">
@@ -124,18 +128,18 @@
                                         <?php echo $this->form->quantity; ?>
                                     </div>
                                 </div>
-                                <div class="col-md-3" id="old_vvm_div">
+                                <!-- <div class="col-md-3" id="old_vvm_div">
                                     <div class="form-group">
                                         <label class="control-label" id="old_vvm_lbl" for="old_vvm">
-                                            <?php echo $this->translate("Vvm Stage") ?> <span class="red">*</span>
+                                <?php //echo $this->translate("VVM Stage") ?> <span class="red">*</span>
                                         </label>
-                                        <?php echo $this->form->old_vvm; ?>
+                                <?php //echo $this->form->old_vvm; ?>
                                     </div>
-                                </div>
-                                <div class="col-md-3" id="vvm_stage_div" >
+                                </div> -->
+                                <div class="col-md-3" id="vvm_stage_div" style="display: none;">
                                     <div class="form-group">
                                         <label class="control-label" id="vvm_stage_lbl" for="vvm_stage">
-                                            <?php echo $this->translate("New Vvm Stage") ?>
+                                            <?php echo $this->translate("New VVM Stage") ?> <span class="red" id="vvm_stage_label">*</span>
                                         </label>
                                         <?php echo $this->form->vvm_stage; ?>
                                     </div>
@@ -184,7 +188,7 @@
 <!-- // Content END -->
 
 <!-- // modal box for add -->
-<div class="modal fade" id="new-batch" tabindex="-1" role="basic" aria-hidden="true">
+<div class="modal fade" id="new-batch" role="basic" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -251,7 +255,7 @@
                     <div class="row margin-bottom-10">
                         <div class="col-md-6">
                             <div class="control-group ">
-                                <label class="control-label" ><?php echo $this->translate("Unit Price"); ?> <span class="red">*</span></label>
+                                <label class="control-label" ><?php echo $this->translate("Unit Price"); ?></label>
                                 <div class="controls">
                                     <?php echo $this->batch_form->unit_price; ?>
                                 </div>

@@ -16,11 +16,6 @@ PhysicalStockTakingDetail:
       fixed: false
       nullable: true
       column: batch_number
-    vvmStage:
-      type: integer
-      unsigned: false
-      nullable: true
-      column: vvm_stage
     stakeholderItemPackSize:
       type: integer
       unsigned: false
@@ -46,6 +41,15 @@ PhysicalStockTakingDetail:
       nullable: true
       column: created_date
   oneToOne:
+    vvmStage:
+      targetEntity: VvmStages
+      cascade: {  }
+      mappedBy: null
+      inversedBy: null
+      joinColumns:
+        vvm_stage:
+          referencedColumnName: pk_id
+      orphanRemoval: false
     physicalStockTaking:
       targetEntity: PhysicalStockTaking
       cascade: {  }

@@ -1,17 +1,18 @@
 <?php
 $param = $this->param;
 
-$districtId = $param[0];
-$month = $param[1];
-$year = $param[2];
-$allUcs = $this->reports()->getReportedWarehouseList($districtId);
+$wh_type = $param[0];
+$districtId = $param[1];
+$month = $param[2];
+$year = $param[3];
+$allUcs = $this->reports()->getReportedWarehouseList($wh_type,$districtId);
 
 $ucInfo = array();
 foreach ($allUcs as $row) {
     array_push($ucInfo, $row);
     $districtName = $row['District'];
 }
-$reportedUcs = $this->reports()->getReportedWarehouseList1($districtId, $month, $year);
+$reportedUcs = $this->reports()->getReportedWarehouseList1($wh_type,$districtId, $month, $year);
 
 $reportedUcArr = array();
 foreach ($reportedUcs as $row) {

@@ -1,7 +1,5 @@
 function FilterData() {
 
-    var prov = $("#province option:selected").text();
-
     var features = province.features;
     var districtfeatures = district.features;
 
@@ -15,7 +13,7 @@ function FilterData() {
     }
     district.redraw();
 
-    if (prov == "Select") {
+    if (provinceName == "Select") {
         map.setOptions({
             maxExtent: restricted
         });
@@ -40,7 +38,8 @@ function FilterData() {
         map.events.register("move", map, UpdateExtent);
 
         for (var i = 0; i < features.length; i++) {
-            if (features[i].attributes.province_name != prov) {
+          
+            if (features[i].attributes.province_name != provinceName) {
                 features[i].style = {
                     display: 'none'
                 };
@@ -52,7 +51,7 @@ function FilterData() {
         }
 
 
-        if (features[3].attributes.province_name == prov) {
+        if ("Islamabad" == provinceName) {
             map.events.remove("zoomend", map, zoomChanged);
             map.events.remove("zoomend", map, zoomRestrict);
             map.events.remove("move", map, UpdateExtent);
@@ -66,7 +65,7 @@ function FilterData() {
         province.redraw();
 
         for (var i = 0; i < districtfeatures.length; i++) {
-            if (districtfeatures[i].attributes.province_name != prov) {
+            if (districtfeatures[i].attributes.province_name != provinceName) {
                 districtfeatures[i].style = {
                     display: 'none'
                 };
@@ -84,8 +83,6 @@ function FilterData() {
 
 
 function FilterTwoFrame() {
-
-    var prov = $("#province option:selected").text();
 
     var features = province.features;
     var districtfeatures = district.features;
@@ -118,7 +115,7 @@ function FilterTwoFrame() {
 
 
 
-    if (prov == "Select") {
+    if (provinceName == "Select") {
 
         downloadExtent = bounds;
         map.zoomToExtent(bounds);
@@ -128,7 +125,7 @@ function FilterTwoFrame() {
 
 
         for (var i = 0; i < features.length; i++) {
-            if (features[i].attributes.province_name != prov) {
+            if (features[i].attributes.province_name != provinceName) {
                 features[i].style = {
                     display: 'none'
                 };
@@ -140,7 +137,7 @@ function FilterTwoFrame() {
         }
 
         for (var i = 0; i < features2.length; i++) {
-            if (features2[i].attributes.province_name != prov) {
+            if (features2[i].attributes.province_name != provinceName) {
                 features2[i].style = {
                     display: 'none'
                 };
@@ -154,8 +151,8 @@ function FilterTwoFrame() {
 
 
 
-        if (features[3].attributes.province_name == prov) {
-            features[3].style = {
+        if (features[5].attributes.province_name == provinceName) {
+            features[5].style = {
                 display: 'none'
             };
 
@@ -166,9 +163,9 @@ function FilterTwoFrame() {
         }
 
 
-        if (features2[3].attributes.province_name == prov) {
+        if (features2[5].attributes.province_name == provinceName) {
 
-            features2[3].style = {
+            features2[5].style = {
                 display: 'none'
             };
 
@@ -183,7 +180,7 @@ function FilterTwoFrame() {
         province2.redraw();
 
         for (var i = 0; i < districtfeatures.length; i++) {
-            if (districtfeatures[i].attributes.province_name != prov) {
+            if (districtfeatures[i].attributes.province_name != provinceName) {
                 districtfeatures[i].style = {
                     display: 'none'
                 };
@@ -192,7 +189,7 @@ function FilterTwoFrame() {
         district.redraw();
 
         for (var i = 0; i < districtfeatures2.length; i++) {
-            if (districtfeatures2[i].attributes.province_name != prov) {
+            if (districtfeatures2[i].attributes.province_name != provinceName) {
                 districtfeatures2[i].style = {
                     display: 'none'
                 };
@@ -219,6 +216,19 @@ function zoomChanged() {
         district.redraw();
     }
 }
+
+function zoomtehsilChanged() {
+    var zoom = map.getZoom();
+    if (zoom >= 3) {
+        tehsil.styleMap = tehsil_style_label;
+        tehsil.redraw();
+    }
+    if (zoom < 3) {
+        tehsil.styleMap = tehsil_style;
+        tehsil.redraw()
+    }
+}
+
 
 function zoomLabel() {
     var zoom = map.getZoom();
@@ -342,3 +352,120 @@ function zoomRestrict() {
             d.setDate(1);
             return d;
  }
+ 
+ 
+ function FilterTehsilData(){
+     
+
+    var provFeatures = province.features;
+    var features = district.features;
+    var tehsilfeatures = tehsil.features;
+
+
+    for (var i = 0; i < provFeatures.length; i++) {
+        provFeatures[i].style = '';
+    }
+    province.redraw();
+    
+    for (var i = 0; i < features.length; i++) {
+        features[i].style = '';
+    }
+    district.redraw();
+
+    for (var i = 0; i < tehsilfeatures.length; i++) {
+        tehsilfeatures[i].style = '';
+    }
+    tehsil.redraw();
+
+    if (districtName == "all") {
+       
+        map.setOptions({
+            maxExtent: null
+        });
+        map.setOptions({
+            restrictedExtent: null
+        });
+        
+        map.events.register("move", map, UpdateExtent);
+        
+         for (var i = 0; i < provFeatures.length; i++) {
+            if (provFeatures[i].attributes.province_id != provinceName) {
+                provFeatures[i].style = {
+                    display: 'none'
+                };
+            } else {
+
+                downloadExtent = provFeatures[i].geometry.getBounds();
+                map.zoomToExtent(provFeatures[i].geometry.getBounds());
+            }        
+        }
+        province.redraw();
+        
+        
+        for (var i = 0; i < features.length; i++) {
+            if (features[i].attributes.province_id != provinceName) {
+                features[i].style = {
+                    display: 'none'
+                };
+            }         
+        }
+        district.redraw();
+        
+        for (var i = 0; i < tehsilfeatures.length; i++) {
+            if (tehsilfeatures[i].attributes.province_id != provinceName) {
+                tehsilfeatures[i].style = {
+                    display: 'none'
+                };
+            }         
+        }
+        tehsil.redraw();
+        province.setVisibility(false);
+    } 
+    else {
+
+        map.setOptions({
+            maxExtent: null
+        });
+        map.setOptions({
+            restrictedExtent: null
+        });
+        map.events.register("zoomend", map, zoomtehsilChanged);
+        map.events.register("move", map, UpdateExtent);
+
+        for (var i = 0; i < features.length; i++) {
+            if (features[i].attributes.district_id != districtName) {
+                features[i].style = {
+                    display: 'none'
+                };
+            } else {
+
+                downloadExtent = features[i].geometry.getBounds();
+                map.zoomToExtent(features[i].geometry.getBounds());
+            }
+        }
+
+         district.redraw();
+         province.setVisibility(false);
+        for (var i = 0; i < tehsilfeatures.length; i++) {
+            if (tehsilfeatures[i].attributes.district_id != districtName) {
+                tehsilfeatures[i].style = {
+                    display: 'none'
+                };
+            }
+        }
+        tehsil.redraw();
+    }
+ }
+ 
+ function getDistrictList(val){
+        document.getElementById('dist').length = 0;
+         $.ajax({
+               type: "GET",
+                url: appName + "/api/geo/get-district-list",
+               data: {province: val},
+               dataType: 'text',
+               success: function(response) {
+                      $("#dist").html(response);    
+               }
+           });
+    }

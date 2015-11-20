@@ -50,15 +50,84 @@ $(function () {
         onSelect: function (selectedDateTime) {
             startDateTextBox.datepicker('option', 'maxDate', endDateTextBox.datepicker('getDate'));
         }
-    });    
+    });
+
+    $(document).on("click","[data-toggle='notyfy']",function () {
+
+        $.notyfy.closeAll();
+        var self = $(this);
+
+        notyfy({
+            text: notification[self.data('type')],
+            type: self.data('type'),
+            dismissQueue: true,
+            layout: self.data('layout'),
+            buttons: (self.data('type') != 'confirm') ? false : [
+                {
+                    addClass: 'btn btn-success btn-small btn-icon glyphicons ok_2',
+                    text: '<i></i> Ok',
+                    onClick: function ($notyfy) {
+                        Metronic.startPageLoading('Please wait...');
+                        var id = self.data("id");
+                        $notyfy.close();
+                        $.ajax({
+                            type: "POST",
+                            url: appName + "/stock/delete-adjustment",
+                            data: {id: id},
+                            success: function (data) {
+                                Metronic.stopPageLoading();
+                                if (data == 1) {
+                                    self.closest("tr").remove();
+                                    notyfy({
+                                        force: true,
+                                        text: '<strong>Deleted successfully!<strong>',
+                                        type: 'success',
+                                        layout: self.data('layout')
+                                    });
+                                } else {
+                                    notyfy({
+                                        force: true,
+                                        text: '<strong>An error occur! Try later.<strong>',
+                                        type: 'error',
+                                        layout: self.data('layout')
+                                    });
+                                }
+                            }
+                        });
+
+                        //window.location.href = appName + '/stock/delete-issue?p=stock&id=' + id;
+                    }
+                },
+                {
+                    addClass: 'btn btn-danger btn-small btn-icon glyphicons remove_2',
+                    text: '<i></i> Cancel',
+                    onClick: function ($notyfy) {
+                        $notyfy.close();
+                        /*   notyfy({
+                         force: true,
+                         text: '<strong>You clicked "Cancel" button<strong>',
+                         type: 'error',
+                         layout: self.data('layout')
+                         });*/
+                    }
+                }
+            ]
+        });
+        return false;
+    });
+
+    var notification = [];
+    notification['confirm'] = 'Do you want to continue?';
+
 });
 $('#product').change(function () {
     $("#available").val('');
 
     $.ajax({
         type: "POST",
-        url: appName + "/stock-batch/ajax-running-batches",
-        data: {item_id: $('#product').val(), page: "adjustment"},
+        //url: appName + "/stock-batch/ajax-running-batches",
+        url: appName + "/stock/ajax-adjusted-batches",
+        data: {item_id: $('#product').val()},
         dataType: 'html',
         success: function (data) {
 
@@ -71,7 +140,8 @@ $('#product').change(function () {
 if ($('#product').val() !== "") {
     $.ajax({
         type: "POST",
-        url: appName + "/stock-batch/ajax-running-batches",
+        //url: appName + "/stock-batch/ajax-running-batches",
+        url: appName + "/stock/ajax-adjusted-batches",
         data: {item_id: $('#product').val(), page: "adjustment"},
         dataType: 'html',
         success: function (data) {

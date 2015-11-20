@@ -25,7 +25,7 @@ class PipelineConsignmentsPlacements
     private $quantity;
 
     /**
-     * @var integer $vvmStage
+     * @var VvmStages
      */
     private $vvmStage;
 
@@ -93,9 +93,9 @@ class PipelineConsignmentsPlacements
     /**
      * Set vvmStage
      *
-     * @param integer $vvmStage
+     * @param VvmStages $vvmStage
      */
-    public function setVvmStage($vvmStage)
+    public function setVvmStage(\VvmStages $vvmStage)
     {
         $this->vvmStage = $vvmStage;
     }
@@ -103,7 +103,7 @@ class PipelineConsignmentsPlacements
     /**
      * Get vvmStage
      *
-     * @return integer 
+     * @return VvmStages 
      */
     public function getVvmStage()
     {

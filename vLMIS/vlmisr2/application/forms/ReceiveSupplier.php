@@ -30,13 +30,7 @@ class Form_ReceiveSupplier extends Zend_Form {
         'from_warehouse_id' => array(),
         'item_id' => array(),
         'vvm_type_id' => array(),
-        'vvm_stage' => array(
-            '' => 'NA',
-            '1' => '1 (Usable)',
-            '2' => '2 (Usable)',
-            '3' => '3 (Not Usable)',
-            '4' => '4 (Not Usable)'
-        ),
+        'vvm_stage' => array(),
         'activity_id' => array(),
         'campaign_id' => array('' => 'Select'),
         'manufacturer_id' => array(),
@@ -65,22 +59,25 @@ class Form_ReceiveSupplier extends Zend_Form {
         $sips = new Model_StakeholderItemPackSizes();
         $sips->form_values['stakeholder_id'] = $stakeholder_id;
         $result2 = $sips->getAllProductsByStakeholderType();
+        $this->_list["item_id"][""] = "Select";
         if ($result2) {
-            $item_id = $result2[0]['item_pack_size_id'];
+            //$item_id = $result2[0]['item_pack_size_id'];
             foreach ($result2 as $item) {
                 $this->_list["item_id"][$item['item_pack_size_id']] = $item['item_name'];
             }
         }
-
+        
+        $this->_list["vvm_stage"][""] = "NA";
+        $this->_list["manufacturer_id"][""] = "Select";
         //Generate manufacturer Combo
-        $stakeholder_items = new Model_Stakeholders();
+        /*$stakeholder_items = new Model_Stakeholders();
         $stakeholder_items->form_values['item_id'] = $item_id;
         $associated = $stakeholder_items->getManufacturerByProduct();
         if ($associated) {
             foreach ($associated as $row) {
                 $this->_list["manufacturer_id"][$row['pkId']] = $row['stakeholderName'];
             }
-        }
+        }*/
 
         //Generate VVM Type Combo
         $vvmtypes = new Model_VvmTypes();
@@ -158,11 +155,11 @@ class Form_ReceiveSupplier extends Zend_Form {
                     break;
             }
 
-            if ($col == "manufacturer_id") {
-                $attribute_class = "col-md-2 form-control input-small";
-            } else {
+            //if ($col == "manufacturer_id") {
+              //  $attribute_class = "col-md-2 form-control input-small";
+            //} else {
                 $attribute_class = "form-control";
-            }
+            //}
             if (in_array($col, array_keys($this->_list))) {
                 $this->addElement("select", $col, array(
                     "attribs" => array("class" => "$attribute_class"),

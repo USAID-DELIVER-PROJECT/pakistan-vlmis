@@ -33,7 +33,6 @@
 if (count($this->result) > 0) {
     $dateObj = DateTime::createFromFormat('!m', $this->month);
     $monthName = $dateObj->format('F');
-    
     ?>
     <div class="row">
         <div class="col-md-12">
@@ -78,8 +77,8 @@ if (count($this->result) > 0) {
                                 <?php echo number_format($row['issue_vials']); ?>
                             </td>
                             <td class="center">
-                                        <?php echo $row['doses_per_vial']; ?>
-                                    </td>
+                                <?php echo $row['doses_per_vial']; ?>
+                            </td>
                             <td class="right">
                                 <?php echo number_format($row['issue_doses']); ?>
                             </td>
@@ -92,6 +91,12 @@ if (count($this->result) > 0) {
             </table>
         </div>
     </div><br>
+    <div style="float:left;">
+        <div class="col-md-12 left">
+            <b>Printed By:</b> <?php echo $this->username ?><br> 
+            <b>Print Date:</b> <?php echo date("d/m/Y"); ?>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-12 right">
             <button id="print" name="print" value="1" type="button" class="btn btn-primary" ><?php echo $this->translate("Print"); ?></button>

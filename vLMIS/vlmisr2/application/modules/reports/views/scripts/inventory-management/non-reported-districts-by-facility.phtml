@@ -3,17 +3,18 @@ $xml_store = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 $xml_store .="<rows>";
 
 $sel_month = $this->month_sel;
-$sel_year = $this->year_sel;
-$sel_prov = $this->prov_sel;
-$sel_dist = $this->sel_dist;
+$sel_prov = $this->province;
+$sel_dist = $this->district1;
+$sel_tehsil = $this->tehsil;
+$wh_type = $this->wh_type;
 $period = $this->period;
 foreach ($period as $date) {
     $str_date = $date->format("Y-m");
 }
-$query_0 = $this->reports()->getTotalByFacility($str_date, $sel_prov, $sel_dist);
+$query_0 = $this->reports()->getTotalByFacility($wh_type,$str_date, $sel_prov, $sel_dist,$sel_tehsil);
 $total = $query_0;
 
-$query_1 = $this->reports()->getNonReportedTotalByFacility($str_date, $sel_prov, $sel_dist);
+$query_1 = $this->reports()->getNonReportedTotalByFacility($wh_type,$str_date, $sel_prov, $sel_dist,$sel_tehsil);
 $reported = $query_1;
 
 $nonreported = $total[0]['abc'] - $reported[0]['abc'];
@@ -43,7 +44,7 @@ if ($whlist) {
     $qwhlist = "";
 }
 
-$query_vals1 = $this->reports()->getNonReportedDistrictsByFacility1($str_date, $sel_prov, $sel_dist, $qwhlist);
+$query_vals1 = $this->reports()->getNonReportedDistrictsByFacility1($wh_type,$str_date, $sel_prov, $sel_dist, $qwhlist,$sel_tehsil);
 
 foreach ($query_vals1 as $row_vals) {
     $query = $this->reports()->getNonReportedDistrictsByFacility2($row_vals['pk_id']);
@@ -54,6 +55,7 @@ foreach ($query_vals1 as $row_vals) {
         $wh_name = htmlentities($row['warehouse_name']);
         $prov_tittle = htmlentities($row[prov_tittle]);
         $d_name = htmlentities($row['d_name']);
+         $teh_name = htmlentities($row['teh_name']);
         $UC = htmlentities($row['UC']);
 
         //$prov_tittle = (empty($row[prov_tittle]))? "-" : $row[prov_tittle];
@@ -66,6 +68,7 @@ foreach ($query_vals1 as $row_vals) {
 
         $xml_store .="<cell><![CDATA[$prov_tittle]]></cell>";
         $xml_store .="<cell><![CDATA[$d_name]]></cell>";
+         $xml_store .="<cell><![CDATA[$teh_name]]></cell>";
         $xml_store .="<cell><![CDATA[$UC]]></cell>";
 
         $xml_store .="<cell><![CDATA[$wh_name]]></cell>";
@@ -115,9 +118,9 @@ if (!empty($sel_month)) {
                         </tr>
 
                         <tr>
-                            <td width="120" height="29" align="center" valign="middle"><strong class="sb1FormLabel">Total Warehouses</strong></td>
+                            <td width="120" height="29" align="center" valign="middle"><strong class="sb1FormLabel">Total EPI Centers</strong></td>
                             <td width="22" align="left" valign="middle">&nbsp;<span class="sb1Exception"><?php echo $total[0]['abc']; ?></span></td>
-                            <td width="240" align="center" valign="middle" class="sb1FormLabel">Total Non Reported Warehouses</td>
+                            <td width="240" align="center" valign="middle" class="sb1FormLabel">Total Non Reported EPI Centers</td>
                             <td width="60" align="left" valign="middle" class="sb1FormLabel"><span class="sb1Exception"><?php echo $nonreported; ?></span></td>
                             <td width="147" align="center" valign="middle" class="sb1FormLabel">Reporting Rate</td>
                             <td width="31" align="left" valign="middle" class="sb1Exception"><?php echo number_format($ReportRate, 2) ?>%&nbsp;</td>
@@ -148,13 +151,13 @@ if (!empty($sel_month)) {
         mygrid = new dhtmlXGridObject('mygrid_container');
         mygrid.selMultiRows = true;
         mygrid.setImagePath("<?php echo $this->baseUrl(); ?>/common/reports/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
-        mygrid.setHeader("<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'><?php echo "Non-reported EPI Centers Report For Province/Region $this->location_name (" . date('F', mktime(0, 0, 0, $this->month_sel)) . ' ' . $this->year_sel . ") "; ?></div>,#cspan,#cspan,#cspan,#cspan");
-        mygrid.attachHeader("<span title='Serial Number'>Sr No.</span>,<span title='Province/Region Name'>Province/Region</span>,<span title='District'>District</span>,<span title='Union Council'>Union Council</span>,<span title='EPI Center'>EPI Center</span>");
+        mygrid.setHeader("<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'><?php echo "Non-reported EPI Centers Report For Province/Region $this->location_name (" . date('F', mktime(0, 0, 0, $this->month_sel)) . ' ' . $this->year_sel . ") "; ?></div>,#cspan,#cspan,#cspan,#cspan,#cspan");
+        mygrid.attachHeader("<span title='Serial Number'>Sr No.</span>,<span title='Province/Region Name'>Province/Region</span>,<span title='District'>District</span>,<span title='tehsil'>Tehsil</span>,<span title='Union Council'>Union Council</span>,<span title='EPI Center'>EPI Center</span>");
         //	mygrid.attachHeader(",#select_filter,#select_filter,#select_filter,#select_filter");
-        mygrid.setInitWidths("60,160,160,180,*");
-        mygrid.setColAlign("left,left,left,left,left");
-        mygrid.setColSorting("int,str,str,str,str");
-        mygrid.setColTypes("ro,ro,ro,ro,ro");
+        mygrid.setInitWidths("60,160,160,160,180,*");
+        mygrid.setColAlign("left,left,left,left,left,left");
+        mygrid.setColSorting("int,str,str,str,str,str");
+        mygrid.setColTypes("ro,ro,ro,ro,ro,ro");
         //mygrid.enableLightMouseNavigation(true);
         mygrid.enableRowsHover(true, 'onMouseOver'); // `onMouseOver` is the css class name.
         mygrid.setSkin("light");
@@ -163,4 +166,8 @@ if (!empty($sel_month)) {
         $('body').append('<textarea id="xml_string" style="display:none;"><?php echo addslashes($xml_store); ?></textarea>');
         mygrid.loadXMLString(document.getElementById('xml_string').value);
     }
+    var whType = <?php echo $wh_type; ?>;
+    var province = <?php echo $sel_prov; ?>;
+    var district = <?php echo $sel_dist; ?>;
+    var tehsil = <?php echo $sel_tehsil; ?>;
 </script>

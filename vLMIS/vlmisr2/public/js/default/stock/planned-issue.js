@@ -124,16 +124,16 @@ $(function () {
         },
         messages: {
             office: {
-                required: "Please select store level"
+                required: "Please select office"
             },
             combo1: {
-                required: "Please select Province"
+                required: "Please select province"
             },
             combo2: {
-                required: "Please Select District"
+                required: "Please select district"
             },
             warehouse: {
-                required: "Please select Store"
+                required: "Please select store"
             },
             stakeholder_activity_id: {
                 required: "Please select purpose"

@@ -4,7 +4,7 @@ $sel_year = $this->year_sel;
 $counter = 1;
 $sel_stk = $this->in_stk;
 $sel_prov = $this->prov_sel;
-$sel_dist = $this->in_dist;
+$sel_dist = $this->sel_dist;
 $sel_indicator = $this->sel_indicator;
 $sel_prod = $this->sel_prod;
 $in_col = $this->in_col;
@@ -26,9 +26,13 @@ foreach ($this->location_id as $row) {
         $count++;
     }
 }
-// Headers of the Grid
-$header = 'District ID, District';
 
+// Headers of the Grid
+if (!empty($sel_dist)){
+ $header = 'Tehsil ID, Tehsil';   
+}else {
+$header = 'District ID, District';
+}
 $width = '*,150';
 $ro = 'ro,ro';
 
@@ -39,7 +43,7 @@ foreach ($period as $date) {
     $width .= ',*';
     $ro .= ',ro';
 
-    $query_vals = $this->reports()->getDistrictsYearlyReport($sel_indicator, $str_date, $sel_prov, $sel_prod);
+    $query_vals = $this->reports()->getDistrictsYearlyReport($sel_indicator, $str_date, $sel_prov,$sel_dist, $sel_prod);
     foreach ($query_vals as $row) {
 
         $data_arr[$row['district_id']][$count] = $row['total'];
@@ -122,7 +126,7 @@ if (!empty($sel_month)) {
         mygrid = new dhtmlXGridObject('mygrid_container');
         mygrid.selMultiRows = true;
         mygrid.setImagePath("<?php echo $this->baseUrl(); ?>/common/reports/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
-        mygrid.setHeader(",<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'> District wise <?php echo "'$this->item_name'" ?> Yearly <?php echo "$this->str_indicator" ?> Report for <?php echo "$this->location_name" ?> (In Doses) </div>,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan");
+        mygrid.setHeader(",<div style='text-align:center; font-size:14px; font-weight:bold; font-family:Helvetica'> District wise <?php echo "'$this->item_name'" ?> Yearly <?php echo "$this->str_indicator" ?> Report for <?php echo "$this->location_name" ?> <?php echo "$this->district_name" ?>  (In Doses) </div>,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan,#cspan");
         mygrid.attachHeader("<?php echo $header; ?>");
         mygrid.setInitWidths("<?php echo $width; ?>");
         mygrid.setColTypes("<?php echo $ro; ?>");
@@ -137,5 +141,23 @@ if (!empty($sel_month)) {
     function functionCall(param) {
         window.open('../graph/district_yearly.php?param=' + param, '_blank', 'scrollbars=1,width=950,height=600');
     }
+     $(function() {
+                   
+                    $('#prov_sel').change(function() {
+                        $('#loader').show();
+                        $.ajax({
+                            type: "POST",
+                            url: appName + "/reports/inventory-management/prov-2dist",
+                            data: {prov_sel: $(this).val(), combo: '2'},
+                            dataType: 'html',
+                            success: function(data) {
+                                $('#loader').hide();
+                                $('#dist_id').html(data);
+                                $('#teh_id').empty();
+                                $('#uc_id').empty();
+                            }
+                        });
+                    }); 
+                     }); 
 </script>
 

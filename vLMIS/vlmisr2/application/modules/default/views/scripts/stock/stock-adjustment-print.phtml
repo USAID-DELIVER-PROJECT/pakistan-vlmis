@@ -31,6 +31,14 @@
         }
     }
 </style>
+
+<table style="width:100%;">
+    <tr>
+        <td class="center" colspan="3"><b style="font-size: 16px;"><?php echo $this->print_title?>  </b></td>
+    </tr>
+</table>
+<br />
+
 <table id="mytable">
     <tr>
         <th rowspan="2" class="col-md-2"><?php echo $this->translate("Date") ?></th>
@@ -56,7 +64,7 @@
 
                 ?>
                 <tr >
-                    <td align="center"><?php echo date("m/d/y", strtotime($row['transactionDate'])); ?></td>
+                    <td align="center"><?php echo date("d/m/Y", strtotime($row['transactionDate'])); ?></td>
                     <td align="left"><?php echo $row['transactionNumber']; ?></td>
                     <td align="left"><?php echo $row['transactionReference']; ?></td>
                     <td align="left"><?php echo $row['itemName']; ?></td>
@@ -79,9 +87,9 @@
 <br />
 
 <div style="width:100%; clear:both; margin-top:30px;">
-    <table width="48%" cellpadding="5" style="float:left; border:2px solid #E5E5E5 !important; border-collapse:collapse;">
+    <table width="100%" cellpadding="5" style="float:left; border:2px solid #E5E5E5 !important; border-collapse:collapse;">
         <tr>
-            <td><b>Issued by</b> - Name: ____________________________</td>
+            <td><b>Adjustments by</b> - Name: ____________________________</td>
         </tr>
         <tr>
             <td>Designation: __________________________________</td>
@@ -90,7 +98,7 @@
             <td>Signature: ____________________________________</td>
         </tr>
     </table>
-    <table width="48%" cellpadding="5" style="float:right; border:2px solid #E5E5E5 !important; border-collapse:collapse;">
+<!--    <table width="48%" cellpadding="5" style="float:right; border:2px solid #E5E5E5 !important; border-collapse:collapse;">
         <tr>
             <td><b>Received by</b> - Name: _________________________</td>
         </tr>
@@ -100,7 +108,7 @@
         <tr>
             <td>Signature: ____________________________________</td>
         </tr>
-    </table>
+    </table>-->
 </div>
 
 <div class="col-md-12" class="widget">

@@ -470,11 +470,12 @@
                     ?>
                 </tbody>
             </table>
+            <br>
+            <div class="right">
+                <a onclick="window.open('<?php echo $this->baseUrl(); ?>/stock/priority-vaccines-distribution-detail-print', '_blank', 'scrollbars=1,width=860,height=595');" href="javascript:void(0);"><button class="btn btn-warning input-sm" type="button"><?php echo $this->translate("Print") ?></button></a> 
+            </div>
         <?php } ?>
     </div>
 </div>
 
-<br>
-<div class="right">
-    <a onclick="window.open('<?php echo $this->baseUrl(); ?>/stock/priority-vaccines-distribution-detail-print', '_blank', 'scrollbars=1,width=860,height=595');" href="javascript:void(0);"><button class="btn btn-warning input-sm" type="button"><?php echo $this->translate("Print") ?></button></a> 
-</div>
+

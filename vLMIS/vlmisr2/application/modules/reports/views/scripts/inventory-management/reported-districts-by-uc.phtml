@@ -4,8 +4,10 @@ $sel_year = $this->year_sel;
 $counter = 1;
 
 $sel_stk = $this->in_stk;
-$sel_prov = $this->prov_sel;
-$sel_dist = $this->in_dist;
+$sel_prov = $this->province;
+$sel_dist = $this->district;
+$sel_tehsil = $this->tehsil;
+$wh_type = $this->wh_type;
 $sel_indicator = $this->sel_indicator;
 $in_col = $this->in_col;
 $in_rg = $this->in_rg;
@@ -16,42 +18,73 @@ $end_date = $this->end_date;
 $period = $this->period;
 $str_indicator = $this->str_indicator;
 
+
+$wh_prov_sel = $this->wh_prov_sel;
+
 $data_arr = array();
 
 // Headers of the Grid
-$header = 'District Id,District,Total UCs';
-$header1 = '#rspan,#rspan,#rspan';
+if ($wh_type == 2) {
+    $header = 'District Id,District';
+} else {
+    $header = 'Tehsil Id,Tehsil/Town';
+}
+$header1 = '#rspan,#rspan';
 $cspan = '';
-$width = '50,*,60';
-$ro = 'ro,ro,ro';
+$width = '*,250';
+$ro = 'ro,ro';
 
 foreach ($period as $date) {
-    $cspan .= ',#cspan,#cspan';
-    $header .= ',<span>' . $date->format("M-Y") . '</span>,#cspan';
+     $date_in = $startDate = $endDate = $date->format("Y-m");
+    $cspan .= ',#cspan,#cspan,#cspan';
+    $header .= ',<span>' . $date->format("M-Y") . '</span>,#cspan,#cspan';
     $monthArr[] = $date->format("m-Y");
-    $width .= ',40,40';
-    $ro .= ',ro,ro';
-    $header1 .= ',<span>Reported UCs</span>,#cspan';
+    $width .= ',89,89,89';
+    $ro .= ',ro,ro,ro,ro';
+    $header1 .= ',<span>Total UCs</span>,<span>Reported UCs</span>,#cspan';
+    $query = $this->reports()->getReportedDistrictsByUcTotal($wh_type, $date_in, $sel_prov, $sel_dist);
 }
 
-$query = $this->reports()->getReportedDistrictsByUc($sel_prov);
+
 
 foreach ($query as $row) {
     $data_arr[$row['districtId']][] = $row['districtName'];
-    $data_arr[$row['districtId']][] = $row['totalWH'];
-    $count = 2;
+    //  $data_arr[$row['districtId']][] = $row['totalWH'];
+    $count = 1;
+    foreach ($period as $date) {
+        $data_arr[$row['districtId']][$count] = 0;
+        $count++;
+    }
+    foreach ($period as $date) {
+        $data_arr[$row['districtId']][$count] = 0;
+        $count++;
+    }
     foreach ($period as $date) {
         $data_arr[$row['districtId']][$count] = 0;
         $count++;
     }
 }
-$count = 2;
+//App_Controller_Functions::pr($monthArr);
+$count = 1;
+$total_uc = array();
+
 foreach ($period as $date) {
     $date_in = $startDate = $endDate = $date->format("Y-m");
-    $query2 = $this->reports()->getReportedDistrictsByUc1($sel_prov, $date_in);
-    foreach ($query2 as $row) {
+
+    $query_total = $this->reports()->getReportedDistrictsByUcTotal($wh_type, $date_in, $sel_prov, $sel_dist);
+    foreach ($query_total as $row) {
+        $data_arr[$row['districtId']][$count] = $row['totalWH'];
+    }
+
+    $count += 1;
+    foreach ($query_total as $row) {
         $data_arr[$row['districtId']][$count] = $row['reported'];
     }
+    $count += 1;
+    foreach ($query_total as $row) {
+        $data_arr[$row['districtId']][$count] = $row['reportingPercentage'];
+    }
+
     $count++;
 }
 
@@ -63,31 +96,52 @@ $xml_store .= "<rows>";
 
 $sum_arr = array();
 foreach ($data_arr as $dis_id => $sub_arr) {
-
+    $count_k +=2;
     $xml_store .= "<row>";
 
-    $param1 = base64_encode($sub_arr[0] . '|' . $s_date . '|' . $e_date . '|' . $dis_id . '|' . $sub_arr[1] . '|' . '1');
+    $param1 = base64_encode($wh_type . '|' . $sub_arr[0] . '|' . $s_date . '|' . $e_date . '|' . $dis_id . '|' . $sub_arr[1] . '|' . '1');
 
-    $xml_store .= "<cell>$dis_id</cell>";
-    $xml_store .= "<cell><![CDATA[<a href=javascript:showGraph('$param1')>$sub_arr[0]</a>]]>^_self</cell>";
-
+    //   $xml_store .= "<cell>$dis_id</cell>";
+    //   $xml_store .= "<cell><![CDATA[<a href=javascript:showGraph('$param1')>$sub_arr[0]</a>]]>^_self</cell>";
     //$xml_store .= "<cell>$sub_arr[0]</cell>";
     $xml_store .= "<cell style=\"text-align:right\">$sub_arr[1]</cell>";
     foreach ($sub_arr as $key => $value) {
+        //  App_Controller_Functions::pr($sub_arr);
         if (!isset($sum_arr[$key])) {
             $sum_arr[$key] = 0;
         }
         $sum_arr[$key] += $value;
 
-        if ($key > 1) {
 
-            $param = base64_encode($dis_id . '-' . $monthArr[$key - 2]);
-            $xml_store .= "<cell style=\"text-align:right\"><![CDATA[<a href=javascript:functionCall('$param')>$value</a>]]>^_self</cell>";
-            $xml_store .= "<cell style=\"text-align:right\">" . @round(($value / $sub_arr[1]) * 100) . " %</cell>";
+
+        if (!is_numeric($value)) {
+            $xml_store .= "<cell><![CDATA[<a href=javascript:showGraph('$param1')>$value</a>]]>^_self</cell>";
+
+            //  $xml_store .= "<cell style=\"text-align:left\"><![CDATA[<a href=javascript:functionCall('$param')>$value</a>]]>^_self</cell>";
+        } else {
+            if ($key == 1 || $key == 4 || $key == 7) {
+                $xml_store .= "<cell style=\"text-align:right\">$value </cell>";
+            } else if ($key == 3 || $key == 6 || $key == 9) {
+                $xml_store .= "<cell style=\"text-align:right\">$value %</cell>";
+            } else {
+                if ($key == 2) {
+                    $d_key = 0;
+                } else if ($key == 5) {
+                    $d_key = 1;
+                } else if ($key == 8) {
+                    $d_key = 2;
+                }
+                $param = base64_encode($wh_type . '-' . $dis_id . '-' . $monthArr[$d_key]);
+                $xml_store .= "<cell style=\"text-align:right\"><![CDATA[<a href=javascript:functionCall('$param')>$value</a>]]>^_self</cell>";
+            }
         }
+
+// $xml_store .= "<cell style=\"text-align:right\"><![CDATA[<a href=javascript:functionCall('$param')>$value</a>]]>^_self</cell>";
+        // $xml_store .= "<cell style=\"text-align:right\">" . @round(($value / $sub_arr[1]) * 100) . " %</cell>";
     }
     $xml_store .="</row>";
 }
+
 
 // To show Total
 array_shift($sum_arr);
@@ -99,9 +153,23 @@ foreach ($sum_arr as $key => $value) {
     if ($key == 0) {
         $total_wh = $value;
         $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . number_format($value) . "</cell>";
-    } else {
+    } else if ($key == 1) {
         $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">$value</cell>";
-        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . round(($value / $total_wh) * 100) . " %</cell>";
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . @round(($value / $total_wh) * 100) . " %</cell>";
+    }
+    if ($key == 3) {
+        $total_wh = $value;
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . number_format($value) . "</cell>";
+    } else if ($key == 4) {
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">$value</cell>";
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . @round(($value / $total_wh) * 100) . " %</cell>";
+    }
+    if ($key == 6) {
+        $total_wh = $value;
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . number_format($value) . "</cell>";
+    } else if ($key == 7) {
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">$value</cell>";
+        $xml_store .= "<cell style=\"text-align:right;font-weight:bold;\">" . @round(($value / $total_wh) * 100) . " %</cell>";
     }
 }
 
@@ -128,7 +196,7 @@ if (!empty($sel_month)) {
         <h3 class="page-title"><?php echo $report_title . ' ' . $report_month . ' ' . $sel_year; ?></h3>
         <div class="innerLR">
             <table width="99%">
-                 <tr>
+                <tr>
                     <td colspan="2">
                         <?php
                         echo App_Controller_Functions::getPageNarrative(Zend_Registry::get('resource'));
@@ -140,7 +208,7 @@ if (!empty($sel_month)) {
                         <?php echo $this->render('inventory-management/reports-header.phtml') ?>
                     </td>
                 </tr>
-               
+
                 <tr>
                     <td>&nbsp;</td>
                     <td style="text-align:right; padding-bottom:10px;">
@@ -195,4 +263,9 @@ if (!empty($sel_month)) {
     function showGraph(param) {
         window.open('<?php echo $this->baseUrl(); ?>/reports/graphs/reported-districts?param=' + param, '_blank', 'scrollbars=1,width=950,height=600');
     }
+
+    var whType = <?php echo $wh_type; ?>;
+    var province = <?php echo $sel_prov; ?>;
+    var district = <?php echo $sel_dist; ?>;
+    var tehsil = <?php echo $sel_tehsil; ?>;
 </script>

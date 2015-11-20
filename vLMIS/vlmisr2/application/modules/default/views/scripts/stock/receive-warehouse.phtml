@@ -4,7 +4,7 @@
         <h3 class="page-title">
             <?php echo $this->translate("Stock Receive from Warehouse"); ?>
         </h3>
-        <!-- <p class="red"><b>Important!</b> Please use Ctrl + R before using this form.</p> -->
+        <p class="red"><b>Important!</b> Please press Ctrl+R keys simultaneously at least one time before using this page.</p>
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet box green">
@@ -18,6 +18,12 @@
                         </div>
                     </div>
                     <div class="portlet-body">
+                        <?php if (isset($this->status) && $this->status == false) { ?>
+                            <div class="alert alert-danger">
+                                <button data-dismiss="alert" class="close" type="button"> × </button>
+                                <?php echo $this->msg; ?>
+                            </div>
+                        <?php } ?>
                         <div class="row">
                             <div class="col-md-12">
                                 <?php
@@ -61,27 +67,34 @@
                                                     <!-- Table heading -->
                                                     <thead>
                                                         <tr>
-                                                            <th>
+                                                            <th rowspan="2">
+                                                                <?php echo $this->translate("S.No"); ?>
+                                                            </th>
+                                                            <th rowspan="2">
                                                                 <?php echo $this->translate("Product"); ?>
                                                             </th>
-                                                            <th>
+                                                            <th rowspan="2">
                                                                 <?php echo $this->translate("Batch No"); ?>
                                                             </th>
-                                                            <th>
+                                                            <th rowspan="2">
                                                                 <?php echo $this->translate("Quantity"); ?>
                                                             </th>
-                                                            <th>
+                                                            <th rowspan="2">
                                                                 <?php echo $this->translate("VVM Stage"); ?>
                                                             </th>
-                                                            <th>
-                                                                <?php echo $this->translate("Adjusted Qty"); ?>
+                                                            <th rowspan="2">
+                                                                <?php echo $this->translate("Stored in"); ?>
                                                             </th>
-                                                            <th>
-                                                                <?php echo $this->translate("Adjustment"); ?>
+                                                            <th colspan="2" class="center" style="background-color: #F4F4F4; ">
+                                                                <?php echo $this->translate("Adjustments"); ?>
                                                             </th>
-                                                            <th style="width: 1%;" class="uniformjs">
+                                                            <th rowspan="2" style="width: 1%;" class="uniformjs">
                                                                 <input type="checkbox" />
                                                             </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="col-md-1" style="background-color: #F4F4F4; ">Adj. Qty</th>
+                                                            <th class="col-md-1" style="background-color: #F4F4F4; ">Reason</th>
                                                         </tr>
                                                     </thead>
                                                     <!-- // Table heading END -->
@@ -89,41 +102,85 @@
                                                     <tbody>
                                                         <!-- Table row -->
                                                         <?php
-                                                        $i = 1;                                                        
+                                                        $i = 1;
                                                         foreach ($this->result as $row):
                                                             $quantity = $row['quantity'];
 
-                                                            list($d1,$m1,$y1) = explode("/", $row['transactionDate']);                                                            
-                                                            
+                                                            list($d1, $m1, $y1) = explode("/", $row['transactionDate']);
+
                                                             $vvm_stage = $row['vvmStage'];
+                                                            $detail_id = $row['detailId'];
+                                                            $master_id = $row['masterId'];
                                                             ?> <tr>
+                                                                <td>
+                                                                    <?php echo $i; ?>
+                                                                </td>
                                                                 <td>
                                                                     <?php echo $row['itemName'] ?>
                                                                 </td>
                                                                 <td>
                                                                     <?php echo $row['number'] ?>
                                                                 </td>
-                                                                <td>
-                                                                    <?php echo $quantity ?>
+                                                                <td class="right">
+                                                                    <?php echo number_format($quantity); ?>
                                                                     <input type="hidden" id="<?php echo $i; ?>-qty" value="<?php echo abs($quantity); ?>" />
                                                                 </td>
-                                                                <td class="col-md-3">
-                                                                    <select id="vvmstage" name="vvmstage" class="form-control">
+                                                                <td class="col-md-1" style="text-align: center;">
+                                                                    <?php
+                                                                    if (empty($vvm_stage)) {
+                                                                        echo "NA";
+                                                                        ?>
+                                                                        <input name="vvmstage[<?php echo $i - 1; ?>]" type="hidden" value="0">
                                                                         <?php
-                                                                        if (empty($vvm_stage)) {
-                                                                            $vvm_stage = 1;
+                                                                    } else {
+                                                                        ?>
+                                                                        <select id="vvmstage" name="vvmstage[<?php echo $i - 1; ?>]" class="form-control">
+                                                                            <?php
+                                                                            // The commented code will be used if user wants to change vvm
+                                                                            // from numberical value to usable/unusable format.
+                                                                            // The change started with [* and ends with *] in comments
+                                                                            // Ajmal Hussain 06/10/2015
+                                                                            // [*
+                                                                            //if (empty($vvm_stage)) {
                                                                             ?>
-                                                                            <option value="">NA</option>
-                                                                        <?php } ?>
-                                                                        <?php for ($j = $vvm_stage; $j <= 4; $j++) { ?>
-                                                                            <option value="<?php echo $j; ?>"><?php echo $j; ?></option>
-                                                                        <?php } ?>
-                                                                    </select>
+                                                                            <!--<option value="0">NA</option> -->
+                                                                            <?php //} else { ?>
+                                                                            <!--<option value="1">Usable</option>
+                                                                            <option value="3">Unusable</option> -->
+                                                                            <?php
+                                                                            //} 
+                                                                            // *] 
+                                                                            ?>
+                                                                            <?php for ($j = $vvm_stage; $j <= 4; $j++) { ?>
+                                                                                <option value="<?php echo $j; ?>"><?php echo $j; ?></option>
+                                                                            <?php }
+                                                                            ?>
+                                                                        </select>
+                                                                    <?php } ?>
                                                                 </td>
-                                                                <td class="col-md-3">
+                                                                <td class="col-md-2">
+                                                                    <?php if ($row['itemCategory'] == 1) { ?>
+                                                                        <select name="locations[<?php echo $i - 1; ?>]" id="locations" class="form-control">
+                                                                            <?php foreach ($this->locations as $row) { ?>
+                                                                                <option value="<?php echo $row['placement_location_id']; ?>">
+                                                                                    <?php echo $row['asset_id']; ?>
+                                                                                </option>
+                                                                            <?php } ?>
+                                                                        </select>
+                                                                    <?php } else { ?>
+                                                                        <select name="locations[<?php echo $i - 1; ?>]" id="locations" class="form-control">
+                                                                            <?php foreach ($this->non_ccm_locations as $row) { ?>
+                                                                                <option value="<?php echo $row['placement_location_id']; ?>">
+                                                                                    <?php echo $row['asset_id']; ?>
+                                                                                </option>
+                                                                            <?php } ?>
+                                                                        </select>
+                                                                    <?php } ?>
+                                                                </td>
+                                                                <td class="col-md-2" style="background-color: #F4F4F4; ">
                                                                     <input type="text" name="missing[<?php echo $i - 1; ?>]" id="<?php echo $i; ?>-missing" value="" class="form-control" />
                                                                 </td>
-                                                                <td class="col-md-3">
+                                                                <td class="col-md-2" style="background-color: #F4F4F4; ">
                                                                     <select name="types[<?php echo $i - 1; ?>]" id="<?php echo $i; ?>-types" class="form-control">
                                                                         <?php
                                                                         if (!empty($this->trans_type)) {
@@ -135,7 +192,7 @@
                                                                     </select>
                                                                 </td>
                                                                 <td class="center uniformjs">
-                                                                    <input type="checkbox" name="stockid[<?php echo $i - 1; ?>]" value="<?php echo $row['detailId']; ?>" />
+                                                                    <input type="checkbox" name="stockid[<?php echo $i - 1; ?>]" value="<?php echo $detail_id; ?>" />
                                                                 </td>
                                                             </tr>
                                                             <?php
@@ -179,7 +236,7 @@
                                                                 <?php echo $this->translate("Received Date"); ?>
                                                             </label>
                                                             <div class="controls">
-                                                                <input name="rec_date" id="rec_date" value="<?php echo date("d/m/Y h:i A"); ?>" type="text" class="form-control" readonly="" />
+                                                                <input name="rec_date" id="rec_date" value="<?php echo date("d/m/Y H:i A", strtotime($this->result[0]['receiveDate'])); ?>" type="text" class="form-control" readonly="" />
                                                                 <input id="issue_year" value="<?php echo $y1; ?>" type="hidden" />
                                                                 <input id="issue_month" value="<?php echo $m1; ?>" type="hidden" />
                                                                 <input id="issue_day" value="<?php echo $d1; ?>" type="hidden" />
@@ -194,8 +251,14 @@
                                                             <button type="submit" id="save" name="save" class="btn btn-primary">
                                                                 <?php echo $this->translate("Save"); ?>
                                                             </button>
-                                                            <input class="form-control" type="hidden" name="stock_id" id="stock_id" value="<?php echo $row['pkId']; ?>"/>
+                                                            <input class="form-control" type="hidden" name="stock_id" id="stock_id" value="<?php echo $master_id; ?>"/>
                                                         </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="col-md-12 center">
+                                                        <h4 style="color: #0A770A;">If Online voucher is different from Printed voucher, Please request issuing authority for latest voucher printout.</h4>
                                                     </div>
                                                 </div>
                                             </div>

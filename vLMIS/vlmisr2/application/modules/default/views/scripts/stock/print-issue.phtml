@@ -1,3 +1,6 @@
+<?php
+ob_start();
+?>
 <style>
     #content_print {
         margin-left: 55px;
@@ -41,6 +44,9 @@ $purpose = $row['activity'];
 <div class="row">
     <div class="col-md-12">
         <table style="width:100%;">
+            <tr>
+                <td class="center" colspan="4"><b style="font-size: 16px;"><?php echo $this->print_title; ?></b></td>
+            </tr>
             <tr>
                 <td colspan="4" class="right"><b style="font-size: 16px;">Dispatch Voucher # <span style="font-family: Verdana; "><?php echo $transaction_number; ?></span> </b></td>
             </tr>
@@ -144,7 +150,7 @@ $purpose = $row['activity'];
             <!-- // Table body END -->
             <!-- <tfoot>
                 <tr>
-                    <td colspan="4" class="right"><b>Total Price: </b> <b><?php //echo round(number_format($total),2);     ?> (Rs.)</b></td>
+                    <td colspan="4" class="right"><b>Total Price: </b> <b><?php //echo round(number_format($total),2);      ?> (Rs.)</b></td>
                 </tr>
             </tfoot> -->
         </table> 
@@ -215,11 +221,19 @@ $purpose = $row['activity'];
     <table width="100%">
         <tr>
             <td width="33%"><b>Prepared By:</b> <?php echo $this->getPreparedBy($this->result[0]['pkId']); ?></td>
-            <td width="33%"><b>Print By:</b> <?php echo $this->username; ?></td>            
+            <td width="33%"><b>Printed By:</b> <?php echo $this->username; ?></td>            
             <td width="33%"><b>Print Serial Number:</b> <?php echo $this->print_serial; ?></td>
         </tr>
     </table>
 </div>
+<div class="row" style="clear: both;">
+    <div class="col-md-12 left">
+        <b>Print Date:</b> <?php echo date("d/m/Y"); ?>
+    </div>
+</div>
+<?php
+file_put_contents(PUBLIC_DIR."\prints\print-issue\\".$this->print_serial.".html", ob_get_contents());
+?>
 <div class="col-md-12" class="widget">
     <div class="widget-body right">
         <button id="print" name="print" value="1" type="button" class="btn btn-primary" ><?php echo $this->translate("Print"); ?></button>

@@ -1,4 +1,4 @@
-$(function() {
+$(function () {
 
     $("#receive-print").trigger("click");
 
@@ -39,7 +39,7 @@ $(function() {
 
     $('#expiry_date, #production_date').mask('00/00/0000');
 
-    $("#item_id").change(function() {
+    $("#item_id").change(function () {
         var quantity = $('#quantity').val();
         var item_id = $('#item_id').val();
         var activity_id = $('#activity_id').val();
@@ -51,17 +51,17 @@ $(function() {
                 item_id: item_id
             },
             dataType: 'html',
-            success: function(data) {
-                if (data == 2) {
+            success: function (data) {
+                if (data == 1) {
                     $("#expiry_date").rules("add", "required");
-                    $("#cold_chain").hide();
-                    $("#vvmtype_div").hide();
-                    $("#vvmstage_div").hide();
-                } else {
-                    $("#expiry_date").rules("remove", "required");
                     $("#cold_chain").show();
                     $("#vvmtype_div").show();
                     $("#vvmstage_div").show();
+                } else {
+                    $("#expiry_date").rules("remove", "required");
+                    $("#cold_chain").hide();
+                    $("#vvmtype_div").hide();
+                    $("#vvmstage_div").hide();
                 }
             }
         });
@@ -73,7 +73,7 @@ $(function() {
                 item_id: item_id
             },
             dataType: 'html',
-            success: function(data) {
+            success: function (data) {
                 $('#product-unit').html(data);
 //                if (data == '2') {
 //                    $("#expiry_date").rules("remove", "required");
@@ -95,7 +95,7 @@ $(function() {
                     item_id: item_id
                 },
                 dataType: 'html',
-                success: function(data) {
+                success: function (data) {
                     $('#campaign_id').html(data);
                     $('#campaign_id').css('backgroundColor', 'Green');
                     $.cookie('blink_div_background_color', "campaign_id");
@@ -103,6 +103,7 @@ $(function() {
                 }
             });
         }
+
         $.ajax({
             type: "POST",
             url: appName + "/stock/ajax-get-manufacturer-by-product",
@@ -110,8 +111,18 @@ $(function() {
                 item_id: item_id
             },
             dataType: 'html',
-            success: function(data) {
+            success: function (data) {
                 $('#manufacturer_id').html(data);
+            }
+        });
+
+        $.ajax({
+            type: "POST",
+            url: appName + "/stock-batch/ajax-product-vvm-stages",
+            data: {product: $(this).val()},
+            dataType: 'html',
+            success: function (data) {
+                $('#vvm_stage').html(data);
             }
         });
     });
@@ -121,10 +132,10 @@ $(function() {
         batch: appName + "/stock/ajax-inline-edit?type=batch&adjustment_type=1&id="
     }, {
         animate: false,
-        filterElementValue: function($o) {
+        filterElementValue: function ($o) {
             return $o.html().trim();
         },
-        afterSave: function() {
+        afterSave: function () {
         }
 
     });
@@ -136,7 +147,7 @@ $(function() {
         centsLimit: 2
     });
 
-    $('[data-toggle="notyfy"]').click(function() {
+    $('[data-toggle="notyfy"]').click(function () {
         $.notyfy.closeAll();
         var self = $(this);
 
@@ -149,7 +160,7 @@ $(function() {
                 {
                     addClass: 'btn btn-success btn-small btn-icon glyphicons ok_2',
                     text: '<i></i> Ok',
-                    onClick: function($notyfy) {
+                    onClick: function ($notyfy) {
                         var id = self.attr("id");
                         $notyfy.close();
                         window.location.href = appName + '/stock/delete?id=' + id;
@@ -158,7 +169,7 @@ $(function() {
                 {
                     addClass: 'btn btn-danger btn-small btn-icon glyphicons remove_2',
                     text: '<i></i> Cancel',
-                    onClick: function($notyfy) {
+                    onClick: function ($notyfy) {
                         $notyfy.close();
                         /*  notyfy({
                          force: true,
@@ -190,7 +201,7 @@ $('#quantity').priceFormat({
     limit: 10
 });
 
-$("#print_vaccine_placement").click(function(e) {
+$("#print_vaccine_placement").click(function (e) {
     e.preventDefault();
     if (confirm('Are you sure you want to save the form?')) {
         $('#receive_stock').submit();
@@ -198,7 +209,7 @@ $("#print_vaccine_placement").click(function(e) {
 });
 
 
-$('#quantity').change(function(e) {
+$('#quantity').change(function (e) {
     var quantity = $('#quantity').val();
     var item_id = $('#item_id').val();
 
@@ -210,7 +221,7 @@ $('#quantity').change(function(e) {
             type: "POST",
             url: appName + "/stock/ajax-product-cat-and-doses",
             data: 'quantity=' + quantity + '&itemId=' + item_id,
-            success: function(doses) {
+            success: function (doses) {
                 if (doses != '') {
                     $('#product-doses').css('display', 'table-row');
                     $('#product-doses').html(doses);
@@ -222,7 +233,7 @@ $('#quantity').change(function(e) {
 
 });
 
-$('#item_id').change(function(e) {
+$('#item_id').change(function (e) {
     var quantity = $('#quantity').val();
     var item_id = $('#item_id').val();
 
@@ -234,7 +245,7 @@ $('#item_id').change(function(e) {
             type: "POST",
             url: appName + "/stock/ajax-product-cat-and-doses",
             data: 'quantity=' + quantity + '&itemId=' + item_id,
-            success: function(doses) {
+            success: function (doses) {
                 if (doses != '') {
                     $('#product-doses').css('display', 'table-row');
                     $('#product-doses').html(doses);
@@ -259,13 +270,13 @@ $('#item_id').change(function(e) {
                 item_id: item_id
             },
             dataType: 'html',
-            success: function(data) {
+            success: function (data) {
                 $('#campaign_id').html(data);
             }
         });
     }
 });
-$("#transaction_reference").change(function() {
+$("#transaction_reference").change(function () {
     $.ajax({
         type: "POST",
         url: appName + "/stock/ajax-check-reference",
@@ -273,7 +284,7 @@ $("#transaction_reference").change(function() {
             ref: $(this).val()
         },
         dataType: 'html',
-        success: function(data) {
+        success: function (data) {
             if (data == 1) {
                 $("#reference_tooltip").show();
                 $(".tooltips").trigger("mouseover");
@@ -289,11 +300,15 @@ function hideTooltip() {
     $(".tooltips").trigger("mouseout");
 }
 
-$.validator.addMethod("custom_alphanumeric", function(value, element) {
+$.validator.addMethod("custom_alphanumeric", function (value, element) {
     return this.optional(element) || value === "NA" || value.match(/^[a-zA-Z0-9-_/]+$/);
 }, "Letters, numbers, hyphen and underscores only please");
 
-$('#number').keyup(function() {
+$.validator.addMethod("positive_integer", function (value, element) {
+    return this.optional(element) || value === "NA" || value.match(/^[1-9]\d*$/);
+}, "Positive numbers only please");
+
+$('#number').keyup(function () {
     $(this).val($(this).val().toUpperCase());
 });
 
@@ -363,7 +378,7 @@ $("#new_receive").validate({
         },
         'quantity': {
             required: "Please enter quantity",
-            min: "Quantity should greater then 0"
+            min: "Quantity should be greater than 0"
         },
         'expiry_date': {
             required: "Expiry date is required"
@@ -378,18 +393,18 @@ $("#new_receive").validate({
             required: "Please select manufacturer"
         },
         cold_chain: {
-            required: "Please select Cold Chain"
+            required: "Please select cold chain"
         },
         vvm_stage: {
-            required: "Please select VVM Stage"
+            required: "Please select VVM stage"
         },
         vvm_type_id: {
-            required: "Please select VVM Type"
+            required: "Please select VVM type"
         }
     }
 });
 
-$('#activity_id').change(function(e) {
+$('#activity_id').change(function (e) {
     var activity_id = $('#activity_id').val();
     if (activity_id == 2) {
         $('#div_campaign_id').show('slow');
@@ -400,7 +415,7 @@ $('#activity_id').change(function(e) {
                 item_id: $('#item_id').val()
             },
             dataType: 'html',
-            success: function(data) {
+            success: function (data) {
                 $('#campaign_id').html(data);
                 $('#campaign_id').css('backgroundColor', 'Green');
                 $.cookie('blink_div_background_color', "campaign_id");
@@ -418,7 +433,7 @@ $('#activity_id').change(function(e) {
             activity_id: activity_id, type: 1
         },
         dataType: 'html',
-        success: function(data) {
+        success: function (data) {
             $('#item_id').html(data);
             $('#item_id').css('backgroundColor', 'Green');
             $.cookie('blink_div_background_color', "item_id");
@@ -428,7 +443,7 @@ $('#activity_id').change(function(e) {
 
 });
 
-$('#vvm_stage').change(function(e) {
+$('#vvm_stage').change(function (e) {
     if ($(this).val() == 3) {
         alert("VVM Stage 3 Not Usable");
     }
@@ -442,11 +457,11 @@ $('#vvm_stage').change(function(e) {
 $("#new-manufacturer-popup").validate({
     rules: {
         manufacturer_name: {
-            required: true,
-            max: 50
+            required: true
         },
         quantity_per_pack: {
-            required: true
+            required: true,
+            positive_integer: true
         }
     },
     messages: {
@@ -454,12 +469,13 @@ $("#new-manufacturer-popup").validate({
             required: "Please enter manufacturer name"
         },
         quantity_per_pack: {
-            required: "Please enter Quantity Per Pack"
+            required: "Please enter Quantity Per Pack",
+            positive_integer: "Positive numbers only please"
         }
     }
 });
 
-$('#save').click(function(e) {
+$('#save').click(function (e) {
     e.preventDefault();
     var manufacture_name = $("#manufacturer_name").val();
     var quantity_per_pack = $("#quantity_per_pack").val();
@@ -469,7 +485,7 @@ $('#save').click(function(e) {
             url: appName + "/stock/add-new-manufacturer",
             data: {name: manufacture_name, quantity: quantity_per_pack, item_id: $("#item_id").val()},
             dataType: 'html',
-            success: function(data) {
+            success: function (data) {
                 $(".close").trigger("click");
                 $('#manufacturer_id').html(data);
             }
@@ -477,7 +493,7 @@ $('#save').click(function(e) {
     }
 });
 
-$("span[id$='-stockedit']").click(function() {
+$("span[id$='-stockedit']").click(function () {
     var value = $(this).attr("id");
     var id = value.replace("-stockedit", "");
     document.location = appName + "/stock/receive-supplier/id/" + id + "/t/r";

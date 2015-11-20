@@ -3,6 +3,7 @@ $(function() {
     if (whType) {
         officeType(whType);
         showProv(whType);
+        showDivision(province);
         showDistricts(province);
         showTehsils(district);
     }
@@ -14,12 +15,20 @@ $(function() {
     });
     $('#province').change(function() {
         var provId = $(this).val();
+        var whType = $('#wh_type').val();
+
+        if (whType == 3)
+        {
+            showDivision(provId);
+        }
         if (provId != 'all')
         {
             showDistricts(provId);
         }
         else
         {
+            $('#division_combo').fadeOut();
+            $('#division').empty();
             $('#district_combo').fadeOut();
             $('#district').empty();
             $('#tehsil_combo').fadeOut();
@@ -38,8 +47,11 @@ function officeType(whType)
 {
     if (whType == 1)
     {
+
         $('#province_combo').fadeOut();
         $('#province').empty();
+        $('#division_combo').fadeOut();
+        $('#division').empty();
         $('#district_combo').fadeOut();
         $('#district').empty();
         $('#tehsil_combo').fadeOut();
@@ -49,6 +61,16 @@ function officeType(whType)
     {
         if (whType == 2)
         {
+            $('#division_combo').fadeOut();
+            $('#division').empty();
+            $('#district_combo').fadeOut();
+            $('#district').empty();
+            $('#tehsil_combo').fadeOut();
+            $('#tehsil').empty();
+        }
+        else if (whType == 3)
+        { $('#division_combo').fadeOut();
+            $('#division').empty();
             $('#district_combo').fadeOut();
             $('#district').empty();
             $('#tehsil_combo').fadeOut();
@@ -58,20 +80,27 @@ function officeType(whType)
         {
             $('#district_combo').fadeOut();
             $('#district').empty();
+             $('#division_combo').fadeOut();
+            $('#division').empty();
             $('#tehsil_combo').fadeOut();
             $('#tehsil').empty();
         }
         else if (whType == 5)
         {
             $('#province_combo').fadeIn();
+             $('#division_combo').fadeOut();
+            $('#division').empty();
             $('#district_combo').fadeOut();
+            $('#tehsil_combo').fadeIn();
             $('#district').empty();
+
         }
         showProv(whType);
     }
 }
 function showProv(whType)
 {
+
     if (whType != 1)
     {
         $('#province_combo').fadeIn();
@@ -85,6 +114,9 @@ function showProv(whType)
             {
                 $('#province').html(data);
                 var selProv = $('#province').val();
+                if (whType == 3) {
+                    showDivision(selProv);
+                }
                 if (selProv != 'all')
                 {
                     showDistricts(selProv);
@@ -93,6 +125,28 @@ function showProv(whType)
         });
     }
 }
+function showDivision(provId)
+{
+    var whType = $('#wh_type').val();
+    if (whType == 3)
+    {
+        $('#division_combo').fadeIn();
+        $('#division').html('<option value="">Loading...</option>');
+        $.ajax({
+            type: "POST",
+            url: appName + "/reports/inventory-management/ajax-combos",
+            data: {SkOfcLvl: whType, provId: provId, divSelId: division},
+            dataType: 'html',
+            success: function(data)
+            {
+                $('#division').html(data);
+
+
+            }
+        });
+    }
+}
+
 function showDistricts(provId)
 {
     var whType = $('#wh_type').val();
@@ -108,6 +162,8 @@ function showDistricts(provId)
             success: function(data)
             {
                 $('#district').html(data);
+                var selDistrict = $('#district').val();
+                showTehsils(selDistrict);
             }
         });
     }

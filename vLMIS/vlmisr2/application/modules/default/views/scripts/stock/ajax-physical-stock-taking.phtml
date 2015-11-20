@@ -40,7 +40,7 @@
                                 <td align="right"><?php echo $current_qty; ?></td>
                                 <td align="right"><?php echo $physical_quantity; ?> | <?php echo $pq ?></td>  
                                 <td align="right"><?php echo $physical_quantity - $current_qty; ?></td>
-                                <td align="center"><?php echo $row->getVvmStage(); ?></td>                                
+                                <td align="left"><?php echo $row->getVvmStage()->getVvmStageValue(); ?></td>                                
                             </tr>
                             <?php
                             $count++;

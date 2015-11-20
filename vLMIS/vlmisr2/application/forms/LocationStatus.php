@@ -21,7 +21,7 @@ class Form_LocationStatus extends Zend_Form {
         $list->form_values = array('listMaster' => Model_ListMaster::AREA);
         $result1= $list->getListDetail();
         //print_r($result1);
-        $this->_list["area"][''] = "Select Area";
+        $this->_list["area"][''] = "Select";
         if ($result1) {
             foreach ($result1 as $area) {
                 $this->_list["area"][$area->getPkId()] = $area->getListValue();
@@ -30,9 +30,9 @@ class Form_LocationStatus extends Zend_Form {
         
         //Generate Level Combo
         $list = new Model_ListDetail();
-        $list->form_values = array('listMaster' => Model_ListMaster::LEVEL);
+        $list->form_values = array('listMaster' => Model_ListMaster::ROW);
         $result2= $list->getListDetail();
-        $this->_list["level"][''] = "Select Level";
+        $this->_list["level"][''] = "Select";
         if ($result2) {
             foreach ($result2 as $row) {
                 $this->_list["level"][$row->getPkId()] = $row->getListValue();

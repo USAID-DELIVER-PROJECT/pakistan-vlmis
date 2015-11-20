@@ -158,20 +158,21 @@ class Model_Users extends Model_Base {
             return false;
         }
     }
-    
+
     public function updateUserToken($hash, $wh_id) {
         $user_id = $this->getUserIdByWarehouseId($wh_id);
         $user = Zend_Registry::get('doctrine')->getRepository('Users')->find($user_id);
         $user->setAuth($hash);
-        
+
         $this->_em->persist($user);
         $this->_em->flush();
-        
+
         return array(array("message" => "Hash has been updated successfully", "login_id" => $user->getLoginId(), "user_id" => $user->getPkId()));
     }
-    
+
     public function getRIUsers() {
         $form_values = $this->form_values;
+        
         $qry = $this->_em->createQueryBuilder()
                 ->select("wu")
                 ->from("WarehouseUsers", "wu")
@@ -184,6 +185,7 @@ class Model_Users extends Model_Base {
             $qry->andWhere("w.location = " . $form_values['loc_id']);
         }
         $qry->andWhere("r.pkId = 8");
+        //echo $qry->getQuery()->getSql();
         return $qry->getQuery()->getResult();
     }
 
@@ -428,4 +430,318 @@ class Model_Users extends Model_Base {
         return $rs;
     }
 
+    public function saveUserFeedback() {
+        if (!empty($this->form_values['name'])) {
+            $name = $this->form_values['name'];
+        }
+        if (!empty($this->form_values['e_mail'])) {
+            $e_mail = $this->form_values['e_mail'];
+        }
+        if (!empty($this->form_values['phone'])) {
+            $phone = $this->form_values['phone'];
+        }
+        if (!empty($this->form_values['department'])) {
+            $department = $this->form_values['department'];
+        }
+        if (!empty($this->form_values['message'])) {
+            $message = $this->form_values['message'];
+        }
+
+        $str_qry = "INSERT INTO user_feedback
+                        (user_feedback.`name`,
+                        user_feedback.email,
+                        user_feedback.phone,
+                        user_feedback.department,
+                        user_feedback.message,
+                        user_feedback.date)
+                    VALUES ( '$name', '$e_mail', '$phone', '$department', '$message', NOW()
+                            )";
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $row = $this->_em->getConnection()->prepare($str_qry);
+        $row->execute();
+        return true;
+    }
+
+    public function getUserFeedback() {
+
+        $str_qry = "SELECT
+                        user_feedback.pk_id,
+                        user_feedback.`name`,
+                        user_feedback.email,
+                        user_feedback.phone,
+                        user_feedback.department,
+                        user_feedback.message,
+                        user_feedback.date
+                    FROM
+                        user_feedback";
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $row = $this->_em->getConnection()->prepare($str_qry);
+        $row->execute();
+        return $row->fetchAll();
+    }
+
+    public function registerUser() {
+
+        if (!empty($this->form_values['e_mail'])) {
+            $e_mail = $this->form_values['e_mail'];
+        }
+        if (!empty($this->form_values['enc_pswd'])) {
+            $enc_pswd = $this->form_values['enc_pswd'];
+        }
+        if (!empty($this->form_values['role_id'])) {
+            $role_id = $this->form_values['role_id'];
+        }
+        if (!empty($this->form_values['organization'])) {
+            $organization = $this->form_values['organization'];
+        }
+        if (!empty($this->form_values['country'])) {
+            $country = $this->form_values['country'];
+        }
+        if (!empty($this->form_values['address'])) {
+            $address = $this->form_values['address'];
+        }
+
+        $str_qry = "INSERT INTO users
+                        (users.`login_id`,
+                        users.password,
+                        users.email,
+                        users.organization,
+                        users.country,
+                        users.address,
+                        users.role_id,
+                        users.status,
+                        users.user_name)
+                    VALUES ( '$e_mail', '$enc_pswd', '$e_mail', '$organization', '$country', '$address', '$role_id', '0', '$e_mail'
+                            )";
+
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($str_qry);
+        $row->execute();
+        return true;
+    }
+
+    public function isEmailTaken() {
+
+        if (!empty($this->form_values['e_mail'])) {
+            $e_mail = $this->form_values['e_mail'];
+        }
+
+        $str_qry = "SELECT
+                        users.login_id
+                    FROM
+                        users
+                    WHERE
+                        users.login_id = '$e_mail'";
+
+
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($str_qry);
+
+        $row->execute();
+
+        return $row->fetchAll();
+    }
+
+    public function activateUserAccount() {
+
+        if (!empty($this->form_values['id'])) {
+            $id = $this->form_values['id'];
+        }
+
+        $str_qry = "UPDATE users
+                        SET STATUS = '1'
+                    WHERE
+                        pk_id = $id";
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($str_qry);
+
+        $row->execute();
+
+        return true;
+    }
+
+    public function getUserId() {
+
+        if (!empty($this->form_values['e_mail'])) {
+            $e_mail = $this->form_values['e_mail'];
+        }
+        if (!empty($this->form_values['enc_pswd'])) {
+            $enc_pswd = $this->form_values['enc_pswd'];
+        }
+
+        $str_qry = "SELECT
+                                users.pk_id
+                            FROM
+                                users
+                            WHERE
+
+                                users.login_id = '$e_mail' AND
+                                users.`password` = '$enc_pswd'";
+
+
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($str_qry);
+
+        $row->execute();
+
+        return $row->fetchAll();
+    }
+
+    public function getDocUserPassword() {
+
+        if (!empty($this->form_values['e_mail'])) {
+            $e_mail = $this->form_values['e_mail'];
+        }
+
+        $str_qry = "SELECT
+                        
+                        users.`password`
+                    FROM
+                        users
+                    WHERE
+                        users.login_id = '$e_mail' AND
+                        users.role_id = 32";
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($str_qry);
+
+        $row->execute();
+
+        return $row->fetchAll();
+    }
+
+    public function getDocId() {
+
+        if (!empty($this->form_values['url'])) {
+            $url = $this->form_values['url'];
+        }
+
+        $str_qry = "SELECT
+                        documents.pk_id
+                    FROM
+                        documents
+                    WHERE
+                        documents.doc_path = '$url'";
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($str_qry);
+
+        $row->execute();
+
+        return $row->fetchAll();
+    }
+
+    public function docUserLog() {
+
+        if (!empty($this->form_values['uid'])) {
+            $u_id = $this->form_values['uid'];
+        }
+        if (!empty($this->form_values['docid'])) {
+            $doc_id = $this->form_values['docid'];
+        }
+        if (!empty($this->form_values['ip'])) {
+            $ip = $this->form_values['ip'];
+        }
+
+
+        $str_qry = "INSERT INTO user_documents 
+                      (
+                        user_documents.user_id,
+                        user_documents.doc_id,
+                        user_documents.created_date,
+                        user_documents.system_ip
+                       )
+                    VALUES
+                       (
+                        '$u_id',
+                        '$doc_id',
+                        NOW(),
+                        '$ip'
+                       )";
+
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($str_qry);
+        $row->execute();
+        return true;
+    }
+
+    public function getDocUserLog() {
+        
+        $str_qry = "SELECT
+                        user_documents.user_id,
+                        user_documents.created_date AS download_date,
+                        user_documents.system_ip,
+                        users.login_id,
+                        Count(documents.pk_id) AS total_download,
+                        document_categories.category_title,
+                        documents.doc_title,
+                        documents.doc_path
+                    FROM
+                        user_documents
+                        INNER JOIN users ON users.pk_id = user_documents.user_id
+                        INNER JOIN documents ON user_documents.doc_id = documents.pk_id
+                        AND user_documents.doc_id = documents.pk_id
+                        INNER JOIN document_categories ON documents.doc_category_id = document_categories.pk_id
+                    GROUP BY
+                        user_documents.user_id,
+                        documents.pk_id";
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($str_qry);
+
+        $row->execute();
+
+        return $row->fetchAll();
+    }
+
+    public function getDocMainCategories() {
+        
+        $str_qry = "SELECT
+                        document_categories.pk_id,
+                        document_categories.category_title
+                    FROM
+                        document_categories
+                    WHERE
+                        document_categories.parent_id = 0";
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($str_qry);
+
+        $row->execute();
+
+        return $row->fetchAll();
+    }
+    
+    public function getUserLoginLog() {
+        
+        $str_qry = "SELECT
+                        users.user_name,
+                        users.login_id,
+                        user_login_log.ip_address,
+                        DATE_FORMAT(
+                                Max(user_login_log.login_time),
+                                '%d/%m/%Y %h:%i:%s %p'
+                        ) AS last_loggedin_at
+                    FROM
+                        user_login_log
+                        INNER JOIN users ON user_login_log.user_id = users.pk_id
+                    GROUP BY
+                        user_login_log.user_id";
+
+        $this->_em = Zend_Registry::get('doctrine');
+        $row = $this->_em->getConnection()->prepare($str_qry);
+
+        $row->execute();
+
+        return $row->fetchAll();
+    }
+    
+         
 }

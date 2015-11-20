@@ -16,9 +16,11 @@ $("#to_date").datepicker({
 
 var initTable2 = function () {
     var oTable = $('#stkledger').dataTable({
+        "bPaginate": false,
+        "bInfo": false,
         "aoColumnDefs": [
             {"sType": 'date-uk', "aTargets": [1]},
-            {"bSortable": false, "aTargets": [0,1,2,3,4,5,6,7,8,9,10]}
+            {"bSortable": false, "aTargets": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
             /*{
              "aTargets": [-1],
              "bVisible": false
@@ -30,7 +32,9 @@ var initTable2 = function () {
             [5, 15, 20, "All"] // change per page values here
         ],
         "sDom": "<'row'<'col-md-12 col-sm-12 right'T>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
-        //"sDom ": 'T<"clear ">lfrtip',
+        //"sDom": "<'row'<'col-md-4 col-sm-12'l><'col-md-4 col-sm-12'T><'col-md-4 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+//"sDom ": 'T<"clear ">lfrtip',
         // set the initial value
         "bDestroy": true,
         "iDisplayLength": 1000,
@@ -130,7 +134,7 @@ $('#submit').click(function (e) {
                     afterSave: function () {
                     }
                 });
-                
+
                 initTable2();
 
             }

@@ -88,6 +88,8 @@ $("#print").click(function() {
         else{title = split[0]+"("+month_year+")";}
         JSONToCSVConvertor(dataDownload, title, true);
     });
+    
+    $("#excelSheet").click(function() {JSONToCSVConvertor(dataDownload, 'Demographic Data', true);});
 
     function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
         var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;

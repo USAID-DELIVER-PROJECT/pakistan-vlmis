@@ -45,6 +45,11 @@ class Warehouses
     private $status;
 
     /**
+     * @var boolean $isPlacementEnable
+     */
+    private $isPlacementEnable;
+
+    /**
      * @var WarehouseTypes
      */
     private $warehouseType;
@@ -203,6 +208,26 @@ class Warehouses
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Set isPlacementEnable
+     *
+     * @param boolean $isPlacementEnable
+     */
+    public function setIsPlacementEnable($isPlacementEnable)
+    {
+        $this->isPlacementEnable = $isPlacementEnable;
+    }
+
+    /**
+     * Get isPlacementEnable
+     *
+     * @return boolean 
+     */
+    public function getIsPlacementEnable()
+    {
+        return $this->isPlacementEnable;
     }
 
     /**

@@ -24,18 +24,8 @@ class Form_Adjustment extends Zend_Form {
         'adjustment_type' => array(),
         'product' => array(),
         'batch_no' => array(),
-        'vvm_stage' => array(
-            "" => "NA",
-            "1" => "Stage 1",
-            "2" => "Stage 2",
-            "3" => "Stage 3",
-            "4" => "Stage 4"),
-        'old_vvm' => array(
-            "" => "NA",
-            "1" => "Stage 1",
-            "2" => "Stage 2",
-            "3" => "Stage 3",
-            "4" => "Stage 4"),
+        'vvm_stage' => array(),
+        'old_vvm' => array(),
         'location_id' => array()
     );
 
@@ -57,6 +47,9 @@ class Form_Adjustment extends Zend_Form {
                 $this->_list["product"][$whs['pkId']] = $whs['itemName'];
             }
         }
+        
+        $this->_list["vvm_stage"][""] = "NA";
+        $this->_list["old_vvm"][""] = "NA";
 
         foreach ($this->_hidden as $col => $name) {
             switch ($col) {
